@@ -4,14 +4,14 @@
   "description": "",
   "main": "edit.coffee",
   "dependencies": {
-    "feed": "~0.2.6",
-    "marked": "~0.3.2",
-    "react": "~0.10.0",
     "envify": "~1.2.1",
-    "slug": "~0.4.2",
-    "superagent": "~0.17.0",
+    "feed": "~0.2.6",
     "front-matter": "~0.2.0",
     "handlebars": "~2.0.0-alpha.2",
+    "marked": "~0.3.2",
+    "react": "~0.10.0",
+    "slug": "~0.4.2",
+    "superagent": "~0.17.0",
     "taffydb": "~2.7.2"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "coffee-script": "~1.7.1"
   },
   "scripts": {
-    "build": "./node_modules/.bin/browserify -t coffeeify edit.coffee > edit.js"
+    "build": "./node_modules/.bin/browserify -t coffeeify main.coffee > main.js"
   },
   "author": "",
   "license": "ISC"
