@@ -1,0 +1,27 @@
+<table>
+  <thead>
+    <tr>
+      {{#each page.data.headers}}
+        <th>{{ . }}</th>
+      {{/each}}
+    </tr>
+  </thead>
+  <tbody>
+    {{#each page.data.row}}
+      <tr>
+        {{#each column}}
+          <td>{{ . }}</td>
+        {{/each}}
+      </tr>
+    {{/each}}
+  </tbody>
+  <tfoot>
+    {{#if page.data.footer}}
+      <tr>
+        {{#each column}}
+          <th>{{ . }}</th>
+        {{/each}}
+      </tr>
+    {{/if}}
+  </tfoot>
+</table>
