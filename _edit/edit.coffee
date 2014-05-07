@@ -1,22 +1,13 @@
 React = require 'react'
 Feed = require 'feed'
-request = require 'superagent'
 Handlebars = require 'handlebars'
-TAFFY = require 'taffydb'
+kinds = require './kinds.coffee'
+request = require 'superagent'
 
 {div, ul, li, a, h1, h2, textarea} = React.DOM
 
-yaml = (text) ->
-  parsed = require('front-matter').fm(text)
-  parsed.attributes.__content = parsed.body
-  return parsed.attributes
-slug = require 'slug'
-marked = require 'marked'
-marked.setOptions
-  gfm: true
-  tables: true
-  breaks: true
-  smartypants: true
+for name, kind of kinds
+  Handlebars.registerPartial name, kind.template
 
 # github client
 gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href)
@@ -44,8 +35,6 @@ publish = (documents) ->
   # get the templates
   curl "text!#{site.baseUrl}/_templates/base.html", (base) ->
     request.get
-
-    Handlebars.registerPartial ''
 
     # feed
     #feed = new Feed
