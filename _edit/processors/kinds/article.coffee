@@ -10,6 +10,6 @@ yaml = (text) ->
   parsed.attributes.__content = parsed.body
   return parsed.attributes
 
-modules.exports = (doc) ->
+module.exports = (doc) ->
   doc.html = marked doc.text
   return doc.html

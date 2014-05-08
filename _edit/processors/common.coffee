@@ -5,12 +5,6 @@ yaml = (text) ->
   parsed.attributes.__content = parsed.body
   return parsed.attributes
 
-id = ->
-  "xxxxxxxx".replace /[xy]/g, (c) ->
-    r = Math.random() * 16 | 0
-    v = (if c is "x" then r else (r & 0x3 | 0x8))
-    v.toString 16
-
 process = (doc, children) ->
   # parse extra fields and metadata
   extra = yaml doc.text
@@ -18,7 +12,8 @@ process = (doc, children) ->
     doc[field] = value
 
   # make a slug
-  doc.slug = doc.slug or if doc.title then slug doc.title else id()
+  if not doc.slug or doc.newSlug == true
+    doc.slug = doc.slug or if doc.title then slug doc.title else doc._id
 
   # process the children
   if children and not doc.items

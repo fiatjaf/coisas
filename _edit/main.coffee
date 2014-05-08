@@ -1,13 +1,16 @@
 React = require 'react'
 Feed = require 'feed'
 Handlebars = require 'handlebars'
+Taffy = require 'taffydb'
+curl = require 'curl-amd'
+GitHub = require './github.coffee'
 kinds = require './kinds.coffee'
-req = require 'superagent'
 
-{div, ul, li, a, h1, h2, textarea} = React.DOM
-
-for name, kind of kinds
-  Handlebars.registerPartial name, kind.template
+# react
+{main, aside, article, div, ul, li, span,
+ table, thead, tbody, tfoot, tr, td, th,
+ b, i, a, h1, h2, h3, h4, small,
+ form, input, select, option, textarea, button} = React.DOM
 
 # github client
 gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href)
@@ -15,129 +18,164 @@ if gh_data
   user = gh_data[1]
   repo = gh_data[4] or "#{user}.github.#{gh_data[3]}"
 else
-  user = prompt "Your GitHub username for this blog:"
-  repo = prompt "The name of the repository in which this blog is hosted:"
+  user = localStorage.getItem location.href + '-user'
+  if not user
+    user = prompt "Your GitHub username for this blog:"
+    localStorage.setItem location.href + '-user', user
+
+  repo = localStorage.getItem location.href + '-repo'
+  if not repo
+    repo = prompt "The name of the repository in which this blog is hosted:"
+    localStorage.setItem location.href + '-repo', repo
 
 pass = prompt "Password for the user #{user}:"
+gh = new GitHub user
+gh.password pass
+gh.repo repo
 
-GitHub = (user) ->
-  base: 'https://api.github.com/'
-  user: user
-  repo: null
-  headers:
-    'Content-Type': 'application/json'
-  password: (pass) ->
-    @headers['Authorization'] = 'Basic ' + btoa(@user + ':' + pass)
-  token: (token) ->
-    @headers['Authorization'] = 'token ' + token
-  repo: (repo) ->
-    @repo = repo
-  listDir: (path, cb) ->
-    if not @repo
-      return false
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/")
-       .set(@headers)
-       .end (res) -> cb res.body
-  fetchDoc: (id, cb) ->
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/_docs/#{id}.json")
-       .set(@headers)
-       .end (res) =>
-         doc = JSON.parse atob res.body.content
-         cb doc
-  saveDoc: (doc, cb) ->
-    document = btoa JSON.stringify doc
-    req.put(@base + "/repos/#{@user}/#{@repo}/contents/_docs/#{doc._id}.json")
-       .set(@headers)
-       .send(
-         branch: 'gh-pages'
-         path: "_docs/#{doc._id}.json"
-         sha: doc._sha if doc._sha
-         content: document
-         message: doc._id
-        )
-       .end (res) -> cb res.body
-  deploy: (processedDocs, cb) ->
-    # get last commit sha
-    req.get(@base + "/repos/#{@user}/#{@repo}/branches/gh-pages")
-       .set(@headers)
-       .end (res) =>
-         last_commit_sha = res.body.commit.sha
-         last_tree_sha = res.body.commit.tree.sha
+curl
+  baseUrl: location.href
+  pluginPath: 'curl'
 
-         # create new tree
-         tree = []
-         for doc in processedDocs
-           tree.push
-             path: doc.path
-             mode: '100644'
-             type: 'blob'
-             content: doc.rendered
-
-         # post new tree
-         req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
-            .set(@headers)
-            .send(base_tree: last_tree_sha, tree: tree)
-            .end (res) =>
-              new_tree_sha = res.body.sha
-
-              # abort if deployment is unchanged / commit empty
-              if new_tree_sha == res.body.sha
-                return true
-
-              # commit the tree
-              req.post(@base + "/repos/#{@user}/#{@repo}/git/commits")
-                 .set(@headers)
-                 .send(
-                   message: 'deployment'
-                   tree: new_tree_sha
-                   parents: [last_commit_sha]
-                 )
-                 .end (res) =>
-                   new_commit_sha = res.body.sha
-
-                   # update the branch with the commit
-                   req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/gh-pages")
-                      .set(@headers)
-                      .send(sha: new_commit_sha, force: true)
-                      .end (res) =>
-                        if res.status == 200
-                          cb(res.body)
-
-gh = new Github user, pass, repo
+# templates to load
+templateNames = []
+templateAddresses = []
+for name, kind of kinds
+  templateNames.push name
+  templateAddresses.push 'text!' + kind.template
 
 Main = React.createClass
   getInitialState: ->
-    presentPath: ''
-    shownDocs: []
+    templatesReady: false
 
-  componentDidMount: ->
-    @DOCS = TAFFY()
+  componentWillMount: ->
+    @db = Taffy.taffy()
+    @db.settings
+      template:
+        parents: ['home']
+        data: ''
+        kind: 'article'
+        text: ''
+      onInsert: ->
+        if not this._id
+          this._id = "xxxxxxxx".replace /[xy]/g, (c) ->
+            r = Math.random() * 16 | 0
+            v = (if c is "x" then r else (r & 0x3 | 0x8))
+            v.toString 16
+      cacheSize: 0
 
-  onChangeDoc: (docid) ->
-    
+    if not @db().count()
+      @db.insert
+        _id: 'home'
+        parents: []
+        kind: 'list'
+        text: 'this is the text of the home page
+               of this website about anything'
+
+  setDocs: (docs) ->
+    @db.merge(docs, '_id', true)
+    @forceUpdate()
+
+  setTemplatesReady: -> @setState templatesReady: true
+
+  handleUpdateDoc: (newDoc) ->
+    @db({_id: newDoc._id}).update(newDoc)
+
+  handleSelectDoc: (docid) ->
+    doc = @db({_id: _id}).first()
+    @setState
+      editingDoc: doc
 
   render: ->
     (div {},
-      (Organizer
-        path: @state.presentPath
-        listDocs: @DOCS parent: @state.presentPath + '/index.html'
-        onChangeDoc: @handleSelectDoc),
-      (div className: 'docs',
-        (Doc data: doc for doc in @state.shownDocs)
-      )
-    )
-
-Organizer = React.createClass
-  render: ->
-    (div {},
-      (h2 {}, @props.path + '/'),
-      (ul {},
-        (li {}, doc.path) for doc in @propslistDocs
+      (aside {},
+        (ul {},
+          (Doc
+            data: @db({_id: 'home'}).first()
+            selected: true
+            onSelectDoc: @props.handleSelectDoc
+            db: @db
+          )
+        )
+      ),
+      (main {},
+        (DocEditable
+          data: @state.editingDoc
+          onDocUpdate: @props.handleUpdateDoc
+        )
       )
     )
 
 Doc = React.createClass
-  render: ->
-    (div {})
+  getInitialState: ->
+    selected: @props.selected
 
-React.renderComponent Main(), document.body
+  selectSon: (doc) ->
+    @props.onSelectDoc
+    @setState
+      selected: doc
+
+  render: ->
+    sons = @props.db(
+      parents:
+        has: @props.data._id
+    ).get()
+
+    (li {},
+      (h2 {}, @props.data.title or @props.data._id),
+      (ul {},
+        (Doc
+          data: son
+          selected: false
+          onClick: selectSon.bind @, son
+          onSelectDoc: @props.onSelectDoc
+          db: @props.db
+        ,
+          son.title or son._id) for son in sons
+      ) if @state.selected
+    )
+
+DocEditable = React.createClass
+  handleSubmit: ->
+    doc =
+      kind: @refs.kind.getDOMNode().value
+      parents: (x.trim() for x in @refs.parents.getDOMNode().value.split(','))
+      text: @refs.text.getDOMNode().value
+      data: @refs.data.getDOMNode().value
+    @props.onUpdateDoc doc
+
+  render: ->
+    if not @props.data
+      (article {})
+    else
+      (article className: 'editing',
+        (h4 {}, 'editando ' + @props.data._id),
+        (form onSubmit: @handleSubmit,
+          (select ref: 'type',
+            (option {value: kindName}, kindName) for kindName of kinds
+          ),
+          (input ref: 'parents', @props.data.parents.join(', ')),
+          (textarea ref: 'text', @props.data.title),
+          (textarea ref: 'data', @props.data.data)
+        )
+      )
+
+# render component without any docs
+MAIN = React.renderComponent Main(templatesReady: false), document.body
+
+# prepare docs to load
+gh.listDir '_docs', (files) ->
+  if Array.isArray files
+    docAddresses = ('json!' + f.path for f in files when f.type == 'file')
+  else
+    docAddresses = []
+  # load docs
+  curl(docAddresses).then( (docs...) ->
+    MAIN.setDocs docs
+
+  # load templates and register Handlebars partials
+  ).next(templateAddresses).then( (templates...) ->
+    for template, i in templates
+      Handlebars.registerPartial templateNames[i], template
+    MAIN.setTemplatesReady()
+  )
