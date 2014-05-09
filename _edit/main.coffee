@@ -96,6 +96,27 @@ Main = React.createClass
     @db({_id: docid}).remove()
     @forceUpdate()
 
+  handleMovingChilds: (childid, fromid, targetid) ->
+    isAncestor = (base, potentialAncestor) =>
+      doc = @db({_id: base}).first()
+      if not doc.parents.length
+        return false
+      for parent in doc.parents
+        if parent == potentialAncestor
+          return true
+        else
+          return isAncestor parent, potentialAncestor
+
+    if isAncestor targetid, childid
+      return false
+    else
+      movedDoc = @db({_id: childid}).first()
+      movedDoc.parents.splice movedDoc.parents.indexOf(fromid), 1
+      movedDoc.parents.push targetid
+      @db.merge(movedDoc, '_id', true)
+      @forceUpdate()
+      return true
+
   render: ->
     (div className: 'pure-g',
       (aside className: 'pure-u-1-5',
@@ -103,8 +124,10 @@ Main = React.createClass
           (Doc
             data: @db({_id: 'home'}).first()
             selected: true
+            immediateParent: null
             onSelect: @handleSelectDoc
             onAddSon: @handleAddSon
+            onMovedChild: @handleMovingChilds
             db: @db
           )
         )
@@ -122,6 +145,24 @@ Main = React.createClass
 Doc = React.createClass
   getInitialState: ->
     selected: @props.selected
+
+  dragStart: (e) ->
+    console.log 'started dragging ' + @props.data._id
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData 'docid', @props.data._id
+    e.dataTransfer.setData 'fromid', @props.immediateParent
+
+  drop: (e) ->
+    e.preventDefault()
+    e.stopPropagation()
+    childid = e.dataTransfer.getData 'docid'
+    fromid = e.dataTransfer.getData 'fromid'
+    console.log childid + ' dropped here (at ' + @props.data._id + ') from ' + fromid
+    movedOk = @props.onMovedChild childid, fromid, @props.data._id
+    if movedOk
+      @select()
+
+  preventDefault: (e) -> e.preventDefault()
 
   select: ->
     @props.onSelect @props.data._id
@@ -145,13 +186,18 @@ Doc = React.createClass
     if not sons.length
       sons = [{_id: ''}]
 
-     if @props.data._id then (li {},
-      (header {},
+    if @props.data._id then (li {},
+      (header
+        onDragOver: @preventDefault
+        onDrop: @drop
+      ,
         (button
           className: 'pure-button retract'
           onClick: @clickRetract
         , '<'),
         (h4
+          draggable: true
+          onDragStart: @dragStart
           onClick: @select.bind(@, false)
           @props.data.title or @props.data._id),
         (button
@@ -164,6 +210,7 @@ Doc = React.createClass
           data: son
           selected: false
           key: son._id
+          immediateParent: @props.data._id
         ,
           son.title or son._id) for son in sons
       ) if @state.selected
@@ -190,7 +237,7 @@ DocEditable = React.createClass
       (article {})
     else
       (article className: 'editing',
-        (h3 {}, 'editando ' + @props.data._id),
+        (h3 {}, "editing #{@props.data._id}"),
         (button
           className: 'pure-button del'
           onClick: @confirmDelete
