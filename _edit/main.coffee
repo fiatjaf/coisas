@@ -58,7 +58,7 @@ Main = React.createClass
         text: ''
       onInsert: ->
         if not this._id
-          this._id = "xxxxxxxx".replace /[xy]/g, (c) ->
+          this._id = "xyxxyxxx".replace /[xy]/g, (c) ->
             r = Math.random() * 16 | 0
             v = (if c is "x" then r else (r & 0x3 | 0x8))
             v.toString 16
@@ -81,10 +81,20 @@ Main = React.createClass
   handleUpdateDoc: (newDoc) ->
     @db({_id: newDoc._id}).update(newDoc)
 
-  handleSelectDoc: (docid) ->
-    doc = @db({_id: _id}).first()
+  handleSelectDoc: (docid, forceSelect=false) ->
+    if not @state.editingDoc or @state.editingDoc._id != docid or forceSelect
+      # case for select
+      doc = @db({_id: docid}).first()
+    else
+      # case for unselect
+      doc = null
+
     @setState
       editingDoc: doc
+
+  handleAddSon: (son) ->
+    @db.insert(son)
+    @forceUpdate()
 
   render: ->
     (div {},
@@ -93,7 +103,8 @@ Main = React.createClass
           (Doc
             data: @db({_id: 'home'}).first()
             selected: true
-            onSelectDoc: @props.handleSelectDoc
+            onSelect: @handleSelectDoc
+            onAddSon: @handleAddSon
             db: @db
           )
         )
@@ -110,10 +121,14 @@ Doc = React.createClass
   getInitialState: ->
     selected: @props.selected
 
-  selectSon: (doc) ->
-    @props.onSelectDoc
+  select: (forceSelect) ->
+    @props.onSelect @props.data._id, forceSelect
     @setState
-      selected: doc
+      selected: if forceSelect then true else not @state.selected
+
+  clickAdd: ->
+    @select.apply @, [true]
+    @props.onAddSon {parents: [@props.data._id]}
 
   render: ->
     sons = @props.db(
@@ -122,14 +137,14 @@ Doc = React.createClass
     ).get()
 
     (li {},
-      (h2 {}, @props.data.title or @props.data._id),
+      (h2
+        onClick: @select.bind(@, false)
+        @props.data.title or @props.data._id),
+      (button onClick: @clickAdd, '+')
       (ul {},
-        (Doc
+        @transferPropsTo (Doc
           data: son
           selected: false
-          onClick: selectSon.bind @, son
-          onSelectDoc: @props.onSelectDoc
-          db: @props.db
         ,
           son.title or son._id) for son in sons
       ) if @state.selected
