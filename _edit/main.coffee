@@ -7,10 +7,10 @@ GitHub = require './github.coffee'
 kinds = require './kinds.coffee'
 
 # react
-{main, aside, article, div, ul, li, span,
+{main, aside, article, header, div, ul, li, span,
  table, thead, tbody, tfoot, tr, td, th,
  b, i, a, h1, h2, h3, h4, small,
- form, input, select, option, textarea, button} = React.DOM
+ form, label, input, select, option, textarea, button} = React.DOM
 
 # github client
 gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href)
@@ -55,6 +55,7 @@ Main = React.createClass
         parents: ['home']
         data: ''
         kind: 'article'
+        title: ''
         text: ''
       onInsert: ->
         if not this._id
@@ -69,6 +70,7 @@ Main = React.createClass
         _id: 'home'
         parents: []
         kind: 'list'
+        title: 'home'
         text: 'this is the text of the home page
                of this website about anything'
 
@@ -78,27 +80,25 @@ Main = React.createClass
 
   setTemplatesReady: -> @setState templatesReady: true
 
-  handleUpdateDoc: (newDoc) ->
-    @db({_id: newDoc._id}).update(newDoc)
+  handleUpdateDoc: (docid, change) ->
+    @db({_id: docid}).update(change)
+    @forceUpdate()
 
-  handleSelectDoc: (docid, forceSelect=false) ->
-    if not @state.editingDoc or @state.editingDoc._id != docid or forceSelect
-      # case for select
-      doc = @db({_id: docid}).first()
-    else
-      # case for unselect
-      doc = null
-
+  handleSelectDoc: (docid) ->
     @setState
-      editingDoc: doc
+      editingDoc: docid
 
   handleAddSon: (son) ->
     @db.insert(son)
     @forceUpdate()
 
+  handleDeleteDoc: (docid) ->
+    @db({_id: docid}).remove()
+    @forceUpdate()
+
   render: ->
-    (div {},
-      (aside {},
+    (div className: 'pure-g',
+      (aside className: 'pure-u-1-5',
         (ul {},
           (Doc
             data: @db({_id: 'home'}).first()
@@ -109,10 +109,12 @@ Main = React.createClass
           )
         )
       ),
-      (main {},
+      (main className: 'pure-u-4-5',
         (DocEditable
-          data: @state.editingDoc
-          onDocUpdate: @props.handleUpdateDoc
+          data: @db({_id: @state.editingDoc}).first()
+          onUpdateDocAttr: @handleUpdateDoc
+          onDelete: @handleDeleteDoc
+          db: @db
         )
       )
     )
@@ -121,13 +123,17 @@ Doc = React.createClass
   getInitialState: ->
     selected: @props.selected
 
-  select: (forceSelect) ->
-    @props.onSelect @props.data._id, forceSelect
+  select: ->
+    @props.onSelect @props.data._id
     @setState
-      selected: if forceSelect then true else not @state.selected
+      selected: true
+
+  clickRetract: ->
+    @setState
+      selected: false
 
   clickAdd: ->
-    @select.apply @, [true]
+    @select()
     @props.onAddSon {parents: [@props.data._id]}
 
   render: ->
@@ -136,42 +142,107 @@ Doc = React.createClass
         has: @props.data._id
     ).get()
 
-    (li {},
-      (h2
-        onClick: @select.bind(@, false)
-        @props.data.title or @props.data._id),
-      (button onClick: @clickAdd, '+')
+    if not sons.length
+      sons = [{_id: ''}]
+
+     if @props.data._id then (li {},
+      (header {},
+        (button
+          className: 'pure-button retract'
+          onClick: @clickRetract
+        , '<'),
+        (h4
+          onClick: @select.bind(@, false)
+          @props.data.title or @props.data._id),
+        (button
+          className: 'pure-button add'
+          onClick: @clickAdd
+        , '+')
+      ),
       (ul {},
         @transferPropsTo (Doc
           data: son
           selected: false
+          key: son._id
         ,
           son.title or son._id) for son in sons
       ) if @state.selected
-    )
+    ) else (li {})
 
 DocEditable = React.createClass
-  handleSubmit: ->
-    doc =
-      kind: @refs.kind.getDOMNode().value
-      parents: (x.trim() for x in @refs.parents.getDOMNode().value.split(','))
-      text: @refs.text.getDOMNode().value
-      data: @refs.data.getDOMNode().value
-    @props.onUpdateDoc doc
+  handleChange: (attr, e) ->
+    if attr == 'parents'
+      value = (parent.trim() for parent in e.target.value.split(','))
+    else
+      value = e.target.value
+
+    change = {}
+    change[attr] = value
+    @props.onUpdateDocAttr @props.data._id, change
+
+  confirmDelete: ->
+    if confirm "are you sure you want to delete 
+        #{@props.data.title or @props.data._id}"
+      @props.onDelete @props.data._id
 
   render: ->
     if not @props.data
       (article {})
     else
       (article className: 'editing',
-        (h4 {}, 'editando ' + @props.data._id),
-        (form onSubmit: @handleSubmit,
-          (select ref: 'type',
-            (option {value: kindName}, kindName) for kindName of kinds
+        (h3 {}, 'editando ' + @props.data._id),
+        (button
+          className: 'pure-button del'
+          onClick: @confirmDelete
+        , 'x') if not @props.db({parents: {has: @props.data._id}}).count()
+        (form
+          className: 'pure-form pure-form-aligned'
+          onSubmit: @handleSubmit
+        ,
+          (div className: 'pure-control-group',
+            (label htmlFor: 'kind', 'kind: ')
+            (select
+              id: 'kind'
+              onChange: @handleChange.bind @, 'kind'
+              value: @props.data.kind
+            ,
+              (option
+                value: kindName
+                key: kindName
+              , kindName) for kindName of kinds
+            ),
           ),
-          (input ref: 'parents', @props.data.parents.join(', ')),
-          (textarea ref: 'text', @props.data.title),
-          (textarea ref: 'data', @props.data.data)
+          (div className: 'pure-control-group',
+            (label htmlFor: 'title', 'title: ')
+            (input
+              id: 'title'
+              className: 'pure-input-2-3'
+              onChange: @handleChange.bind @, 'title'
+              value: @props.data.title),
+          ),
+          (div className: 'pure-control-group',
+            (label {}, 'parents: ')
+            (input
+              onChange: @handleChange.bind @, 'parents'
+              value: @props.data.parents.join(', ')),
+          ),
+          (div className: 'pure-control-group',
+            (label htmlFor: 'text', 'text: ')
+            (textarea
+              id: 'text'
+              className: 'pure-input-2-3'
+              onChange: @handleChange.bind @, 'text'
+              value: @props.data.text),
+          ),
+          (div className: 'pure-control-group',
+            (label htmlFor: 'data', 'data: ')
+            (textarea
+              wrap: 'off'
+              id: 'data'
+              className: 'pure-input-2-3'
+              onChange: @handleChange.bind @, 'data'
+              value: @props.data.data),
+          ),
         )
       )
 
