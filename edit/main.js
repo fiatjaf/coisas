@@ -45,7 +45,7 @@ GitHub = function(user) {
     },
     listDocs: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs")).set(this.headers).query({
-        branch: 'data'
+        branch: 'gh-pages'
       }).end(function(res) {
         return cb(res.body);
       });
@@ -168,6 +168,10 @@ Partials = {
   addresses: ['templates/related.html', 'templates/header.html', 'templates/footer.html']
 };
 
+Handlebars.registerHelper('startOf', function(text) {
+  return text.slice(0, 64) + '...';
+});
+
 _ref = React.DOM, main = _ref.main, aside = _ref.aside, article = _ref.article, header = _ref.header, div = _ref.div, ul = _ref.ul, li = _ref.li, span = _ref.span, table = _ref.table, thead = _ref.thead, tbody = _ref.tbody, tfoot = _ref.tfoot, tr = _ref.tr, td = _ref.td, th = _ref.th, b = _ref.b, i = _ref.i, a = _ref.a, h1 = _ref.h1, h2 = _ref.h2, h3 = _ref.h3, h4 = _ref.h4, small = _ref.small, form = _ref.form, label = _ref.label, input = _ref.input, select = _ref.select, option = _ref.option, textarea = _ref.textarea, button = _ref.button;
 
 gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href);
@@ -246,7 +250,7 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var doc, goAfterTheChildrenOf, processed, render, site, _i, _len, _ref1;
+    var doc, goAfterTheChildrenOf, html, pathfiedDocs, processed, render, site, _i, _j, _len, _len1, _ref1;
     if (!this.state.template) {
       return false;
     }
@@ -263,32 +267,28 @@ Main = React.createClass({
     }
     goAfterTheChildrenOf = (function(_this) {
       return function(parent, inheritedPathComponent) {
-        var html, pathComponent, q, _j, _len1, _ref2, _results;
-        if (inheritedPathComponent == null) {
-          inheritedPathComponent = '';
-        }
+        var pathComponent, q, _j, _len1, _ref2, _results;
         if (parent._id !== 'home') {
           pathComponent = inheritedPathComponent + parent.slug + '/';
         } else {
           pathComponent = '';
         }
-        html = render(parent);
-        processed[pathComponent + 'index.html'] = html;
+        parent.path = pathComponent + 'index.html';
+        pathfiedDocs.push(parent);
         q = _this.db({
           parents: {
             has: parent._id
           }
         });
-        if (!q.count()) {
-          return false;
+        if (q.count()) {
+          _ref2 = q.get();
+          _results = [];
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            doc = _ref2[_j];
+            _results.push(goAfterTheChildrenOf(doc, pathComponent));
+          }
+          return _results;
         }
-        _ref2 = q.get();
-        _results = [];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          doc = _ref2[_j];
-          _results.push(goAfterTheChildrenOf(doc, pathComponent));
-        }
-        return _results;
       };
     })(this);
     render = (function(_this) {
@@ -308,9 +308,15 @@ Main = React.createClass({
         return rendered;
       };
     })(this);
+    pathfiedDocs = [];
     goAfterTheChildrenOf(this.db({
       _id: 'home'
-    }).first());
+    }).first(), '');
+    for (_j = 0, _len1 = pathfiedDocs.length; _j < _len1; _j++) {
+      doc = pathfiedDocs[_j];
+      html = render(doc);
+      processed[doc.path] = html;
+    }
     console.log(processed);
     return gh.deploy(processed);
   },
@@ -34451,24 +34457,19 @@ module.exports = function(doc) {
 
 
 },{}],194:[function(require,module,exports){
-var fm, process, slug, yaml;
+var fm, process, slug;
 
 slug = require('slug');
 
 fm = require('front-matter');
 
-yaml = function(text) {
-  var parsed;
-  parsed = fm(text);
-  parsed.attributes.__content = parsed.body;
-  return parsed.attributes;
-};
-
 process = function(doc, children) {
-  var child, extra, field, value, _i, _len;
-  extra = yaml(doc.text);
-  for (field in extra) {
-    value = extra[field];
+  var child, field, parsed, value, _ref;
+  parsed = fm(doc.text);
+  doc.text = parsed.body;
+  _ref = parsed.attributes;
+  for (field in _ref) {
+    value = _ref[field];
     doc[field] = value;
   }
   if (!doc.slug || doc.newSlug === true) {
@@ -34476,10 +34477,15 @@ process = function(doc, children) {
   }
   doc.children = children;
   if (children && !doc.items) {
-    for (_i = 0, _len = children.length; _i < _len; _i++) {
-      child = children[_i];
-      doc.items = process(child);
-    }
+    doc.items = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = children.length; _i < _len; _i++) {
+        child = children[_i];
+        _results.push(process(child));
+      }
+      return _results;
+    })();
   }
   return doc;
 };

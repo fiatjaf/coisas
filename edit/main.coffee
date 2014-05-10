@@ -34,6 +34,10 @@ Templates =
 Handlebars.registerHelper 'cleanPath', (path) ->
   path.replace /\/index\.html?$/, ''
 
+# handlebars helpers
+Handlebars.registerHelper 'startOf', (text) ->
+  return text.slice(0, 64) + '...'
+
 # react
 {main, aside, article, header, div, ul, li, span,
  table, thead, tbody, tfoot, tr, td, th,
