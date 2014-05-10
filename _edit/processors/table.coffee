@@ -11,4 +11,3 @@ module.exports = (doc) ->
       row.push doc[property]
     doc.rows.push row
 
-  return doc

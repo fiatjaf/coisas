@@ -1,7 +1,8 @@
 slug = require 'slug'
+fm = require('front-matter')
 
 yaml = (text) ->
-  parsed = require('front-matter').fm(text)
+  parsed = fm(text)
   parsed.attributes.__content = parsed.body
   return parsed.attributes
 
@@ -18,11 +19,6 @@ process = (doc, children) ->
   # process the children
   if children and not doc.items
     doc.items = process child for child in children
-
-  # process according to each type
-  if doc.kind of kinds
-    operate = kinds[doc.kind]
-    doc = operate doc
 
   return doc
 
