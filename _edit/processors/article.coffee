@@ -12,4 +12,4 @@ yaml = (text) ->
 
 module.exports = (doc) ->
   doc.html = marked doc.text
-  return doc.html
+  return doc
