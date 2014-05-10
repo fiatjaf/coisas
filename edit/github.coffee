@@ -35,12 +35,12 @@ GitHub = (user) ->
                 @data_last_commit_sha = res.body.object.sha
 
   listDocs: (cb) ->
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/_docs")
+    req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs")
        .set(@headers)
        .query(branch: 'data')
        .end (res) -> cb res.body
   fetchDoc: (id, cb) ->
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/_docs/#{id}.json")
+    req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs/#{id}.json")
        .set(@headers)
        .query(branch: 'data')
        .end (res) =>
@@ -51,11 +51,11 @@ GitHub = (user) ->
     if not doc._id
       doc._id = id()
     document = btoa JSON.stringify doc
-    req.put(@base + "/repos/#{@user}/#{@repo}/contents/_docs/#{doc._id}.json")
+    req.put(@base + "/repos/#{@user}/#{@repo}/contents/docs/#{doc._id}.json")
        .set(@headers)
        .send({
           branch: 'data'
-          path: "_docs/#{doc._id}.json"
+          path: "docs/#{doc._id}.json"
           sha: doc._sha if doc._sha
           content: document
           message: doc._id

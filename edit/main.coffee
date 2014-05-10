@@ -120,7 +120,7 @@ Main = React.createClass
 
     # add the pure docs
     for doc in @db().get()
-      processed["_docs/#{doc._id}.json"] = JSON.stringify doc
+      processed["docs/#{doc._id}.json"] = JSON.stringify doc
 
     # recursively get the docs, render them and add
     goAfterTheChildrenOf = (parent, inheritedPathComponent='') =>
