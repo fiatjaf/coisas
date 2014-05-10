@@ -17,6 +17,7 @@ process = (doc, children) ->
     doc.slug = doc.slug or if doc.title then slug doc.title else doc._id
 
   # process the children
+  doc.children = children
   if children and not doc.items
     doc.items = process child for child in children
 
