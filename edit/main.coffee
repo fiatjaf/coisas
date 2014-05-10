@@ -29,17 +29,10 @@ Templates =
     'templates/chart.html',
     'templates/graph.html',
   ]
-Partials =
-  names: [
-    'related',
-    'header',
-    'footer',
-  ]
-  addresses: [
-    'templates/related.html'
-    'templates/header.html'
-    'templates/footer.html'
-  ]
+
+# handlebars helpers
+Handlebars.registerHelper 'cleanPath', (path) ->
+  path.replace /\/index\.html?$/, ''
 
 # react
 {main, aside, article, header, div, ul, li, span,
@@ -91,14 +84,31 @@ Main = React.createClass
             v.toString 16
       cacheSize: 0
 
-    if not @db().count()
+    unless @db({_id: 'global'}).count()
+      @db.insert
+        _id: 'global'
+        parents: []
+        text: """
+          ---
+          baseUrl: #{location.href.split('/').slice(0, -2).join('/')}
+          title: fiatjaf's blog
+          sections:
+            - 
+              title: blog
+              path: blog
+            -
+              title: coisas
+              path: coisas-interessantes
+          ---
+        """
+
+    unless @db({_id: 'home'}).count()
       @db.insert
         _id: 'home'
         parents: []
         kind: 'list'
         title: 'home'
-        text: 'this is the text of the home page
-               of this website about anything'
+        text: ''
 
   setDocs: (docs) ->
     @db.merge(docs, '_id', true)
@@ -113,45 +123,58 @@ Main = React.createClass
     processed = []
     console.log 'processing docs'
 
-    # get the site params
-    site =
-      title: ''
-      baseUrl: location.href.split('/').slice(0, -2).join('/') # because of the trailing /
-
     # add the pure docs
     for doc in @db().get()
       processed["docs/#{doc._id}.json"] = JSON.stringify doc
 
-    # recursively get the docs, render them and add
-    goAfterTheChildrenOf = (parent, inheritedPathComponent='') =>
+    # recursively get the docs and add paths to them
+    goAfterTheChildrenOf = (parent, inheritedPathComponent) =>
+
+      # process the doc
+      process parent
+
       # discover path
       if parent._id != 'home'
         pathComponent = inheritedPathComponent + parent.slug + '/'
       else
         pathComponent = ''
+      parent.path = pathComponent + 'index.html'
 
-      # render and add
-      html = render parent
-      processed[pathComponent + 'index.html'] = html
+      # add it to the pathfiedDocs list
+      pathfiedDocs.push parent
 
       # go after its children
       q = @db({parents: {has: parent._id}})
-      if not q.count()
-        return false
+      if q.count()
+        for doc in q.get()
+          goAfterTheChildrenOf doc, pathComponent
 
-      for doc in q.get()
-        goAfterTheChildrenOf doc, pathComponent
-        
-    render = (doc) =>
+    # the process function -- just calls the imported process methods
+    process = (doc) =>
       children = @db({parents: {has: doc._id}}).get()
-      doc = CommonProcessor doc, children
+      parent = CommonProcessor doc, children
       doc = Processors[doc.kind] doc
+        
+    # the render function -- just render the doc to the base template
+    render = (doc) =>
       rendered = @state.template
         doc: doc
         site: site
       return rendered
 
-    goAfterTheChildrenOf @db({_id: 'home'}).first()
+    # get the site params
+    site = @db({_id: 'global'}).first()
+    process site
+
+    # prepare an empty list to be filled with the docs pathfied
+    pathfiedDocs = []
+    goAfterTheChildrenOf @db({_id: 'home'}).first(), ''
+
+    # render and add all docs with their paths determined
+    for doc in pathfiedDocs
+      html = render doc
+      processed[doc.path] = html
+
     console.log processed
     gh.deploy processed
 
@@ -209,7 +232,9 @@ Main = React.createClass
       (main className: 'pure-u-4-5',
         (Menu
           showPublishButton: if @state.template then true else false
+          globalDoc: @db({_id: 'global'}).first()
           onClickPublish: @publish
+          onGlobalDocChange: @handleUpdateDoc.bind @, 'global'
         ),
         (DocEditable
           data: @db({_id: @state.editingDoc}).first()
@@ -370,16 +395,35 @@ DocEditable = React.createClass
       )
 
 Menu = React.createClass
+  handleGlobalDocChange: (e) ->
+    change =
+      text: e.target.value
+    @props.onGlobalDocChange change
+    e.preventDefault()
+
   handleClickPublish: (e) ->
     @props.onClickPublish()
     e.preventDefault()
 
   render: ->
     (header {},
-      (button
-        className: 'pure-button publish'
-        onClick: @handleClickPublish
-      , 'Publish!') if @props.showPublishButton
+      (div className: 'pure-g-r',
+        (div className: 'pure-u-4-5',
+          (form className: 'pure-form',
+            (textarea
+              className: 'pure-input-1'
+              onChange: @handleGlobalDocChange
+              value: @props.globalDoc.text
+            )
+          ),
+        ),
+        (div className: 'pure-u-1-5',
+          (button
+            className: 'pure-button publish'
+            onClick: @handleClickPublish
+          , 'Publish!') if @props.showPublishButton
+        )
+      ),
     )
 
 # render component without any docs
@@ -401,16 +445,11 @@ gh.listDocs (files) ->
       for templateString, i in templates
         dynamicTemplates[Templates.names[i]] = Handlebars.compile templateString
 
-      Handlebars.registerHelper 'dynamicTemplate', (kind, context, opts) ->
+      Handlebars.registerHelper 'dynamicTemplate', (kind, opts) ->
         template = dynamicTemplates[kind]
-        return new Handlebars.SafeString template context
+        return new Handlebars.SafeString template opts.data.root
 
-      # register partials
-      TextLoad Partials.addresses, (partials...) ->
-        for partialString, i in partials
-          Handlebars.registerPartial Partials.names[i], partialString
-
-        # load the base template separatedly
-        TextLoad BaseTemplate, (baseTemplateString) ->
-          baseTemplate = Handlebars.compile baseTemplateString
-          MAIN.setTemplate baseTemplate
+      # load the base template separatedly
+      TextLoad BaseTemplate, (baseTemplateString) ->
+        baseTemplate = Handlebars.compile baseTemplateString
+        MAIN.setTemplate baseTemplate

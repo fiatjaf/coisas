@@ -1,25 +1,23 @@
 slug = require 'slug'
-fm = require('front-matter')
-
-yaml = (text) ->
-  parsed = fm(text)
-  parsed.attributes.__content = parsed.body
-  return parsed.attributes
+fm = require 'front-matter'
 
 process = (doc, children) ->
   # parse extra fields and metadata
-  extra = yaml doc.text
-  for field, value of extra
+  parsed = fm doc.text
+  doc.text = parsed.body
+  for field, value of parsed.attributes
     doc[field] = value
 
   # make a slug
-  if not doc.slug or doc.newSlug == true
+  if not doc.slug
     doc.slug = doc.slug or if doc.title then slug doc.title else doc._id
+  if doc.slug in ['docs', 'edit', 'assets']
+    doc.slug = doc.slug + '2'
 
   # process the children
   doc.children = children
   if children and not doc.items
-    doc.items = process child for child in children
+    doc.items = (process child for child in children)
 
   return doc
 
