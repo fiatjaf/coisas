@@ -12,8 +12,7 @@
     "react": "~0.10.0",
     "slug": "~0.4.2",
     "superagent": "~0.17.0",
-    "taffydb": "~2.7.2",
-    "curl-amd": "~0.8.10"
+    "taffydb": "~2.7.2"
   },
   "devDependencies": {
     "browserify": "~3.38.1",

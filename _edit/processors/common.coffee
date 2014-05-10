@@ -6,7 +6,7 @@ yaml = (text) ->
   parsed.attributes.__content = parsed.body
   return parsed.attributes
 
-process = (doc, children) ->
+process = (doc, children=[]) ->
   # parse extra fields and metadata
   extra = yaml doc.text
   for field, value of extra
@@ -17,7 +17,8 @@ process = (doc, children) ->
     doc.slug = doc.slug or if doc.title then slug doc.title else doc._id
 
   # process the children
-  if children and not doc.items
+  doc.children = children
+  if children and not doc.data
     doc.items = process child for child in children
 
   return doc
