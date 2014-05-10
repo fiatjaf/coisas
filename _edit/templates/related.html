@@ -1,0 +1,9 @@
+<ul>
+  {{#each children}}
+    <li>
+      {{#if title}}{{title}}{{/if}}
+      <a href="{{ slug }}">{{ title }}</a>
+      {{#if text}}<blockquote>{{ text }}</blockquote>{{/if}}
+    </li>
+  {{/each}}
+</ul>
