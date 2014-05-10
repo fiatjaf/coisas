@@ -37,7 +37,7 @@ GitHub = (user) ->
   listDocs: (cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs")
        .set(@headers)
-       .query(branch: 'data')
+       .query(branch: 'gh-pages')
        .end (res) -> cb res.body
   fetchDoc: (id, cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs/#{id}.json")
