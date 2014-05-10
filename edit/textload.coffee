@@ -5,17 +5,18 @@ TextLoad = (files, callback) ->
     files = [files]
 
   waitingFor = files.length
-  results = []
+  results = {}
 
   for addr in files
+    results[addr] = null
     req.get(addr)
        .end (res) ->
-         results.push res.text
+         results[res.req.url] = res.text
          waitingFor--
          if waitingFor == 0
-           callback.apply @, results
+           callback.apply @, (text for r, text of results)
 
   if waitingFor == 0
-    callback.apply @, results
+    callback.apply @, (text for r, text of results)
 
 module.exports = TextLoad

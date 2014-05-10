@@ -1,13 +1,13 @@
 <table>
   <thead>
     <tr>
-      {{#each this.headers}}
+      {{#each doc.headers}}
         <th>{{ . }}</th>
       {{/each}}
     </tr>
   </thead>
   <tbody>
-    {{#each this.rows}}
+    {{#each doc.rows}}
       <tr>
         {{#each column}}
           <td>{{ . }}</td>
@@ -16,7 +16,7 @@
     {{/each}}
   </tbody>
   <tfoot>
-    {{#if this.footer}}
+    {{#if doc.footer}}
       <tr>
         {{#each column}}
           <th>{{ . }}</th>

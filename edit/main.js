@@ -45,7 +45,7 @@ GitHub = function(user) {
     },
     listDocs: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs")).set(this.headers).query({
-        branch: 'data'
+        branch: 'gh-pages'
       }).end(function(res) {
         return cb(res.body);
       });
@@ -131,7 +131,7 @@ module.exports = GitHub;
 
 
 },{"superagent":188}],2:[function(require,module,exports){
-var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Partials, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
+var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
   __slice = [].slice;
 
 React = require('react');
@@ -163,10 +163,9 @@ Templates = {
   addresses: ['templates/article.html', 'templates/table.html', 'templates/list.html', 'templates/chart.html', 'templates/graph.html']
 };
 
-Partials = {
-  names: ['related', 'header', 'footer'],
-  addresses: ['templates/related.html', 'templates/header.html', 'templates/footer.html']
-};
+Handlebars.registerHelper('cleanPath', function(path) {
+  return path.replace(/\/index\.html?$/, '');
+});
 
 _ref = React.DOM, main = _ref.main, aside = _ref.aside, article = _ref.article, header = _ref.header, div = _ref.div, ul = _ref.ul, li = _ref.li, span = _ref.span, table = _ref.table, thead = _ref.thead, tbody = _ref.tbody, tfoot = _ref.tfoot, tr = _ref.tr, td = _ref.td, th = _ref.th, b = _ref.b, i = _ref.i, a = _ref.a, h1 = _ref.h1, h2 = _ref.h2, h3 = _ref.h3, h4 = _ref.h4, small = _ref.small, form = _ref.form, label = _ref.label, input = _ref.input, select = _ref.select, option = _ref.option, textarea = _ref.textarea, button = _ref.button;
 
@@ -226,13 +225,24 @@ Main = React.createClass({
       },
       cacheSize: 0
     });
-    if (!this.db().count()) {
+    if (!this.db({
+      _id: 'global'
+    }).count()) {
+      this.db.insert({
+        _id: 'global',
+        parents: [],
+        text: "---\nbaseUrl: " + (location.href.split('/').slice(0, -2).join('/')) + "\ntitle: fiatjaf's blog\nsections:\n  - \n    title: blog\n    path: blog\n  -\n    title: coisas\n    path: coisas-interessantes\n---"
+      });
+    }
+    if (!this.db({
+      _id: 'home'
+    }).count()) {
       return this.db.insert({
         _id: 'home',
         parents: [],
         kind: 'list',
         title: 'home',
-        text: 'this is the text of the home page of this website about anything'
+        text: ''
       });
     }
   },
@@ -246,16 +256,12 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var doc, goAfterTheChildrenOf, processed, render, site, _i, _len, _ref1;
+    var doc, goAfterTheChildrenOf, html, pathfiedDocs, process, processed, render, site, _i, _j, _len, _len1, _ref1;
     if (!this.state.template) {
       return false;
     }
     processed = [];
     console.log('processing docs');
-    site = {
-      title: '',
-      baseUrl: location.href.split('/').slice(0, -2).join('/')
-    };
     _ref1 = this.db().get();
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       doc = _ref1[_i];
@@ -263,44 +269,46 @@ Main = React.createClass({
     }
     goAfterTheChildrenOf = (function(_this) {
       return function(parent, inheritedPathComponent) {
-        var html, pathComponent, q, _j, _len1, _ref2, _results;
-        if (inheritedPathComponent == null) {
-          inheritedPathComponent = '';
-        }
+        var pathComponent, q, _j, _len1, _ref2, _results;
+        process(parent);
         if (parent._id !== 'home') {
           pathComponent = inheritedPathComponent + parent.slug + '/';
         } else {
           pathComponent = '';
         }
-        html = render(parent);
-        processed[pathComponent + 'index.html'] = html;
+        parent.path = pathComponent + 'index.html';
+        pathfiedDocs.push(parent);
         q = _this.db({
           parents: {
             has: parent._id
           }
         });
-        if (!q.count()) {
-          return false;
+        if (q.count()) {
+          _ref2 = q.get();
+          _results = [];
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            doc = _ref2[_j];
+            _results.push(goAfterTheChildrenOf(doc, pathComponent));
+          }
+          return _results;
         }
-        _ref2 = q.get();
-        _results = [];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          doc = _ref2[_j];
-          _results.push(goAfterTheChildrenOf(doc, pathComponent));
-        }
-        return _results;
       };
     })(this);
-    render = (function(_this) {
+    process = (function(_this) {
       return function(doc) {
-        var children, rendered;
+        var children, parent;
         children = _this.db({
           parents: {
             has: doc._id
           }
         }).get();
-        doc = CommonProcessor(doc, children);
-        doc = Processors[doc.kind](doc);
+        parent = CommonProcessor(doc, children);
+        return doc = Processors[doc.kind](doc);
+      };
+    })(this);
+    render = (function(_this) {
+      return function(doc) {
+        var rendered;
         rendered = _this.state.template({
           doc: doc,
           site: site
@@ -308,9 +316,19 @@ Main = React.createClass({
         return rendered;
       };
     })(this);
+    site = this.db({
+      _id: 'global'
+    }).first();
+    process(site);
+    pathfiedDocs = [];
     goAfterTheChildrenOf(this.db({
       _id: 'home'
-    }).first());
+    }).first(), '');
+    for (_j = 0, _len1 = pathfiedDocs.length; _j < _len1; _j++) {
+      doc = pathfiedDocs[_j];
+      html = render(doc);
+      processed[doc.path] = html;
+    }
     console.log(processed);
     return gh.deploy(processed);
   },
@@ -389,7 +407,11 @@ Main = React.createClass({
       className: 'pure-u-4-5'
     }, Menu({
       showPublishButton: this.state.template ? true : false,
-      onClickPublish: this.publish
+      globalDoc: this.db({
+        _id: 'global'
+      }).first(),
+      onClickPublish: this.publish,
+      onGlobalDocChange: this.handleUpdateDoc.bind(this, 'global')
     }), DocEditable({
       data: this.db({
         _id: this.state.editingDoc
@@ -595,15 +617,35 @@ DocEditable = React.createClass({
 });
 
 Menu = React.createClass({
+  handleGlobalDocChange: function(e) {
+    var change;
+    change = {
+      text: e.target.value
+    };
+    this.props.onGlobalDocChange(change);
+    return e.preventDefault();
+  },
   handleClickPublish: function(e) {
     this.props.onClickPublish();
     return e.preventDefault();
   },
   render: function() {
-    return header({}, this.props.showPublishButton ? button({
+    return header({}, div({
+      className: 'pure-g-r'
+    }, div({
+      className: 'pure-u-4-5'
+    }, form({
+      className: 'pure-form'
+    }, textarea({
+      className: 'pure-input-1',
+      onChange: this.handleGlobalDocChange,
+      value: this.props.globalDoc.text
+    }))), div({
+      className: 'pure-u-1-5'
+    }, this.props.showPublishButton ? button({
       className: 'pure-button publish',
       onClick: this.handleClickPublish
-    }, 'Publish!') : void 0);
+    }, 'Publish!') : void 0)));
   }
 });
 
@@ -646,23 +688,15 @@ gh.listDocs(function(files) {
         templateString = templates[i];
         dynamicTemplates[Templates.names[i]] = Handlebars.compile(templateString);
       }
-      Handlebars.registerHelper('dynamicTemplate', function(kind, context, opts) {
+      Handlebars.registerHelper('dynamicTemplate', function(kind, opts) {
         var template;
         template = dynamicTemplates[kind];
-        return new Handlebars.SafeString(template(context));
+        return new Handlebars.SafeString(template(opts.data.root));
       });
-      return TextLoad(Partials.addresses, function() {
-        var partialString, partials, _j, _len1;
-        partials = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        for (i = _j = 0, _len1 = partials.length; _j < _len1; i = ++_j) {
-          partialString = partials[i];
-          Handlebars.registerPartial(Partials.names[i], partialString);
-        }
-        return TextLoad(BaseTemplate, function(baseTemplateString) {
-          var baseTemplate;
-          baseTemplate = Handlebars.compile(baseTemplateString);
-          return MAIN.setTemplate(baseTemplate);
-        });
+      return TextLoad(BaseTemplate, function(baseTemplateString) {
+        var baseTemplate;
+        baseTemplate = Handlebars.compile(baseTemplateString);
+        return MAIN.setTemplate(baseTemplate);
       });
     });
   });
@@ -2139,7 +2173,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -34408,7 +34445,7 @@ if ( typeof(exports) === 'object' ){
 
 
 },{}],192:[function(require,module,exports){
-var marked, yaml;
+var marked;
 
 marked = require('marked');
 
@@ -34419,20 +34456,13 @@ marked.setOptions({
   smartypants: true
 });
 
-yaml = function(text) {
-  var parsed;
-  parsed = require('front-matter').fm(text);
-  parsed.attributes.__content = parsed.body;
-  return parsed.attributes;
-};
-
 module.exports = function(doc) {
   doc.html = marked(doc.text);
   return doc;
 };
 
 
-},{"front-matter":21,"marked":50}],193:[function(require,module,exports){
+},{"marked":50}],193:[function(require,module,exports){
 module.exports = function(doc) {
   var item;
   doc.chart_type = doc.chart_type || 'line';
@@ -34451,35 +34481,38 @@ module.exports = function(doc) {
 
 
 },{}],194:[function(require,module,exports){
-var fm, process, slug, yaml;
+var fm, process, slug;
 
 slug = require('slug');
 
 fm = require('front-matter');
 
-yaml = function(text) {
-  var parsed;
-  parsed = fm(text);
-  parsed.attributes.__content = parsed.body;
-  return parsed.attributes;
-};
-
 process = function(doc, children) {
-  var child, extra, field, value, _i, _len;
-  extra = yaml(doc.text);
-  for (field in extra) {
-    value = extra[field];
+  var child, field, parsed, value, _ref, _ref1;
+  parsed = fm(doc.text);
+  doc.text = parsed.body;
+  _ref = parsed.attributes;
+  for (field in _ref) {
+    value = _ref[field];
     doc[field] = value;
   }
-  if (!doc.slug || doc.newSlug === true) {
+  if (!doc.slug) {
     doc.slug = doc.slug || (doc.title ? slug(doc.title) : doc._id);
+  }
+  if ((_ref1 = doc.slug) === 'docs' || _ref1 === 'edit' || _ref1 === 'assets') {
+    doc.slug = doc.slug + '2';
   }
   doc.children = children;
   if (children && !doc.items) {
-    for (_i = 0, _len = children.length; _i < _len; _i++) {
-      child = children[_i];
-      doc.items = process(child);
-    }
+    doc.items = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = children.length; _i < _len; _i++) {
+        child = children[_i];
+        _results.push(process(child));
+      }
+      return _results;
+    })();
   }
   return doc;
 };
@@ -34527,24 +34560,42 @@ var TextLoad, req;
 req = require('superagent');
 
 TextLoad = function(files, callback) {
-  var addr, results, waitingFor, _i, _len;
+  var addr, r, results, text, waitingFor, _i, _len;
   if (typeof files === 'string') {
     files = [files];
   }
   waitingFor = files.length;
-  results = [];
+  results = {};
   for (_i = 0, _len = files.length; _i < _len; _i++) {
     addr = files[_i];
+    results[addr] = null;
     req.get(addr).end(function(res) {
-      results.push(res.text);
+      var r, text;
+      results[res.req.url] = res.text;
       waitingFor--;
       if (waitingFor === 0) {
-        return callback.apply(this, results);
+        return callback.apply(this, (function() {
+          var _results;
+          _results = [];
+          for (r in results) {
+            text = results[r];
+            _results.push(text);
+          }
+          return _results;
+        })());
       }
     });
   }
   if (waitingFor === 0) {
-    return callback.apply(this, results);
+    return callback.apply(this, (function() {
+      var _results;
+      _results = [];
+      for (r in results) {
+        text = results[r];
+        _results.push(text);
+      }
+      return _results;
+    })());
   }
 };
 
