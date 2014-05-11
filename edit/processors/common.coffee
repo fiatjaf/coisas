@@ -1,5 +1,6 @@
 slug = require 'slug'
 fm = require 'front-matter'
+parser = require './parsers/universal.coffee'
 
 process = (doc, children) ->
   # parse extra fields and metadata
