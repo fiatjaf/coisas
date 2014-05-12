@@ -1,17 +1,26 @@
 XLS = require 'xlsjs'
 XLSX = require 'xlsx'
-YAML = require 'yaml'
-CSV = require './papa.coffee'
+YAML = require 'js-yaml'
+CSV = require './csv.js'
 
 module.exports = (text) ->
   try
     JSON.parse text
   catch e
     try
-      CSV.parse text
+      CSV.RELAXED = true
+      parsed = CSV.parse text
+      headers = parsed[0]
+      output = []
+      for row in parsed.slice(1)
+        entry = {}
+        for cell, i in row
+          entry[headers[i]] = cell
+        output.push entry
+      output
     catch e
       try
-        YAML.parse text
+        YAML.safeLoad text
       catch e
         try
           XLS.parse text
