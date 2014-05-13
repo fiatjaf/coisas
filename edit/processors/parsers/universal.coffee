@@ -4,6 +4,9 @@ YAML = require 'js-yaml'
 CSV = require './csv.js'
 
 module.exports = (text) ->
+  if not text
+    text
+
   try
     JSON.parse text
   catch e
