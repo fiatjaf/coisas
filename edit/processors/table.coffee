@@ -1,6 +1,6 @@
 module.exports = (doc) ->
-  unless Array.isArray doc.data
-    doc.data = [doc.data]
+  unless Array.isArray doc._data
+    doc._data = [doc._data]
 
   table =
     head: []
@@ -12,7 +12,7 @@ module.exports = (doc) ->
   # build the complete set of
   # available keys and respective
   # types
-  for item in doc.data
+  for item in doc._data
     for key, value of item
       if key not of keys
         keys[key] = typeof value
@@ -35,16 +35,8 @@ module.exports = (doc) ->
   # get the keys as a list
   table.head = Object.keys keys
 
-  # sort the list according to some criteria
-  criteria = doc.sortBy = doc.sort = doc.orderBy = doc.order
-  if criteria
-    table.head = table.head.sort (a, b) ->
-      return -1 if a[criteria] < b[criteria]
-      return 1 if a[criteria] > b[criteria]
-      return 0
-
   # add data to the table in the correct order
-  for item in doc.data
+  for item in doc._data
     row = []
     for key in table.head
       row.push item[key]
@@ -57,6 +49,16 @@ module.exports = (doc) ->
       #
 
     table.body.push row
+
+  # sort the list according to some criteria
+  criteria = doc.sortBy or doc.sort or doc.orderBy or doc.order
+  if criteria
+    pos = table.head indexOf criteria
+    if pos isnt -1
+      table.body = table.body.sort (a, b) ->
+        return -1 if a[pos] < b[pos]
+        return 1 if a[pos] > b[pos]
+        return 0
 
   # add the foot to the table in the correct order
   if table.foot

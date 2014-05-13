@@ -1,3 +1,4 @@
+{{{ doc.html }}}
 <table>
   <thead>
     <tr>
@@ -9,7 +10,7 @@
   <tbody>
     {{#each doc.table.body}}
       <tr>
-        {{#each column}}
+        {{#each this}}
           <td>{{ this }}</td>
         {{/each}}
       </tr>

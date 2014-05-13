@@ -1,2 +1,2 @@
 module.exports = (doc) ->
-  doc
+  doc.items = doc._data or doc.children

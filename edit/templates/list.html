@@ -1,9 +1,15 @@
+{{{ doc.html }}}
 <ul>
   {{#each doc.items}}
     <li>
-      <a href="{{ ../site.baseUrl }}/{{{ cleanPath path }}}">
+      {{#if path}}
+        <a href="{{ ../../site.baseUrl }}/{{{ cleanPath path }}}">
+          {{#if title}}{{title}}{{/if}}{{#unless title}}{{_id}}{{/unless}}
+        </a>
+      {{/if}}
+      {{#unless path}}
         {{#if title}}{{title}}{{/if}}{{#unless title}}{{_id}}{{/unless}}
-      </a>
+      {{/unless}}
       {{#if date}} - <time>{{ date }}</time>{{/if}}
     </li>
   {{/each}}

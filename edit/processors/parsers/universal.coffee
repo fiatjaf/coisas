@@ -3,32 +3,37 @@ XLSX = require 'xlsx'
 YAML = require 'js-yaml'
 CSV = require './csv.js'
 
-module.exports = (text) ->
-  if not text
-    text
+module.exports = (data) ->
+  if not data
+    return data
 
   try
-    JSON.parse text
+    JSON.parse data
   catch e
     try
       CSV.RELAXED = true
-      parsed = CSV.parse text
+      parsed = CSV.parse data
       headers = parsed[0]
       output = []
       for row in parsed.slice(1)
         entry = {}
         for cell, i in row
-          entry[headers[i]] = cell
+          value = cell
+          if typeof value is 'string'
+            value = value.trim()
+          unless isNaN value
+            value = parseFloat value
+          entry[headers[i]] = value
         output.push entry
       output
     catch e
       try
-        YAML.safeLoad text
+        YAML.safeLoad data
       catch e
         try
-          XLS.parse text
+          XLS.parse data
         catch e
           try
-            XLSX.parse text
+            XLSX.parse data
           catch
-            ({line: line} for line in text.split '\n')
+            ({line: line} for line in data.split '\n')
