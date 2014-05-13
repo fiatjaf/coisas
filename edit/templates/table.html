@@ -1,24 +1,24 @@
 <table>
   <thead>
     <tr>
-      {{#each doc.headers}}
-        <th>{{ . }}</th>
+      {{#each doc.table.head}}
+        <th>{{ this }}</th>
       {{/each}}
     </tr>
   </thead>
   <tbody>
-    {{#each doc.rows}}
+    {{#each doc.table.body}}
       <tr>
         {{#each column}}
-          <td>{{ . }}</td>
+          <td>{{ this }}</td>
         {{/each}}
       </tr>
     {{/each}}
   </tbody>
   <tfoot>
-    {{#if doc.footer}}
+    {{#if doc.table.foot}}
       <tr>
-        {{#each column}}
+        {{#each doc.table.foot}}
           <th>{{ . }}</th>
         {{/each}}
       </tr>

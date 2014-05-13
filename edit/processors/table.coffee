@@ -1,13 +1,67 @@
 module.exports = (doc) ->
-  properties = doc.display_properties
-  order = doc.order
+  unless Array.isArray doc.data
+    doc.data = [doc.data]
 
-  doc.headers = properties
-  doc.rows = []
+  table =
+    head: []
+    body: []
+    foot: null
 
-  for item in doc.items
+  keys = {}
+  
+  # build the complete set of
+  # available keys and respective
+  # types
+  for item in doc.data
+    for key, value of item
+      if key not of keys
+        keys[key] = typeof value
+      else
+        if keys[key] is 'number' and typeof value isnt 'number'
+          keys[key] = typeof value
+
+  console.log keys
+
+  # if one of the types is numerical,
+  # add a foot to the table
+  for key, type of keys
+    if type is 'number'
+      table.foot = []
+      footSums = {}
+      for key of keys
+        footSums[key] = null
+      break
+        
+  # get the keys as a list
+  table.head = Object.keys keys
+
+  # sort the list according to some criteria
+  criteria = doc.sortBy = doc.sort = doc.orderBy = doc.order
+  if criteria
+    table.head = table.head.sort (a, b) ->
+      return -1 if a[criteria] < b[criteria]
+      return 1 if a[criteria] > b[criteria]
+      return 0
+
+  # add data to the table in the correct order
+  for item in doc.data
     row = []
-    for prop in properties
-      row.push doc[property]
-    doc.rows.push row
+    for key in table.head
+      row.push item[key]
 
+      # the foot part
+      type = keys[key]
+      console.log type, key, item[key]
+      if table.foot and type == 'number'
+        footSums[key] += item[key]
+      #
+
+    table.body.push row
+
+  # add the foot to the table in the correct order
+  if table.foot
+    for key in table.head
+      table.foot.push footSums[key]
+
+  doc.table = table
+  doc

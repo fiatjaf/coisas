@@ -1,5 +1,6 @@
 slug = require 'slug'
 fm = require 'front-matter'
+parse = require './parsers/universal.coffee'
 
 process = (doc, children) ->
   # parse extra fields and metadata
@@ -15,9 +16,11 @@ process = (doc, children) ->
     doc.slug = doc.slug + '2'
 
   # process the children
-  doc.children = children
-  if children and not doc.items
-    doc.items = (process child for child in children)
+  if children
+    doc.children = (process child for child in children)
+
+  # process the data
+  doc.data = parse doc.data
 
   return doc
 
