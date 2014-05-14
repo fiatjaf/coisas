@@ -1,1 +1,18 @@
-{"parents":["8aa98a13"],"data":"","kind":"article","title":"","text":"\nhá!","___id":"T000002R000006","___s":true,"_id":"9a5e98d8","date":"2014-05-08T00:00:00.000Z","html":"<p>há!</p>\n","slug":"9a5e98d8","_data":"","children":[],"path":"blog/9a5e98d8/index.html"}
+{
+  "parents" : [
+    "8aa98a13"
+  ],
+  "data"     : "",
+  "kind"     : "article",
+  "title"    : "",
+  "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
+  "___id"    : "T000002R000008",
+  "___s"     : true,
+  "_id"      : "9a5e98d8",
+  "date"     : "2014-05-08T00:00:00.000Z",
+  "html"     : "<p>há!</p>\n",
+  "slug"     : "9a5e98d8",
+  "_data"    : "",
+  "children" : [],
+  "path"     : "blog/9a5e98d8/index.html"
+}

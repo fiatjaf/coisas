@@ -1,1 +1,56 @@
-{"parents":["home"],"data":"","kind":"list","title":"blog","text":"","___id":"T000002R000005","___s":true,"_id":"8aa98a13","html":"","slug":"blog","_data":"","children":[{"parents":["8aa98a13"],"data":"","kind":"article","title":"","text":"\nhá!","___id":"T000002R000006","___s":true,"_id":"9a5e98d8","date":"2014-05-08T00:00:00.000Z","html":"<p>há!</p>\n","slug":"9a5e98d8","_data":"","children":[],"path":"blog/9a5e98d8/index.html"}],"items":[{"parents":["8aa98a13"],"data":"","kind":"article","title":"","text":"\nhá!","___id":"T000002R000006","___s":true,"_id":"9a5e98d8","date":"2014-05-08T00:00:00.000Z","html":"<p>há!</p>\n","slug":"9a5e98d8","_data":"","children":[],"path":"blog/9a5e98d8/index.html"}],"path":"blog/index.html"}
+{
+  "parents" : [
+    "home"
+  ],
+  "data"     : "",
+  "kind"     : "list",
+  "title"    : "blog",
+  "text"     : "",
+  "___id"    : "T000002R000007",
+  "___s"     : true,
+  "_id"      : "8aa98a13",
+  "html"     : "",
+  "slug"     : "blog",
+  "_data"    : "",
+  "children" : [
+    {
+      "parents" : [
+        "8aa98a13"
+      ],
+      "data"     : "",
+      "kind"     : "article",
+      "title"    : "",
+      "text"     : "\nhá!",
+      "___id"    : "T000002R000006",
+      "___s"     : true,
+      "_id"      : "9a5e98d8",
+      "date"     : "2014-05-08T00:00:00.000Z",
+      "html"     : "<p>há!</p>\n",
+      "slug"     : "9a5e98d8",
+      "_data"    : "",
+      "children" : [],
+      "path"     : "blog/9a5e98d8/index.html"
+    }
+  ],
+  "items" : [
+    {
+      "parents" : [
+        "8aa98a13"
+      ],
+      "data"     : "",
+      "kind"     : "article",
+      "title"    : "",
+      "text"     : "\nhá!",
+      "___id"    : "T000002R000006",
+      "___s"     : true,
+      "_id"      : "9a5e98d8",
+      "date"     : "2014-05-08T00:00:00.000Z",
+      "html"     : "<p>há!</p>\n",
+      "slug"     : "9a5e98d8",
+      "_data"    : "",
+      "children" : [],
+      "path"     : "blog/9a5e98d8/index.html"
+    }
+  ],
+  "path" : "blog/index.html"
+}
