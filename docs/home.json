@@ -12,13 +12,13 @@
   "children" : [
     {
       "parents" : [
-        "home"
+        "68ee9357"
       ],
       "data"     : "",
       "kind"     : "list",
       "title"    : "compêndio de resultados do tarot na casa do Ivan",
       "text"     : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
-      "___id"    : "T000002R000004",
+      "___id"    : "T000002R000005",
       "___s"     : true,
       "_id"      : "1ba1add5",
       "html"     : "<p>jogos acontecidos entre 2011 e 2013.<br>como não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.</p>\n",
@@ -31,9 +31,9 @@
           ],
           "data"  : "Ana, Filipe, Ivan, Giovanni, Letícia\n-192,96,96,-96,96\n72,-72,72,-144,72\n141,-282,-141,141,141\n62,62,-62,-124,62\n66,-132,66,-66,66",
           "kind"  : "table",
-          "title" : "",
+          "title" : "1",
           "text"  : "",
-          "___id" : "T000002R000007",
+          "___id" : "T000002R000004",
           "___s"  : true,
           "_id"   : "18e6829f",
           "html"  : "",
@@ -129,113 +129,8 @@
               -289,
               437
             ]
-          }
-        },
-        {
-          "parents" : [
-            "1ba1add5"
-          ],
-          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
-          "kind"  : "table",
-          "title" : "",
-          "text"  : "",
-          "___id" : "T000002R000008",
-          "___s"  : true,
-          "_id"   : "9b8da698",
-          "html"  : "",
-          "slug"  : "9b8da698",
-          "_data" : [
-            {
-              "Ivan"       : -52,
-              " Dani"      : -52,
-              " Guilherme" : 104,
-              " André"     : 52,
-              " Giovanni"  : -52
-            },
-            {
-              "Ivan"       : -86,
-              " Dani"      : 172,
-              " Guilherme" : -86,
-              " André"     : -86,
-              " Giovanni"  : 86
-            },
-            {
-              "Ivan"       : -62,
-              " Dani"      : 31,
-              " Guilherme" : -31,
-              " André"     : 31,
-              " Giovanni"  : 31
-            },
-            {
-              "Ivan"       : 123,
-              " Dani"      : -123,
-              " Guilherme" : 123,
-              " André"     : 123,
-              " Giovanni"  : -246
-            },
-            {
-              "Ivan"       : -228,
-              " Dani"      : -114,
-              " Guilherme" : 114,
-              " André"     : 114,
-              " Giovanni"  : 114
-            }
-          ],
-          "children" : [],
-          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
-          "table"    : {
-            "head" : [
-              "Ivan",
-              " Dani",
-              " Guilherme",
-              " André",
-              " Giovanni"
-            ],
-            "body" : [
-              [
-                -52,
-                -52,
-                104,
-                52,
-                -52
-              ],
-              [
-                -86,
-                172,
-                -86,
-                -86,
-                86
-              ],
-              [
-                -62,
-                31,
-                -31,
-                31,
-                31
-              ],
-              [
-                123,
-                -123,
-                123,
-                123,
-                -246
-              ],
-              [
-                -228,
-                -114,
-                114,
-                114,
-                114
-              ]
-            ],
-            "foot" : [
-              -305,
-              -86,
-              224,
-              234,
-              -67
-            ]
-          }
+          },
+          "_text" : ""
         },
         {
           "parents" : [
@@ -243,9 +138,9 @@
           ],
           "data"  : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
           "kind"  : "table",
-          "title" : "",
+          "title" : "3",
           "text"  : "",
-          "___id" : "T000002R000009",
+          "___id" : "T000002R000006",
           "___s"  : true,
           "_id"   : "2b218b6a",
           "html"  : "",
@@ -341,7 +236,222 @@
               326
             ]
           },
-          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html"
+          "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html",
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
+          "kind"  : "table",
+          "title" : "2",
+          "text"  : "",
+          "___id" : "T000002R000009",
+          "___s"  : true,
+          "_id"   : "9b8da698",
+          "html"  : "",
+          "slug"  : "9b8da698",
+          "_data" : [
+            {
+              "Ivan"       : -52,
+              " Dani"      : -52,
+              " Guilherme" : 104,
+              " André"     : 52,
+              " Giovanni"  : -52
+            },
+            {
+              "Ivan"       : -86,
+              " Dani"      : 172,
+              " Guilherme" : -86,
+              " André"     : -86,
+              " Giovanni"  : 86
+            },
+            {
+              "Ivan"       : -62,
+              " Dani"      : 31,
+              " Guilherme" : -31,
+              " André"     : 31,
+              " Giovanni"  : 31
+            },
+            {
+              "Ivan"       : 123,
+              " Dani"      : -123,
+              " Guilherme" : 123,
+              " André"     : 123,
+              " Giovanni"  : -246
+            },
+            {
+              "Ivan"       : -228,
+              " Dani"      : -114,
+              " Guilherme" : 114,
+              " André"     : 114,
+              " Giovanni"  : 114
+            }
+          ],
+          "children" : [],
+          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
+          "table"    : {
+            "head" : [
+              "Ivan",
+              " Dani",
+              " Guilherme",
+              " André",
+              " Giovanni"
+            ],
+            "body" : [
+              [
+                -52,
+                -52,
+                104,
+                52,
+                -52
+              ],
+              [
+                -86,
+                172,
+                -86,
+                -86,
+                86
+              ],
+              [
+                -62,
+                31,
+                -31,
+                31,
+                31
+              ],
+              [
+                123,
+                -123,
+                123,
+                123,
+                -246
+              ],
+              [
+                -228,
+                -114,
+                114,
+                114,
+                114
+              ]
+            ],
+            "foot" : [
+              -305,
+              -86,
+              224,
+              234,
+              -67
+            ]
+          },
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+          "kind"  : "table",
+          "title" : "4",
+          "text"  : "",
+          "___id" : "T000002R000010",
+          "___s"  : true,
+          "_id"   : "ebfcbabd",
+          "_text" : "",
+          "html"  : "",
+          "slug"  : "4",
+          "_data" : [
+            {
+              "Daniella"          : 52,
+              " Guilherme"        : 52,
+              " Giovanni"         : -104,
+              " Ivan"             : -52,
+              "Letícia (Charlie)" : 52
+            },
+            {
+              "Daniella"          : -70,
+              " Guilherme"        : 140,
+              " Giovanni"         : 70,
+              " Ivan"             : -70,
+              "Letícia (Charlie)" : -70
+            },
+            {
+              "Daniella"          : 56,
+              " Guilherme"        : -56,
+              " Giovanni"         : 56,
+              " Ivan"             : -112,
+              "Letícia (Charlie)" : 56
+            },
+            {
+              "Daniella"          : 93,
+              " Guilherme"        : -93,
+              " Giovanni"         : 186,
+              " Ivan"             : -93,
+              "Letícia (Charlie)" : -93
+            },
+            {
+              "Daniella"          : 90,
+              " Guilherme"        : -180,
+              " Giovanni"         : -90,
+              " Ivan"             : 90,
+              "Letícia (Charlie)" : 90
+            }
+          ],
+          "children" : [],
+          "table"    : {
+            "head" : [
+              "Daniella",
+              " Guilherme",
+              " Giovanni",
+              " Ivan",
+              "Letícia (Charlie)"
+            ],
+            "body" : [
+              [
+                52,
+                52,
+                -104,
+                -52,
+                52
+              ],
+              [
+                -70,
+                140,
+                70,
+                -70,
+                -70
+              ],
+              [
+                56,
+                -56,
+                56,
+                -112,
+                56
+              ],
+              [
+                93,
+                -93,
+                186,
+                -93,
+                -93
+              ],
+              [
+                90,
+                -180,
+                -90,
+                90,
+                90
+              ]
+            ],
+            "foot" : [
+              221,
+              -137,
+              118,
+              -237,
+              35
+            ]
+          },
+          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
         }
       ],
       "items" : [
@@ -351,9 +461,9 @@
           ],
           "data"  : "Ana, Filipe, Ivan, Giovanni, Letícia\n-192,96,96,-96,96\n72,-72,72,-144,72\n141,-282,-141,141,141\n62,62,-62,-124,62\n66,-132,66,-66,66",
           "kind"  : "table",
-          "title" : "",
+          "title" : "1",
           "text"  : "",
-          "___id" : "T000002R000007",
+          "___id" : "T000002R000004",
           "___s"  : true,
           "_id"   : "18e6829f",
           "html"  : "",
@@ -449,113 +559,8 @@
               -289,
               437
             ]
-          }
-        },
-        {
-          "parents" : [
-            "1ba1add5"
-          ],
-          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
-          "kind"  : "table",
-          "title" : "",
-          "text"  : "",
-          "___id" : "T000002R000008",
-          "___s"  : true,
-          "_id"   : "9b8da698",
-          "html"  : "",
-          "slug"  : "9b8da698",
-          "_data" : [
-            {
-              "Ivan"       : -52,
-              " Dani"      : -52,
-              " Guilherme" : 104,
-              " André"     : 52,
-              " Giovanni"  : -52
-            },
-            {
-              "Ivan"       : -86,
-              " Dani"      : 172,
-              " Guilherme" : -86,
-              " André"     : -86,
-              " Giovanni"  : 86
-            },
-            {
-              "Ivan"       : -62,
-              " Dani"      : 31,
-              " Guilherme" : -31,
-              " André"     : 31,
-              " Giovanni"  : 31
-            },
-            {
-              "Ivan"       : 123,
-              " Dani"      : -123,
-              " Guilherme" : 123,
-              " André"     : 123,
-              " Giovanni"  : -246
-            },
-            {
-              "Ivan"       : -228,
-              " Dani"      : -114,
-              " Guilherme" : 114,
-              " André"     : 114,
-              " Giovanni"  : 114
-            }
-          ],
-          "children" : [],
-          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
-          "table"    : {
-            "head" : [
-              "Ivan",
-              " Dani",
-              " Guilherme",
-              " André",
-              " Giovanni"
-            ],
-            "body" : [
-              [
-                -52,
-                -52,
-                104,
-                52,
-                -52
-              ],
-              [
-                -86,
-                172,
-                -86,
-                -86,
-                86
-              ],
-              [
-                -62,
-                31,
-                -31,
-                31,
-                31
-              ],
-              [
-                123,
-                -123,
-                123,
-                123,
-                -246
-              ],
-              [
-                -228,
-                -114,
-                114,
-                114,
-                114
-              ]
-            ],
-            "foot" : [
-              -305,
-              -86,
-              224,
-              234,
-              -67
-            ]
-          }
+          },
+          "_text" : ""
         },
         {
           "parents" : [
@@ -563,9 +568,9 @@
           ],
           "data"  : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
           "kind"  : "table",
-          "title" : "",
+          "title" : "3",
           "text"  : "",
-          "___id" : "T000002R000009",
+          "___id" : "T000002R000006",
           "___s"  : true,
           "_id"   : "2b218b6a",
           "html"  : "",
@@ -661,10 +666,226 @@
               326
             ]
           },
-          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html"
+          "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html",
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
+          "kind"  : "table",
+          "title" : "2",
+          "text"  : "",
+          "___id" : "T000002R000009",
+          "___s"  : true,
+          "_id"   : "9b8da698",
+          "html"  : "",
+          "slug"  : "9b8da698",
+          "_data" : [
+            {
+              "Ivan"       : -52,
+              " Dani"      : -52,
+              " Guilherme" : 104,
+              " André"     : 52,
+              " Giovanni"  : -52
+            },
+            {
+              "Ivan"       : -86,
+              " Dani"      : 172,
+              " Guilherme" : -86,
+              " André"     : -86,
+              " Giovanni"  : 86
+            },
+            {
+              "Ivan"       : -62,
+              " Dani"      : 31,
+              " Guilherme" : -31,
+              " André"     : 31,
+              " Giovanni"  : 31
+            },
+            {
+              "Ivan"       : 123,
+              " Dani"      : -123,
+              " Guilherme" : 123,
+              " André"     : 123,
+              " Giovanni"  : -246
+            },
+            {
+              "Ivan"       : -228,
+              " Dani"      : -114,
+              " Guilherme" : 114,
+              " André"     : 114,
+              " Giovanni"  : 114
+            }
+          ],
+          "children" : [],
+          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
+          "table"    : {
+            "head" : [
+              "Ivan",
+              " Dani",
+              " Guilherme",
+              " André",
+              " Giovanni"
+            ],
+            "body" : [
+              [
+                -52,
+                -52,
+                104,
+                52,
+                -52
+              ],
+              [
+                -86,
+                172,
+                -86,
+                -86,
+                86
+              ],
+              [
+                -62,
+                31,
+                -31,
+                31,
+                31
+              ],
+              [
+                123,
+                -123,
+                123,
+                123,
+                -246
+              ],
+              [
+                -228,
+                -114,
+                114,
+                114,
+                114
+              ]
+            ],
+            "foot" : [
+              -305,
+              -86,
+              224,
+              234,
+              -67
+            ]
+          },
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+          "kind"  : "table",
+          "title" : "4",
+          "text"  : "",
+          "___id" : "T000002R000010",
+          "___s"  : true,
+          "_id"   : "ebfcbabd",
+          "_text" : "",
+          "html"  : "",
+          "slug"  : "4",
+          "_data" : [
+            {
+              "Daniella"          : 52,
+              " Guilherme"        : 52,
+              " Giovanni"         : -104,
+              " Ivan"             : -52,
+              "Letícia (Charlie)" : 52
+            },
+            {
+              "Daniella"          : -70,
+              " Guilherme"        : 140,
+              " Giovanni"         : 70,
+              " Ivan"             : -70,
+              "Letícia (Charlie)" : -70
+            },
+            {
+              "Daniella"          : 56,
+              " Guilherme"        : -56,
+              " Giovanni"         : 56,
+              " Ivan"             : -112,
+              "Letícia (Charlie)" : 56
+            },
+            {
+              "Daniella"          : 93,
+              " Guilherme"        : -93,
+              " Giovanni"         : 186,
+              " Ivan"             : -93,
+              "Letícia (Charlie)" : -93
+            },
+            {
+              "Daniella"          : 90,
+              " Guilherme"        : -180,
+              " Giovanni"         : -90,
+              " Ivan"             : 90,
+              "Letícia (Charlie)" : 90
+            }
+          ],
+          "children" : [],
+          "table"    : {
+            "head" : [
+              "Daniella",
+              " Guilherme",
+              " Giovanni",
+              " Ivan",
+              "Letícia (Charlie)"
+            ],
+            "body" : [
+              [
+                52,
+                52,
+                -104,
+                -52,
+                52
+              ],
+              [
+                -70,
+                140,
+                70,
+                -70,
+                -70
+              ],
+              [
+                56,
+                -56,
+                56,
+                -112,
+                56
+              ],
+              [
+                93,
+                -93,
+                186,
+                -93,
+                -93
+              ],
+              [
+                90,
+                -180,
+                -90,
+                90,
+                90
+              ]
+            ],
+            "foot" : [
+              221,
+              -137,
+              118,
+              -237,
+              35
+            ]
+          },
+          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
         }
       ],
-      "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html"
+      "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html",
+      "_text" : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória."
     },
     {
       "parents" : [
@@ -674,7 +895,7 @@
       "kind"     : "list",
       "title"    : "blog",
       "text"     : "",
-      "___id"    : "T000002R000005",
+      "___id"    : "T000002R000007",
       "___s"     : true,
       "_id"      : "8aa98a13",
       "html"     : "",
@@ -688,16 +909,17 @@
           "data"     : "",
           "kind"     : "article",
           "title"    : "",
-          "text"     : "\nhá!",
-          "___id"    : "T000002R000006",
+          "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
+          "___id"    : "T000002R000008",
           "___s"     : true,
           "_id"      : "9a5e98d8",
-          "date"     : "2014-05-08T00:00:00.000Z",
+          "date"     : "2014-05-12",
           "html"     : "<p>há!</p>\n",
           "slug"     : "9a5e98d8",
           "_data"    : "",
           "children" : [],
-          "path"     : "blog/9a5e98d8/index.html"
+          "path"     : "blog/9a5e98d8/index.html",
+          "_text"    : "\nhá!"
         }
       ],
       "items" : [
@@ -708,32 +930,53 @@
           "data"     : "",
           "kind"     : "article",
           "title"    : "",
-          "text"     : "\nhá!",
-          "___id"    : "T000002R000006",
+          "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
+          "___id"    : "T000002R000008",
           "___s"     : true,
           "_id"      : "9a5e98d8",
-          "date"     : "2014-05-08T00:00:00.000Z",
+          "date"     : "2014-05-12",
           "html"     : "<p>há!</p>\n",
           "slug"     : "9a5e98d8",
           "_data"    : "",
           "children" : [],
-          "path"     : "blog/9a5e98d8/index.html"
+          "path"     : "blog/9a5e98d8/index.html",
+          "_text"    : "\nhá!"
         }
       ],
-      "path" : "blog/index.html"
+      "path"  : "blog/index.html",
+      "_text" : ""
+    },
+    {
+      "parents" : [
+        "68ee9357"
+      ],
+      "data"     : "",
+      "kind"     : "plaintext",
+      "title"    : "resultados do kart de 10 de janeiro de 2011",
+      "text"     : "---\ndate: '2011-01-10'\n---\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nP R A C T I C E   R E S U L T S\n  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tFastest\tin\t2nd Best in\n  1 10  Andre\t 25.010  8\t  25.140  7\n  2 14  Roberto\t 25.150 11\t  25.350  9\n  3 02  Giovani\t 26.350  9\t  27.190  8\n  4 08  Guilherme\t 28.510  5\t  29.680  8\n  5 09  Felipe\t 29.420  6\t  30.360  5\n  6 06  Ivan\t 29.780  8\t  31.350  6\n  7 11  Livia\t 30.940  7\t  31.180  8\n\n   Fastest Laptime\t25.010 By\t10 Andre\t in lap 8\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nR E S U L T S   C U R R E N T   L A P\n  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tTotal Time    Laps\tFastest\tin\n  1 10  Andre\t 16:45.840 ==   41 ==\t 23.000 18\n  2 08  Guilherme\t 17:00.900 ==   40 ==\t 23.970 39\n  3 11  Livia\t 16:49.510 ==   39 ==\t 23.780 39\n  4 09  Felipe\t 16:55.410 ==   5.900\t 25.330 10\n  5 00  Roberto\t 16:50.740 ==   35 ==\t 23.460 23\n  6 02  Giovani\t 17:07.300 ==   34 ==\t 24.670 33\n  7 06  Ivan\t 17:03.860 ==   29 ==\t 25.340 24\n\n   Fastest Laptime\t23.000 By\t10 Andre\t in lap 18\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------",
+      "___id"    : "T000002R000011",
+      "___s"     : true,
+      "_id"      : "09429ed5",
+      "_text"    : "\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nP R A C T I C E   R E S U L T S\n  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tFastest\tin\t2nd Best in\n  1 10  Andre\t 25.010  8\t  25.140  7\n  2 14  Roberto\t 25.150 11\t  25.350  9\n  3 02  Giovani\t 26.350  9\t  27.190  8\n  4 08  Guilherme\t 28.510  5\t  29.680  8\n  5 09  Felipe\t 29.420  6\t  30.360  5\n  6 06  Ivan\t 29.780  8\t  31.350  6\n  7 11  Livia\t 30.940  7\t  31.180  8\n\n   Fastest Laptime\t25.010 By\t10 Andre\t in lap 8\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nR E S U L T S   C U R R E N T   L A P\n  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tTotal Time    Laps\tFastest\tin\n  1 10  Andre\t 16:45.840 ==   41 ==\t 23.000 18\n  2 08  Guilherme\t 17:00.900 ==   40 ==\t 23.970 39\n  3 11  Livia\t 16:49.510 ==   39 ==\t 23.780 39\n  4 09  Felipe\t 16:55.410 ==   5.900\t 25.330 10\n  5 00  Roberto\t 16:50.740 ==   35 ==\t 23.460 23\n  6 02  Giovani\t 17:07.300 ==   34 ==\t 24.670 33\n  7 06  Ivan\t 17:03.860 ==   29 ==\t 25.340 24\n\n   Fastest Laptime\t23.000 By\t10 Andre\t in lap 18\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------",
+      "date"     : "2011-01-10",
+      "html"     : "<hr>\n<p>Run: 1 <strong><strong> RESERVAS 3641.4258 // 8417.8815 </strong></strong><br>P R A C T I C E   R E S U L T S<br>  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21</p>\n<hr>\n<p>Pos Nr. Name     Nat    Fastest    in    2nd Best in<br>  1 10  Andre     25.010  8      25.140  7<br>  2 14  Roberto     25.150 11      25.350  9<br>  3 02  Giovani     26.350  9      27.190  8<br>  4 08  Guilherme     28.510  5      29.680  8<br>  5 09  Felipe     29.420  6      30.360  5<br>  6 06  Ivan     29.780  8      31.350  6<br>  7 11  Livia     30.940  7      31.180  8</p>\n<p>   Fastest Laptime    25.010 By    10 Andre     in lap 8</p>\n<hr>\n<p>www.megaspacekart.com</p>\n<pre><code>  AMB Products b.v. Holland\n</code></pre><hr>\n<hr>\n<p>Run: 1 <strong><strong> RESERVAS 3641.4258 // 8417.8815 </strong></strong><br>R E S U L T S   C U R R E N T   L A P<br>  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34</p>\n<hr>\n<p>Pos Nr. Name     Nat    Total Time    Laps    Fastest    in<br>  1 10  Andre     16:45.840 ==   41 ==     23.000 18<br>  2 08  Guilherme     17:00.900 ==   40 ==     23.970 39<br>  3 11  Livia     16:49.510 ==   39 ==     23.780 39<br>  4 09  Felipe     16:55.410 ==   5.900     25.330 10<br>  5 00  Roberto     16:50.740 ==   35 ==     23.460 23<br>  6 02  Giovani     17:07.300 ==   34 ==     24.670 33<br>  7 06  Ivan     17:03.860 ==   29 ==     25.340 24</p>\n<p>   Fastest Laptime    23.000 By    10 Andre     in lap 18</p>\n<hr>\n<p>www.megaspacekart.com</p>\n<pre><code>  AMB Products b.v. Holland\n</code></pre><hr>\n",
+      "slug"     : "resultados-do-kart-de-10-de-janeiro-de-2011",
+      "_data"    : "",
+      "children" : [],
+      "path"     : "resultados-do-kart-de-10-de-janeiro-de-2011/index.html"
     }
   ],
   "_data" : "",
   "items" : [
     {
       "parents" : [
-        "home"
+        "68ee9357"
       ],
       "data"     : "",
       "kind"     : "list",
       "title"    : "compêndio de resultados do tarot na casa do Ivan",
       "text"     : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
-      "___id"    : "T000002R000004",
+      "___id"    : "T000002R000005",
       "___s"     : true,
       "_id"      : "1ba1add5",
       "html"     : "<p>jogos acontecidos entre 2011 e 2013.<br>como não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.</p>\n",
@@ -746,9 +989,9 @@
           ],
           "data"  : "Ana, Filipe, Ivan, Giovanni, Letícia\n-192,96,96,-96,96\n72,-72,72,-144,72\n141,-282,-141,141,141\n62,62,-62,-124,62\n66,-132,66,-66,66",
           "kind"  : "table",
-          "title" : "",
+          "title" : "1",
           "text"  : "",
-          "___id" : "T000002R000007",
+          "___id" : "T000002R000004",
           "___s"  : true,
           "_id"   : "18e6829f",
           "html"  : "",
@@ -844,113 +1087,8 @@
               -289,
               437
             ]
-          }
-        },
-        {
-          "parents" : [
-            "1ba1add5"
-          ],
-          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
-          "kind"  : "table",
-          "title" : "",
-          "text"  : "",
-          "___id" : "T000002R000008",
-          "___s"  : true,
-          "_id"   : "9b8da698",
-          "html"  : "",
-          "slug"  : "9b8da698",
-          "_data" : [
-            {
-              "Ivan"       : -52,
-              " Dani"      : -52,
-              " Guilherme" : 104,
-              " André"     : 52,
-              " Giovanni"  : -52
-            },
-            {
-              "Ivan"       : -86,
-              " Dani"      : 172,
-              " Guilherme" : -86,
-              " André"     : -86,
-              " Giovanni"  : 86
-            },
-            {
-              "Ivan"       : -62,
-              " Dani"      : 31,
-              " Guilherme" : -31,
-              " André"     : 31,
-              " Giovanni"  : 31
-            },
-            {
-              "Ivan"       : 123,
-              " Dani"      : -123,
-              " Guilherme" : 123,
-              " André"     : 123,
-              " Giovanni"  : -246
-            },
-            {
-              "Ivan"       : -228,
-              " Dani"      : -114,
-              " Guilherme" : 114,
-              " André"     : 114,
-              " Giovanni"  : 114
-            }
-          ],
-          "children" : [],
-          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
-          "table"    : {
-            "head" : [
-              "Ivan",
-              " Dani",
-              " Guilherme",
-              " André",
-              " Giovanni"
-            ],
-            "body" : [
-              [
-                -52,
-                -52,
-                104,
-                52,
-                -52
-              ],
-              [
-                -86,
-                172,
-                -86,
-                -86,
-                86
-              ],
-              [
-                -62,
-                31,
-                -31,
-                31,
-                31
-              ],
-              [
-                123,
-                -123,
-                123,
-                123,
-                -246
-              ],
-              [
-                -228,
-                -114,
-                114,
-                114,
-                114
-              ]
-            ],
-            "foot" : [
-              -305,
-              -86,
-              224,
-              234,
-              -67
-            ]
-          }
+          },
+          "_text" : ""
         },
         {
           "parents" : [
@@ -958,9 +1096,9 @@
           ],
           "data"  : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
           "kind"  : "table",
-          "title" : "",
+          "title" : "3",
           "text"  : "",
-          "___id" : "T000002R000009",
+          "___id" : "T000002R000006",
           "___s"  : true,
           "_id"   : "2b218b6a",
           "html"  : "",
@@ -1056,7 +1194,222 @@
               326
             ]
           },
-          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html"
+          "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html",
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
+          "kind"  : "table",
+          "title" : "2",
+          "text"  : "",
+          "___id" : "T000002R000009",
+          "___s"  : true,
+          "_id"   : "9b8da698",
+          "html"  : "",
+          "slug"  : "9b8da698",
+          "_data" : [
+            {
+              "Ivan"       : -52,
+              " Dani"      : -52,
+              " Guilherme" : 104,
+              " André"     : 52,
+              " Giovanni"  : -52
+            },
+            {
+              "Ivan"       : -86,
+              " Dani"      : 172,
+              " Guilherme" : -86,
+              " André"     : -86,
+              " Giovanni"  : 86
+            },
+            {
+              "Ivan"       : -62,
+              " Dani"      : 31,
+              " Guilherme" : -31,
+              " André"     : 31,
+              " Giovanni"  : 31
+            },
+            {
+              "Ivan"       : 123,
+              " Dani"      : -123,
+              " Guilherme" : 123,
+              " André"     : 123,
+              " Giovanni"  : -246
+            },
+            {
+              "Ivan"       : -228,
+              " Dani"      : -114,
+              " Guilherme" : 114,
+              " André"     : 114,
+              " Giovanni"  : 114
+            }
+          ],
+          "children" : [],
+          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
+          "table"    : {
+            "head" : [
+              "Ivan",
+              " Dani",
+              " Guilherme",
+              " André",
+              " Giovanni"
+            ],
+            "body" : [
+              [
+                -52,
+                -52,
+                104,
+                52,
+                -52
+              ],
+              [
+                -86,
+                172,
+                -86,
+                -86,
+                86
+              ],
+              [
+                -62,
+                31,
+                -31,
+                31,
+                31
+              ],
+              [
+                123,
+                -123,
+                123,
+                123,
+                -246
+              ],
+              [
+                -228,
+                -114,
+                114,
+                114,
+                114
+              ]
+            ],
+            "foot" : [
+              -305,
+              -86,
+              224,
+              234,
+              -67
+            ]
+          },
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+          "kind"  : "table",
+          "title" : "4",
+          "text"  : "",
+          "___id" : "T000002R000010",
+          "___s"  : true,
+          "_id"   : "ebfcbabd",
+          "_text" : "",
+          "html"  : "",
+          "slug"  : "4",
+          "_data" : [
+            {
+              "Daniella"          : 52,
+              " Guilherme"        : 52,
+              " Giovanni"         : -104,
+              " Ivan"             : -52,
+              "Letícia (Charlie)" : 52
+            },
+            {
+              "Daniella"          : -70,
+              " Guilherme"        : 140,
+              " Giovanni"         : 70,
+              " Ivan"             : -70,
+              "Letícia (Charlie)" : -70
+            },
+            {
+              "Daniella"          : 56,
+              " Guilherme"        : -56,
+              " Giovanni"         : 56,
+              " Ivan"             : -112,
+              "Letícia (Charlie)" : 56
+            },
+            {
+              "Daniella"          : 93,
+              " Guilherme"        : -93,
+              " Giovanni"         : 186,
+              " Ivan"             : -93,
+              "Letícia (Charlie)" : -93
+            },
+            {
+              "Daniella"          : 90,
+              " Guilherme"        : -180,
+              " Giovanni"         : -90,
+              " Ivan"             : 90,
+              "Letícia (Charlie)" : 90
+            }
+          ],
+          "children" : [],
+          "table"    : {
+            "head" : [
+              "Daniella",
+              " Guilherme",
+              " Giovanni",
+              " Ivan",
+              "Letícia (Charlie)"
+            ],
+            "body" : [
+              [
+                52,
+                52,
+                -104,
+                -52,
+                52
+              ],
+              [
+                -70,
+                140,
+                70,
+                -70,
+                -70
+              ],
+              [
+                56,
+                -56,
+                56,
+                -112,
+                56
+              ],
+              [
+                93,
+                -93,
+                186,
+                -93,
+                -93
+              ],
+              [
+                90,
+                -180,
+                -90,
+                90,
+                90
+              ]
+            ],
+            "foot" : [
+              221,
+              -137,
+              118,
+              -237,
+              35
+            ]
+          },
+          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
         }
       ],
       "items" : [
@@ -1066,9 +1419,9 @@
           ],
           "data"  : "Ana, Filipe, Ivan, Giovanni, Letícia\n-192,96,96,-96,96\n72,-72,72,-144,72\n141,-282,-141,141,141\n62,62,-62,-124,62\n66,-132,66,-66,66",
           "kind"  : "table",
-          "title" : "",
+          "title" : "1",
           "text"  : "",
-          "___id" : "T000002R000007",
+          "___id" : "T000002R000004",
           "___s"  : true,
           "_id"   : "18e6829f",
           "html"  : "",
@@ -1164,113 +1517,8 @@
               -289,
               437
             ]
-          }
-        },
-        {
-          "parents" : [
-            "1ba1add5"
-          ],
-          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
-          "kind"  : "table",
-          "title" : "",
-          "text"  : "",
-          "___id" : "T000002R000008",
-          "___s"  : true,
-          "_id"   : "9b8da698",
-          "html"  : "",
-          "slug"  : "9b8da698",
-          "_data" : [
-            {
-              "Ivan"       : -52,
-              " Dani"      : -52,
-              " Guilherme" : 104,
-              " André"     : 52,
-              " Giovanni"  : -52
-            },
-            {
-              "Ivan"       : -86,
-              " Dani"      : 172,
-              " Guilherme" : -86,
-              " André"     : -86,
-              " Giovanni"  : 86
-            },
-            {
-              "Ivan"       : -62,
-              " Dani"      : 31,
-              " Guilherme" : -31,
-              " André"     : 31,
-              " Giovanni"  : 31
-            },
-            {
-              "Ivan"       : 123,
-              " Dani"      : -123,
-              " Guilherme" : 123,
-              " André"     : 123,
-              " Giovanni"  : -246
-            },
-            {
-              "Ivan"       : -228,
-              " Dani"      : -114,
-              " Guilherme" : 114,
-              " André"     : 114,
-              " Giovanni"  : 114
-            }
-          ],
-          "children" : [],
-          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
-          "table"    : {
-            "head" : [
-              "Ivan",
-              " Dani",
-              " Guilherme",
-              " André",
-              " Giovanni"
-            ],
-            "body" : [
-              [
-                -52,
-                -52,
-                104,
-                52,
-                -52
-              ],
-              [
-                -86,
-                172,
-                -86,
-                -86,
-                86
-              ],
-              [
-                -62,
-                31,
-                -31,
-                31,
-                31
-              ],
-              [
-                123,
-                -123,
-                123,
-                123,
-                -246
-              ],
-              [
-                -228,
-                -114,
-                114,
-                114,
-                114
-              ]
-            ],
-            "foot" : [
-              -305,
-              -86,
-              224,
-              234,
-              -67
-            ]
-          }
+          },
+          "_text" : ""
         },
         {
           "parents" : [
@@ -1278,9 +1526,9 @@
           ],
           "data"  : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
           "kind"  : "table",
-          "title" : "",
+          "title" : "3",
           "text"  : "",
-          "___id" : "T000002R000009",
+          "___id" : "T000002R000006",
           "___s"  : true,
           "_id"   : "2b218b6a",
           "html"  : "",
@@ -1376,10 +1624,226 @@
               326
             ]
           },
-          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html"
+          "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/2b218b6a/index.html",
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Ivan, Dani, Guilherme, André, Giovanni\n-52,-52,104,52,-52\n-86,172,-86,-86,86\n-62,31,-31,31,31\n123,-123,123,123,-246\n-228,-114,114,114,114",
+          "kind"  : "table",
+          "title" : "2",
+          "text"  : "",
+          "___id" : "T000002R000009",
+          "___s"  : true,
+          "_id"   : "9b8da698",
+          "html"  : "",
+          "slug"  : "9b8da698",
+          "_data" : [
+            {
+              "Ivan"       : -52,
+              " Dani"      : -52,
+              " Guilherme" : 104,
+              " André"     : 52,
+              " Giovanni"  : -52
+            },
+            {
+              "Ivan"       : -86,
+              " Dani"      : 172,
+              " Guilherme" : -86,
+              " André"     : -86,
+              " Giovanni"  : 86
+            },
+            {
+              "Ivan"       : -62,
+              " Dani"      : 31,
+              " Guilherme" : -31,
+              " André"     : 31,
+              " Giovanni"  : 31
+            },
+            {
+              "Ivan"       : 123,
+              " Dani"      : -123,
+              " Guilherme" : 123,
+              " André"     : 123,
+              " Giovanni"  : -246
+            },
+            {
+              "Ivan"       : -228,
+              " Dani"      : -114,
+              " Guilherme" : 114,
+              " André"     : 114,
+              " Giovanni"  : 114
+            }
+          ],
+          "children" : [],
+          "path"     : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/9b8da698/index.html",
+          "table"    : {
+            "head" : [
+              "Ivan",
+              " Dani",
+              " Guilherme",
+              " André",
+              " Giovanni"
+            ],
+            "body" : [
+              [
+                -52,
+                -52,
+                104,
+                52,
+                -52
+              ],
+              [
+                -86,
+                172,
+                -86,
+                -86,
+                86
+              ],
+              [
+                -62,
+                31,
+                -31,
+                31,
+                31
+              ],
+              [
+                123,
+                -123,
+                123,
+                123,
+                -246
+              ],
+              [
+                -228,
+                -114,
+                114,
+                114,
+                114
+              ]
+            ],
+            "foot" : [
+              -305,
+              -86,
+              224,
+              234,
+              -67
+            ]
+          },
+          "_text" : ""
+        },
+        {
+          "parents" : [
+            "1ba1add5"
+          ],
+          "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+          "kind"  : "table",
+          "title" : "4",
+          "text"  : "",
+          "___id" : "T000002R000010",
+          "___s"  : true,
+          "_id"   : "ebfcbabd",
+          "_text" : "",
+          "html"  : "",
+          "slug"  : "4",
+          "_data" : [
+            {
+              "Daniella"          : 52,
+              " Guilherme"        : 52,
+              " Giovanni"         : -104,
+              " Ivan"             : -52,
+              "Letícia (Charlie)" : 52
+            },
+            {
+              "Daniella"          : -70,
+              " Guilherme"        : 140,
+              " Giovanni"         : 70,
+              " Ivan"             : -70,
+              "Letícia (Charlie)" : -70
+            },
+            {
+              "Daniella"          : 56,
+              " Guilherme"        : -56,
+              " Giovanni"         : 56,
+              " Ivan"             : -112,
+              "Letícia (Charlie)" : 56
+            },
+            {
+              "Daniella"          : 93,
+              " Guilherme"        : -93,
+              " Giovanni"         : 186,
+              " Ivan"             : -93,
+              "Letícia (Charlie)" : -93
+            },
+            {
+              "Daniella"          : 90,
+              " Guilherme"        : -180,
+              " Giovanni"         : -90,
+              " Ivan"             : 90,
+              "Letícia (Charlie)" : 90
+            }
+          ],
+          "children" : [],
+          "table"    : {
+            "head" : [
+              "Daniella",
+              " Guilherme",
+              " Giovanni",
+              " Ivan",
+              "Letícia (Charlie)"
+            ],
+            "body" : [
+              [
+                52,
+                52,
+                -104,
+                -52,
+                52
+              ],
+              [
+                -70,
+                140,
+                70,
+                -70,
+                -70
+              ],
+              [
+                56,
+                -56,
+                56,
+                -112,
+                56
+              ],
+              [
+                93,
+                -93,
+                186,
+                -93,
+                -93
+              ],
+              [
+                90,
+                -180,
+                -90,
+                90,
+                90
+              ]
+            ],
+            "foot" : [
+              221,
+              -137,
+              118,
+              -237,
+              35
+            ]
+          },
+          "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
         }
       ],
-      "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html"
+      "path"  : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html",
+      "_text" : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória."
     },
     {
       "parents" : [
@@ -1389,7 +1853,7 @@
       "kind"     : "list",
       "title"    : "blog",
       "text"     : "",
-      "___id"    : "T000002R000005",
+      "___id"    : "T000002R000007",
       "___s"     : true,
       "_id"      : "8aa98a13",
       "html"     : "",
@@ -1403,16 +1867,17 @@
           "data"     : "",
           "kind"     : "article",
           "title"    : "",
-          "text"     : "\nhá!",
-          "___id"    : "T000002R000006",
+          "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
+          "___id"    : "T000002R000008",
           "___s"     : true,
           "_id"      : "9a5e98d8",
-          "date"     : "2014-05-08T00:00:00.000Z",
+          "date"     : "2014-05-12",
           "html"     : "<p>há!</p>\n",
           "slug"     : "9a5e98d8",
           "_data"    : "",
           "children" : [],
-          "path"     : "blog/9a5e98d8/index.html"
+          "path"     : "blog/9a5e98d8/index.html",
+          "_text"    : "\nhá!"
         }
       ],
       "items" : [
@@ -1423,20 +1888,42 @@
           "data"     : "",
           "kind"     : "article",
           "title"    : "",
-          "text"     : "\nhá!",
-          "___id"    : "T000002R000006",
+          "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
+          "___id"    : "T000002R000008",
           "___s"     : true,
           "_id"      : "9a5e98d8",
-          "date"     : "2014-05-08T00:00:00.000Z",
+          "date"     : "2014-05-12",
           "html"     : "<p>há!</p>\n",
           "slug"     : "9a5e98d8",
           "_data"    : "",
           "children" : [],
-          "path"     : "blog/9a5e98d8/index.html"
+          "path"     : "blog/9a5e98d8/index.html",
+          "_text"    : "\nhá!"
         }
       ],
-      "path" : "blog/index.html"
+      "path"  : "blog/index.html",
+      "_text" : ""
+    },
+    {
+      "parents" : [
+        "68ee9357"
+      ],
+      "data"     : "",
+      "kind"     : "plaintext",
+      "title"    : "resultados do kart de 10 de janeiro de 2011",
+      "text"     : "---\ndate: '2011-01-10'\n---\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nP R A C T I C E   R E S U L T S\n  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tFastest\tin\t2nd Best in\n  1 10  Andre\t 25.010  8\t  25.140  7\n  2 14  Roberto\t 25.150 11\t  25.350  9\n  3 02  Giovani\t 26.350  9\t  27.190  8\n  4 08  Guilherme\t 28.510  5\t  29.680  8\n  5 09  Felipe\t 29.420  6\t  30.360  5\n  6 06  Ivan\t 29.780  8\t  31.350  6\n  7 11  Livia\t 30.940  7\t  31.180  8\n\n   Fastest Laptime\t25.010 By\t10 Andre\t in lap 8\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nR E S U L T S   C U R R E N T   L A P\n  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tTotal Time    Laps\tFastest\tin\n  1 10  Andre\t 16:45.840 ==   41 ==\t 23.000 18\n  2 08  Guilherme\t 17:00.900 ==   40 ==\t 23.970 39\n  3 11  Livia\t 16:49.510 ==   39 ==\t 23.780 39\n  4 09  Felipe\t 16:55.410 ==   5.900\t 25.330 10\n  5 00  Roberto\t 16:50.740 ==   35 ==\t 23.460 23\n  6 02  Giovani\t 17:07.300 ==   34 ==\t 24.670 33\n  7 06  Ivan\t 17:03.860 ==   29 ==\t 25.340 24\n\n   Fastest Laptime\t23.000 By\t10 Andre\t in lap 18\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------",
+      "___id"    : "T000002R000011",
+      "___s"     : true,
+      "_id"      : "09429ed5",
+      "_text"    : "\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nP R A C T I C E   R E S U L T S\n  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tFastest\tin\t2nd Best in\n  1 10  Andre\t 25.010  8\t  25.140  7\n  2 14  Roberto\t 25.150 11\t  25.350  9\n  3 02  Giovani\t 26.350  9\t  27.190  8\n  4 08  Guilherme\t 28.510  5\t  29.680  8\n  5 09  Felipe\t 29.420  6\t  30.360  5\n  6 06  Ivan\t 29.780  8\t  31.350  6\n  7 11  Livia\t 30.940  7\t  31.180  8\n\n   Fastest Laptime\t25.010 By\t10 Andre\t in lap 8\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------\n\n-----------------------------------------------------------------------------\nRun: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ \nR E S U L T S   C U R R E N T   L A P\n  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34\n\n-----------------------------------------------------------------------------\n\nPos Nr. Name\t Nat\tTotal Time    Laps\tFastest\tin\n  1 10  Andre\t 16:45.840 ==   41 ==\t 23.000 18\n  2 08  Guilherme\t 17:00.900 ==   40 ==\t 23.970 39\n  3 11  Livia\t 16:49.510 ==   39 ==\t 23.780 39\n  4 09  Felipe\t 16:55.410 ==   5.900\t 25.330 10\n  5 00  Roberto\t 16:50.740 ==   35 ==\t 23.460 23\n  6 02  Giovani\t 17:07.300 ==   34 ==\t 24.670 33\n  7 06  Ivan\t 17:03.860 ==   29 ==\t 25.340 24\n\n   Fastest Laptime\t23.000 By\t10 Andre\t in lap 18\n\n-----------------------------------------------------------------------------\nwww.megaspacekart.com\n      AMB Products b.v. Holland\n-----------------------------------------------------------------------------",
+      "date"     : "2011-01-10",
+      "html"     : "<hr>\n<p>Run: 1 <strong><strong> RESERVAS 3641.4258 // 8417.8815 </strong></strong><br>P R A C T I C E   R E S U L T S<br>  Time 20:11:01   Date 20 Jan 11   Racetime 00:05:21</p>\n<hr>\n<p>Pos Nr. Name     Nat    Fastest    in    2nd Best in<br>  1 10  Andre     25.010  8      25.140  7<br>  2 14  Roberto     25.150 11      25.350  9<br>  3 02  Giovani     26.350  9      27.190  8<br>  4 08  Guilherme     28.510  5      29.680  8<br>  5 09  Felipe     29.420  6      30.360  5<br>  6 06  Ivan     29.780  8      31.350  6<br>  7 11  Livia     30.940  7      31.180  8</p>\n<p>   Fastest Laptime    25.010 By    10 Andre     in lap 8</p>\n<hr>\n<p>www.megaspacekart.com</p>\n<pre><code>  AMB Products b.v. Holland\n</code></pre><hr>\n<hr>\n<p>Run: 1 <strong><strong> RESERVAS 3641.4258 // 8417.8815 </strong></strong><br>R E S U L T S   C U R R E N T   L A P<br>  Time 20:35:44   Date 20 Jan 11   Racetime 00:18:34</p>\n<hr>\n<p>Pos Nr. Name     Nat    Total Time    Laps    Fastest    in<br>  1 10  Andre     16:45.840 ==   41 ==     23.000 18<br>  2 08  Guilherme     17:00.900 ==   40 ==     23.970 39<br>  3 11  Livia     16:49.510 ==   39 ==     23.780 39<br>  4 09  Felipe     16:55.410 ==   5.900     25.330 10<br>  5 00  Roberto     16:50.740 ==   35 ==     23.460 23<br>  6 02  Giovani     17:07.300 ==   34 ==     24.670 33<br>  7 06  Ivan     17:03.860 ==   29 ==     25.340 24</p>\n<p>   Fastest Laptime    23.000 By    10 Andre     in lap 18</p>\n<hr>\n<p>www.megaspacekart.com</p>\n<pre><code>  AMB Products b.v. Holland\n</code></pre><hr>\n",
+      "slug"     : "resultados-do-kart-de-10-de-janeiro-de-2011",
+      "_data"    : "",
+      "children" : [],
+      "path"     : "resultados-do-kart-de-10-de-janeiro-de-2011/index.html"
     }
   ],
-  "path" : "index.html"
+  "path"  : "index.html",
+  "_text" : "bom dia."
 }
