@@ -93,14 +93,7 @@ Main = React.createClass
         text: """
           ---
           baseUrl: #{location.href.split('/').slice(0, -2).join('/')}
-          title: fiatjaf's blog
-          sections:
-            - 
-              title: blog
-              path: blog
-            -
-              title: coisas
-              path: coisas-interessantes
+          title: this website
           ---
         """
 
