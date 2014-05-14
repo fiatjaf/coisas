@@ -11,12 +11,12 @@ marked.setOptions
 process = (doc, children) ->
   # parse extra fields and metadata
   parsed = fm doc.text
-  doc.text = parsed.body
+  doc._text = parsed.body
   for field, value of parsed.attributes
     doc[field] = value
 
   # parse markdown to html
-  doc.html = marked doc.text
+  doc.html = marked doc._text
 
   # make a slug
   if not doc.slug

@@ -13,6 +13,7 @@ Processors =
   table: require './processors/table.coffee'
   list: require './processors/list.coffee'
   chart: require './processors/chart.coffee'
+  plaintext: require './processors/plaintext.coffee'
   graph: require './processors/graph.coffee'
 
 BaseTemplate = 'templates/base.html'
@@ -22,6 +23,7 @@ Templates =
     'table',
     'list',
     'chart',
+    'plaintext',
     'graph',
   ]
   addresses: [
@@ -29,6 +31,7 @@ Templates =
     'templates/table.html',
     'templates/list.html',
     'templates/chart.html',
+    'templates/plaintext.html',
     'templates/graph.html',
   ]
 
