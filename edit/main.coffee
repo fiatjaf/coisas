@@ -5,6 +5,8 @@ Taffy = require 'taffydb'
 TextLoad = require './textload.coffee'
 GitHub = require './github.coffee'
 
+JSON.stringifyAligned = require 'json-align'
+
 CommonProcessor = require './processors/common.coffee'
 Processors =
   article: require './processors/article.coffee'
@@ -125,7 +127,7 @@ Main = React.createClass
 
     # add the pure docs
     for doc in @db().get()
-      processed["docs/#{doc._id}.json"] = JSON.stringify doc
+      processed["docs/#{doc._id}.json"] = JSON.stringifyAligned doc, false, 2
 
     # recursively get the docs and add paths to them
     goAfterTheChildrenOf = (parent, inheritedPathComponent) =>
