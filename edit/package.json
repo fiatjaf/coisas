@@ -15,8 +15,7 @@
     "slug": "~0.4.2",
     "superagent": "~0.17.0",
     "taffydb": "~2.7.2",
-    "xlsjs": "^0.6.17",
-    "xlsx": "^0.6.2"
+    "xlsjs": "^0.6.17"
   },
   "devDependencies": {
     "browserify": "~3.38.1",

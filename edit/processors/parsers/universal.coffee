@@ -1,5 +1,3 @@
-XLS = require 'xlsjs'
-XLSX = require 'xlsx'
 YAML = require 'js-yaml'
 CSV = require './csv.js'
 
@@ -30,10 +28,4 @@ module.exports = (data) ->
       try
         YAML.safeLoad data
       catch e
-        try
-          XLS.parse data
-        catch e
-          try
-            XLSX.parse data
-          catch
-            ({line: line} for line in data.split '\n')
+        ({line: line} for line in data.split '\n')
