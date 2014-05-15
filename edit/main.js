@@ -218,13 +218,14 @@ Main = React.createClass({
       },
       onInsert: function() {
         if (!this._id) {
-          return this._id = "xyxxyxxx".replace(/[xy]/g, function(c) {
+          this._id = "xyxxyxxx".replace(/[xy]/g, function(c) {
             var r, v;
             r = Math.random() * 16 | 0;
             v = (c === "x" ? r : r & 0x3 | 0x8);
             return v.toString(16);
           });
         }
+        return this._created_at = (new Date()).getTime();
       },
       cacheSize: 0
     });
@@ -287,7 +288,7 @@ Main = React.createClass({
           }
         });
         if (q.count()) {
-          _ref2 = q.get();
+          _ref2 = q.order('_created_at').get();
           _results = [];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             doc = _ref2[_j];
@@ -331,6 +332,7 @@ Main = React.createClass({
       doc = pathfiedDocs[_j];
       html = render(doc);
       processed[doc.path] = html;
+      processed[doc._id] = html;
     }
     console.log(processed);
     return gh.deploy(processed);
@@ -476,7 +478,7 @@ Doc = React.createClass({
       parents: {
         has: this.props.data._id
       }
-    }).get();
+    }).order('_created_at').get();
     if (!sons.length) {
       sons = [
         {
@@ -540,7 +542,7 @@ DocEditable = React.createClass({
     return this.props.onUpdateDocAttr(this.props.data._id, change);
   },
   confirmDelete: function() {
-    if (confirm("are you sure you want to delete " + (this.props.data.title || this.props.data._id))) {
+    if (confirm("are you sure you want to delete " + (this.props.data.title || this.props.data._id) + " ?")) {
       return this.props.onDelete(this.props.data._id);
     }
   },

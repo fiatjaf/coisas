@@ -87,6 +87,7 @@ Main = React.createClass
             r = Math.random() * 16 | 0
             v = (if c is "x" then r else (r & 0x3 | 0x8))
             v.toString 16
+        this._created_at = (new Date()).getTime()
       cacheSize: 0
 
     unless @db({_id: 'global'}).count()
@@ -144,7 +145,7 @@ Main = React.createClass
       # go after its children
       q = @db({parents: {has: parent._id}})
       if q.count()
-        for doc in q.get()
+        for doc in q.order('_created_at').get()
           goAfterTheChildrenOf doc, pathComponent
 
     # the process function -- just calls the imported process methods
@@ -172,6 +173,7 @@ Main = React.createClass
     for doc in pathfiedDocs
       html = render doc
       processed[doc.path] = html
+      processed[doc._id] = html # eternal link
 
     console.log processed
     gh.deploy processed
@@ -280,7 +282,7 @@ Doc = React.createClass
     sons = @props.db(
       parents:
         has: @props.data._id
-    ).get()
+    ).order('_created_at').get()
 
     if not sons.length
       sons = [{_id: ''}]
@@ -328,7 +330,7 @@ DocEditable = React.createClass
 
   confirmDelete: ->
     if confirm "are you sure you want to delete 
-        #{@props.data.title or @props.data._id}"
+        #{@props.data.title or @props.data._id} ?"
       @props.onDelete @props.data._id
 
   render: ->
