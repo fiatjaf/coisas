@@ -12,28 +12,6 @@ GitHub = (user) ->
     @headers['Authorization'] = 'token ' + token
   repo: (repo) ->
     @repo = repo
-    req.get(@base + "/repos/#{@user}/#{@repo}/branches")
-       .set(@headers)
-       .end (res) ->
-         dontCreateDataBranch = false
-
-         for branch in res.body
-           if branch.name == 'data'
-             dontCreateDataBranch = true
-             @data_last_commit_sha = branch.commit.sha
-           if branch.name == 'gh-pages'
-             @gh_pages_last_commit_sha
-
-         unless dontCreateDataBranch
-           req.post(@base + "/repos/#{}/#{}/git/refs")
-              .set(@headers)
-              .send({
-                sha: @gh_pages_last_commit_sha
-                ref: 'refs/heads/data'
-              })
-              .end (res) ->
-                @data_last_commit_sha = res.body.object.sha
-
   listDocs: (cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs")
        .set(@headers)
@@ -63,6 +41,22 @@ GitHub = (user) ->
        .end (res) ->
          @data_last_commit_sha = res.body.commit.sha
          cb res.body
+  deleteFile: (path, cb) ->
+    req.get(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
+       .set(@headers)
+       .query(ref: 'gh-pages')
+       .end (res) =>
+         return cb() if res.status != 200
+         req.del(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
+            .set(@headers)
+            .query({
+              sha: res.body.sha
+              message: "DELETE #{path}"
+              branch: 'gh-pages'
+            })
+            .end (res) ->
+              if res.status == 200
+                cb res.body
   deploy: (processedDocs, cb) ->
     # get last commit sha
     req.get(@base + "/repos/#{@user}/#{@repo}/branches/gh-pages")

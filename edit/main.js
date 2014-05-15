@@ -18,30 +18,7 @@ GitHub = function(user) {
       return this.headers['Authorization'] = 'token ' + token;
     },
     repo: function(repo) {
-      this.repo = repo;
-      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches")).set(this.headers).end(function(res) {
-        var branch, dontCreateDataBranch, _i, _len, _ref;
-        dontCreateDataBranch = false;
-        _ref = res.body;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          branch = _ref[_i];
-          if (branch.name === 'data') {
-            dontCreateDataBranch = true;
-            this.data_last_commit_sha = branch.commit.sha;
-          }
-          if (branch.name === 'gh-pages') {
-            this.gh_pages_last_commit_sha;
-          }
-        }
-        if (!dontCreateDataBranch) {
-          return req.post(this.base + ("/repos/" + "/" + "/git/refs")).set(this.headers).send({
-            sha: this.gh_pages_last_commit_sha,
-            ref: 'refs/heads/data'
-          }).end(function(res) {
-            return this.data_last_commit_sha = res.body.object.sha;
-          });
-        }
-      });
+      return this.repo = repo;
     },
     listDocs: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs")).set(this.headers).query({
@@ -78,6 +55,26 @@ GitHub = function(user) {
         this.data_last_commit_sha = res.body.commit.sha;
         return cb(res.body);
       });
+    },
+    deleteFile: function(path, cb) {
+      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/" + path)).set(this.headers).query({
+        ref: 'gh-pages'
+      }).end((function(_this) {
+        return function(res) {
+          if (res.status !== 200) {
+            return cb();
+          }
+          return req.del(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/contents/" + path)).set(_this.headers).query({
+            sha: res.body.sha,
+            message: "DELETE " + path,
+            branch: 'gh-pages'
+          }).end(function(res) {
+            if (res.status === 200) {
+              return cb(res.body);
+            }
+          });
+        };
+      })(this));
     },
     deploy: function(processedDocs, cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/gh-pages")).set(this.headers).end((function(_this) {
@@ -344,7 +341,6 @@ Main = React.createClass({
       doc = pathfiedDocs[_j];
       html = render(doc);
       processed[doc.path] = html;
-      processed[doc._id] = html;
     }
     console.log(processed);
     return gh.deploy(processed, (function(_this) {
@@ -377,10 +373,42 @@ Main = React.createClass({
     return this.forceUpdate();
   },
   handleDeleteDoc: function(docid) {
-    this.db({
+    var completePath, erase, htmlPaths;
+    htmlPaths = [];
+    completePath = function(doc, presentPath) {
+      var parent, path, _i, _len, _ref1, _results;
+      if (presentPath == null) {
+        presentPath = 'index.html';
+      }
+      path = doc.slug + '/' + presentPath;
+      if (doc.parents.length === 1 && doc.parents[0] === 'home') {
+        htmlPaths.push(path);
+        return;
+      }
+      _ref1 = doc.parents;
+      _results = [];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        parent = _ref1[_i];
+        _results.push(completePath(parent, path));
+      }
+      return _results;
+    };
+    erase = (function(_this) {
+      return function(path, pathQueue) {
+        if (path) {
+          return gh.deleteFile(path, erase.bind(_this, pathQueue[0], pathQueue.slice(1)));
+        } else {
+          _this.db({
+            _id: docid
+          }).remove();
+          return _this.forceUpdate();
+        }
+      };
+    })(this);
+    completePath(this.db({
       _id: docid
-    }).remove();
-    return this.forceUpdate();
+    }).first());
+    return erase("docs/" + docid, htmlPaths);
   },
   handleMovingChilds: function(childid, fromid, targetid) {
     var isAncestor, movedDoc;

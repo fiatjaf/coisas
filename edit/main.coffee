@@ -180,7 +180,6 @@ Main = React.createClass
     for doc in pathfiedDocs
       html = render doc
       processed[doc.path] = html
-      processed[doc._id] = html # eternal link
 
     console.log processed
     gh.deploy processed, =>
@@ -200,8 +199,27 @@ Main = React.createClass
     @forceUpdate()
 
   handleDeleteDoc: (docid) ->
-    @db({_id: docid}).remove()
-    @forceUpdate()
+    # build the doc's html paths
+    htmlPaths = []
+    completePath = (doc, presentPath='index.html') ->
+      path = doc.slug + '/' + presentPath
+      if doc.parents.length == 1 and doc.parents[0] == 'home'
+        htmlPaths.push path
+        return
+      for parent in doc.parents
+        completePath parent, path
+
+    # build the function to delete all files from the set of paths
+    erase = (path, pathQueue) =>
+      if path
+        gh.deleteFile path, erase.bind @, pathQueue[0], pathQueue.slice(1)
+      else
+        # remove from the local db
+        @db({_id: docid}).remove()
+        @forceUpdate()
+
+    completePath @db(_id: docid).first()
+    erase "docs/#{docid}", htmlPaths
 
   handleMovingChilds: (childid, fromid, targetid) ->
     isAncestor = (base, potentialAncestor) =>
