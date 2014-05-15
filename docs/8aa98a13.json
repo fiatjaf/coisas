@@ -9,52 +9,7 @@
   "___id"    : "T000002R000011",
   "___s"     : true,
   "_id"      : "8aa98a13",
-  "html"     : "",
   "slug"     : "blog",
-  "_data"    : "",
-  "children" : [
-    {
-      "parents" : [
-        "8aa98a13"
-      ],
-      "data"     : "",
-      "kind"     : "article",
-      "title"    : "",
-      "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
-      "___id"    : "T000002R000008",
-      "___s"     : true,
-      "_id"      : "9a5e98d8",
-      "date"     : "2014-05-12",
-      "html"     : "<p>há!</p>\n",
-      "slug"     : "9a5e98d8",
-      "_data"    : "",
-      "children" : [],
-      "path"     : "blog/9a5e98d8/index.html",
-      "_text"    : "\nhá!"
-    }
-  ],
-  "items" : [
-    {
-      "parents" : [
-        "8aa98a13"
-      ],
-      "data"     : "",
-      "kind"     : "article",
-      "title"    : "",
-      "text"     : "---\ndate: '2014-05-12'\n---\n\nhá!",
-      "___id"    : "T000002R000008",
-      "___s"     : true,
-      "_id"      : "9a5e98d8",
-      "date"     : "2014-05-12",
-      "html"     : "<p>há!</p>\n",
-      "slug"     : "9a5e98d8",
-      "_data"    : "",
-      "children" : [],
-      "path"     : "blog/9a5e98d8/index.html",
-      "_text"    : "\nhá!"
-    }
-  ],
-  "path"        : "blog/index.html",
   "_text"       : "",
   "_created_at" : 1400113690854
 }
