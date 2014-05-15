@@ -20,6 +20,7 @@
     <main>
       <article>
         <pre>
+
 -----------------------------------------------------------------------------
 Run: 1 ____ RESERVAS 3641.4258 // 8417.8815 ____ 
 P R A C T I C E   R E S U L T S
@@ -67,7 +68,7 @@ www.megaspacekart.com
 -----------------------------------------------------------------------------</pre>
 
       </article>
-      <a href="http://fiatjaf.github.io/coisas/09429ed5">link eterno</a>
+      <a class="permalink" href="http://fiatjaf.github.io/coisas/09429ed5">link eterno</a>
     </main>
     <footer>
 

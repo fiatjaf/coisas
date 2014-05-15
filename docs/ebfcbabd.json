@@ -2,13 +2,14 @@
   "parents" : [
     "1ba1add5"
   ],
-  "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
-  "kind"  : "table",
-  "title" : "4",
-  "text"  : "",
-  "___id" : "T000002R000017",
-  "___s"  : true,
-  "_id"   : "ebfcbabd",
-  "slug"  : "4",
-  "_created_at" : 1400113690856
+  "data"        : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+  "kind"        : "table",
+  "title"       : "4",
+  "text"        : "",
+  "___id"       : "T000002R000020",
+  "___s"        : true,
+  "_id"         : "ebfcbabd",
+  "slug"        : "4",
+  "_created_at" : 1400130254994,
+  "order"       : 4
 }

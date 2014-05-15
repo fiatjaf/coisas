@@ -19,7 +19,8 @@
     </aside>
     <main>
       <article>
-        <pre>BRAVO!
+        <pre>
+BRAVO!
 JANEIRO 2001 - ANO 4 - No 40 - R$ 8,00 www.bravonline.com.br
 
 Ensaio!
@@ -204,7 +205,7 @@ tivamente se posicionaria no nível "lírico" (no sentido
    universitário.</pre>
 
       </article>
-      <a href="http://fiatjaf.github.io/coisas/bafda3af">link eterno</a>
+      <a class="permalink" href="http://fiatjaf.github.io/coisas/bafda3af">link eterno</a>
     </main>
     <footer>
 

@@ -2,14 +2,13 @@
   "parents" : [
     "home"
   ],
-  "data"     : "",
-  "kind"     : "list",
-  "title"    : "textos preservados da destruição",
-  "text"     : "",
-  "___id"    : "T000002R000015",
-  "___s"     : true,
-  "_id"      : "c8b3a19b",
-  "_text"    : "",
-  "slug"     : "textos-preservados-da-destruicao",
-  "_created_at" : 1400113690856
+  "data"        : "",
+  "kind"        : "list",
+  "title"       : "textos preservados da destruição",
+  "text"        : "\n",
+  "___id"       : "T000002R000018",
+  "___s"        : true,
+  "_id"         : "c8b3a19b",
+  "slug"        : "textos-preservados-da-destruicao",
+  "_created_at" : 1400130254977
 }

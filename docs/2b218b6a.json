@@ -2,13 +2,14 @@
   "parents" : [
     "1ba1add5"
   ],
-  "data"  : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
-  "kind"  : "table",
-  "title" : "3",
-  "text"  : "",
-  "___id" : "T000002R000007",
-  "___s"  : true,
-  "_id"   : "2b218b6a",
-  "slug"  : "2b218b6a",
-  "_created_at" : 1400113690852
+  "data"        : "Ivan, Guilherme, Giovanni, Letícia, Daniella\n-68,68,-68,136,-68\n-112,-112,112,-112,224\n58,58,-116,-58,58\n52,-52,52,52,-104\n-432,216,216,-216,216",
+  "kind"        : "table",
+  "title"       : "3",
+  "text"        : "",
+  "___id"       : "T000002R000007",
+  "___s"        : true,
+  "_id"         : "2b218b6a",
+  "slug"        : "3",
+  "_created_at" : 1400130254971,
+  "order"       : 3
 }

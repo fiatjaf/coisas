@@ -3,12 +3,11 @@
   "data"        : "",
   "kind"        : "article",
   "title"       : "fiatjaf",
-  "text"        : "",
+  "text"        : "\n",
   "_id"         : "global",
   "___id"       : "T000002R000002",
   "___s"        : true,
   "_created_at" : 1400113679539,
   "baseUrl"     : "http://fiatjaf.github.io/coisas",
-  "html"        : "",
   "slug"        : "fiatjaf"
 }

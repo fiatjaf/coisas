@@ -2,13 +2,13 @@
   "parents" : [
     "home"
   ],
-  "data"     : "",
-  "kind"     : "list",
-  "title"    : "compêndio de dados",
-  "text"     : "",
-  "___id"    : "T000002R000010",
-  "___s"     : true,
-  "_id"      : "68ee9357",
-  "slug"     : "compendio",
-  "_created_at" : 1400113690853
+  "data"        : "",
+  "kind"        : "list",
+  "title"       : "compêndio de dados",
+  "text"        : "\n",
+  "___id"       : "T000002R000010",
+  "___s"        : true,
+  "_id"         : "68ee9357",
+  "slug"        : "compendio",
+  "_created_at" : 1400130254974
 }

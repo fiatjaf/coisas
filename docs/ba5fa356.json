@@ -5,9 +5,10 @@
   "data"        : "",
   "kind"        : "list",
   "title"       : "comentários temporais esparsos",
-  "text"        : "",
-  "___id"       : "T000002R000020",
+  "text"        : "\n",
+  "___id"       : "T000002R000015",
   "___s"        : true,
   "_id"         : "ba5fa356",
-  "_created_at" : 1400113818325
+  "_created_at" : 1400130254976,
+  "slug"        : "blog"
 }
