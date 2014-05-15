@@ -6,7 +6,7 @@
   "kind"     : "list",
   "title"    : "compêndio de resultados do tarot na casa do Ivan",
   "text"     : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
-  "___id"    : "T000002R000005",
+  "___id"    : "T000002R000006",
   "___s"     : true,
   "_id"      : "1ba1add5",
   "html"     : "<p>jogos acontecidos entre 2011 e 2013.<br>como não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.</p>\n",
@@ -872,6 +872,7 @@
       "path" : "compendio/compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
     }
   ],
-  "path"  : "compendio/compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html",
-  "_text" : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória."
+  "path"        : "compendio/compendio-de-resultados-do-tarot-na-casa-do-Ivan/index.html",
+  "_text"       : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
+  "_created_at" : 1400113690852
 }

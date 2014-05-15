@@ -4,9 +4,9 @@
   ],
   "data"     : "",
   "kind"     : "list",
-  "title"    : "compêndio",
+  "title"    : "compêndio de dados",
   "text"     : "",
-  "___id"    : "T000002R000012",
+  "___id"    : "T000002R000010",
   "___s"     : true,
   "_id"      : "68ee9357",
   "_text"    : "",
@@ -1809,5 +1809,6 @@
       "path"     : "compendio/resultados-do-kart-de-10-de-janeiro-de-2011/index.html"
     }
   ],
-  "path" : "compendio/index.html"
+  "path"        : "compendio/index.html",
+  "_created_at" : 1400113690853
 }

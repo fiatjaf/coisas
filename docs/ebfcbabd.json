@@ -6,7 +6,7 @@
   "kind"  : "table",
   "title" : "4",
   "text"  : "",
-  "___id" : "T000002R000010",
+  "___id" : "T000002R000017",
   "___s"  : true,
   "_id"   : "ebfcbabd",
   "_text" : "",
@@ -103,5 +103,6 @@
       35
     ]
   },
-  "path" : "compendio/compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
+  "path"        : "compendio/compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html",
+  "_created_at" : 1400113690856
 }

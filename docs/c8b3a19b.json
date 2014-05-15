@@ -6,7 +6,7 @@
   "kind"     : "list",
   "title"    : "textos preservados da destruição",
   "text"     : "",
-  "___id"    : "T000002R000013",
+  "___id"    : "T000002R000015",
   "___s"     : true,
   "_id"      : "c8b3a19b",
   "_text"    : "",
@@ -199,5 +199,6 @@
       "path"     : "textos-preservados-da-destruicao/O-Milagre-da-Solidao-Olavo-de-Carvalho/index.html"
     }
   ],
-  "path" : "textos-preservados-da-destruicao/index.html"
+  "path"        : "textos-preservados-da-destruicao/index.html",
+  "_created_at" : 1400113690856
 }
