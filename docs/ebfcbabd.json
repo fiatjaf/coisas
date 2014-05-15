@@ -1,1 +1,107 @@
-{"parents":["1ba1add5"],"data":"Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90","kind":"table","title":"4","text":"","___id":"T000002R000010","___s":true,"_id":"ebfcbabd"}
+{
+  "parents" : [
+    "1ba1add5"
+  ],
+  "data"  : "Daniella, Guilherme, Giovanni, Ivan, \"Letícia (Charlie)\"\n52,52,-104,-52,52\n-70,140,70,-70,-70\n56,-56,56,-112,56\n93,-93,186,-93,-93\n90,-180,-90,90,90",
+  "kind"  : "table",
+  "title" : "4",
+  "text"  : "",
+  "___id" : "T000002R000010",
+  "___s"  : true,
+  "_id"   : "ebfcbabd",
+  "_text" : "",
+  "html"  : "",
+  "slug"  : "4",
+  "_data" : [
+    {
+      "Daniella"          : 52,
+      " Guilherme"        : 52,
+      " Giovanni"         : -104,
+      " Ivan"             : -52,
+      "Letícia (Charlie)" : 52
+    },
+    {
+      "Daniella"          : -70,
+      " Guilherme"        : 140,
+      " Giovanni"         : 70,
+      " Ivan"             : -70,
+      "Letícia (Charlie)" : -70
+    },
+    {
+      "Daniella"          : 56,
+      " Guilherme"        : -56,
+      " Giovanni"         : 56,
+      " Ivan"             : -112,
+      "Letícia (Charlie)" : 56
+    },
+    {
+      "Daniella"          : 93,
+      " Guilherme"        : -93,
+      " Giovanni"         : 186,
+      " Ivan"             : -93,
+      "Letícia (Charlie)" : -93
+    },
+    {
+      "Daniella"          : 90,
+      " Guilherme"        : -180,
+      " Giovanni"         : -90,
+      " Ivan"             : 90,
+      "Letícia (Charlie)" : 90
+    }
+  ],
+  "children" : [],
+  "table"    : {
+    "head" : [
+      "Daniella",
+      " Guilherme",
+      " Giovanni",
+      " Ivan",
+      "Letícia (Charlie)"
+    ],
+    "body" : [
+      [
+        52,
+        52,
+        -104,
+        -52,
+        52
+      ],
+      [
+        -70,
+        140,
+        70,
+        -70,
+        -70
+      ],
+      [
+        56,
+        -56,
+        56,
+        -112,
+        56
+      ],
+      [
+        93,
+        -93,
+        186,
+        -93,
+        -93
+      ],
+      [
+        90,
+        -180,
+        -90,
+        90,
+        90
+      ]
+    ],
+    "foot" : [
+      221,
+      -137,
+      118,
+      -237,
+      35
+    ]
+  },
+  "path" : "compendio-de-resultados-do-tarot-na-casa-do-Ivan/4/index.html"
+}
