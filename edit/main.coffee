@@ -7,6 +7,8 @@ GitHub = require './github.coffee'
 
 JSON.stringifyAligned = require 'json-align'
 
+Metadata = require './processors/metadata.coffee'
+
 CommonProcessor = require './processors/common.coffee'
 Processors =
   article: require './processors/article.coffee'
@@ -37,7 +39,9 @@ Templates =
 
 # handlebars helpers
 Handlebars.registerHelper 'cleanPath', (path) ->
-  path.replace /\/index\.html?$/, ''
+  if path == 'index.html'
+    return ''
+  return path.replace /\/index\.html?$/, ''
 
 # react
 {main, aside, article, header, div, ul, li, span,
@@ -110,6 +114,7 @@ Main = React.createClass
         text: ''
 
   setDocs: (docs) ->
+    Metadata.preProcess doc for doc in docs
     @db.merge(docs, '_id', true)
     @forceUpdate()
 
@@ -122,15 +127,16 @@ Main = React.createClass
     processed = []
     console.log 'processing docs'
 
-    # add the pure docs
+    # post-process and add the pure docs
     for doc in @db().get()
+      Metadata.postProcess doc
       processed["docs/#{doc._id}.json"] = JSON.stringifyAligned doc, false, 2
 
     # recursively get the docs and add paths to them
     goAfterTheChildrenOf = (parent, inheritedPathComponent) =>
 
       # process the doc
-      process parent
+      parent = process parent
 
       # discover path
       if parent._id != 'home'
@@ -145,14 +151,15 @@ Main = React.createClass
       # go after its children
       q = @db({parents: {has: parent._id}})
       if q.count()
-        for doc in q.order('_created_at').get()
+        for doc in q.order('order,date,_created_at').get()
           goAfterTheChildrenOf doc, pathComponent
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
       children = @db({parents: {has: doc._id}}).get()
-      parent = CommonProcessor doc, children
+      doc = CommonProcessor doc, children
       doc = Processors[doc.kind] doc
+      return doc
         
     # the render function -- just render the doc to the base template
     render = (doc) =>
@@ -163,7 +170,7 @@ Main = React.createClass
 
     # get the site params
     site = @db({_id: 'global'}).first()
-    process site
+    site = process site
 
     # prepare an empty list to be filled with the docs pathfied
     pathfiedDocs = []
@@ -176,7 +183,10 @@ Main = React.createClass
       processed[doc._id] = html # eternal link
 
     console.log processed
-    gh.deploy processed
+    gh.deploy processed, ->
+      console.log 'deployed!'
+      for doc in @db().get()
+        Metadata.preProcess doc
 
   handleUpdateDoc: (docid, change) ->
     @db({_id: docid}).update(change)
@@ -282,7 +292,7 @@ Doc = React.createClass
     sons = @props.db(
       parents:
         has: @props.data._id
-    ).order('_created_at').get()
+    ).order('order,date,_created_at').get()
 
     if not sons.length
       sons = [{_id: ''}]

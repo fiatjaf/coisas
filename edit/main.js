@@ -131,7 +131,7 @@ module.exports = GitHub;
 
 
 },{"superagent":221}],2:[function(require,module,exports){
-var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
+var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Metadata, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
   __slice = [].slice;
 
 React = require('react');
@@ -147,6 +147,8 @@ TextLoad = require('./textload.coffee');
 GitHub = require('./github.coffee');
 
 JSON.stringifyAligned = require('json-align');
+
+Metadata = require('./processors/metadata.coffee');
 
 CommonProcessor = require('./processors/common.coffee');
 
@@ -167,6 +169,9 @@ Templates = {
 };
 
 Handlebars.registerHelper('cleanPath', function(path) {
+  if (path === 'index.html') {
+    return '';
+  }
   return path.replace(/\/index\.html?$/, '');
 });
 
@@ -251,6 +256,11 @@ Main = React.createClass({
     }
   },
   setDocs: function(docs) {
+    var doc, _i, _len;
+    for (_i = 0, _len = docs.length; _i < _len; _i++) {
+      doc = docs[_i];
+      Metadata.preProcess(doc);
+    }
     this.db.merge(docs, '_id', true);
     return this.forceUpdate();
   },
@@ -269,12 +279,13 @@ Main = React.createClass({
     _ref1 = this.db().get();
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       doc = _ref1[_i];
+      Metadata.postProcess(doc);
       processed["docs/" + doc._id + ".json"] = JSON.stringifyAligned(doc, false, 2);
     }
     goAfterTheChildrenOf = (function(_this) {
       return function(parent, inheritedPathComponent) {
         var pathComponent, q, _j, _len1, _ref2, _results;
-        process(parent);
+        parent = process(parent);
         if (parent._id !== 'home') {
           pathComponent = inheritedPathComponent + parent.slug + '/';
         } else {
@@ -288,7 +299,7 @@ Main = React.createClass({
           }
         });
         if (q.count()) {
-          _ref2 = q.order('_created_at').get();
+          _ref2 = q.order('order,date,_created_at').get();
           _results = [];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             doc = _ref2[_j];
@@ -300,14 +311,15 @@ Main = React.createClass({
     })(this);
     process = (function(_this) {
       return function(doc) {
-        var children, parent;
+        var children;
         children = _this.db({
           parents: {
             has: doc._id
           }
         }).get();
-        parent = CommonProcessor(doc, children);
-        return doc = Processors[doc.kind](doc);
+        doc = CommonProcessor(doc, children);
+        doc = Processors[doc.kind](doc);
+        return doc;
       };
     })(this);
     render = (function(_this) {
@@ -323,7 +335,7 @@ Main = React.createClass({
     site = this.db({
       _id: 'global'
     }).first();
-    process(site);
+    site = process(site);
     pathfiedDocs = [];
     goAfterTheChildrenOf(this.db({
       _id: 'home'
@@ -335,7 +347,17 @@ Main = React.createClass({
       processed[doc._id] = html;
     }
     console.log(processed);
-    return gh.deploy(processed);
+    return gh.deploy(processed, function() {
+      var _k, _len2, _ref2, _results;
+      console.log('deployed!');
+      _ref2 = this.db().get();
+      _results = [];
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        doc = _ref2[_k];
+        _results.push(Metadata.preProcess(doc));
+      }
+      return _results;
+    });
   },
   handleUpdateDoc: function(docid, change) {
     this.db({
@@ -478,7 +500,7 @@ Doc = React.createClass({
       parents: {
         has: this.props.data._id
       }
-    }).order('_created_at').get();
+    }).order('order,date,_created_at').get();
     if (!sons.length) {
       sons = [
         {
@@ -708,7 +730,7 @@ gh.listDocs(function(files) {
 });
 
 
-},{"./github.coffee":1,"./processors/article.coffee":225,"./processors/chart.coffee":226,"./processors/common.coffee":227,"./processors/graph.coffee":228,"./processors/list.coffee":229,"./processors/plaintext.coffee":232,"./processors/table.coffee":233,"./textload.coffee":234,"feed":19,"handlebars":50,"json-align":82,"react":218,"taffydb":224}],3:[function(require,module,exports){
+},{"./github.coffee":1,"./processors/article.coffee":225,"./processors/chart.coffee":226,"./processors/common.coffee":227,"./processors/graph.coffee":228,"./processors/list.coffee":229,"./processors/metadata.coffee":230,"./processors/plaintext.coffee":233,"./processors/table.coffee":234,"./textload.coffee":235,"feed":19,"handlebars":50,"json-align":82,"react":218,"taffydb":224}],3:[function(require,module,exports){
 
 },{}],4:[function(require,module,exports){
 module.exports=require(3)
@@ -42103,11 +42125,7 @@ module.exports = function(doc) {
 
 
 },{}],227:[function(require,module,exports){
-var fm, marked, parse, process, slug;
-
-slug = require('slug');
-
-fm = require('front-matter');
+var marked, parse, process;
 
 parse = require('./parsers/universal.coffee');
 
@@ -42121,21 +42139,9 @@ marked.setOptions({
 });
 
 process = function(doc, children) {
-  var child, field, parsed, value, _ref, _ref1;
-  parsed = fm(doc.text);
-  doc._text = parsed.body;
-  _ref = parsed.attributes;
-  for (field in _ref) {
-    value = _ref[field];
-    doc[field] = value;
-  }
-  doc.html = marked(doc._text);
-  if (!doc.slug) {
-    doc.slug = doc.slug || (doc.title ? slug(doc.title) : doc._id);
-  }
-  if ((_ref1 = doc.slug) === 'docs' || _ref1 === 'edit' || _ref1 === 'assets') {
-    doc.slug = doc.slug + '2';
-  }
+  var child;
+  doc = JSON.parse(JSON.stringify(doc));
+  doc.html = marked(doc.text);
   if (children) {
     doc.children = (function() {
       var _i, _len, _results;
@@ -42154,7 +42160,7 @@ process = function(doc, children) {
 module.exports = process;
 
 
-},{"./parsers/universal.coffee":231,"front-matter":22,"marked":83,"slug":220}],228:[function(require,module,exports){
+},{"./parsers/universal.coffee":232,"marked":83}],228:[function(require,module,exports){
 module.exports = function(doc) {
   return doc;
 };
@@ -42162,11 +42168,67 @@ module.exports = function(doc) {
 
 },{}],229:[function(require,module,exports){
 module.exports = function(doc) {
-  return doc.items = doc._data || doc.children;
+  doc.items = doc._data || doc.children;
+  return doc;
 };
 
 
 },{}],230:[function(require,module,exports){
+var fm, slug, standardAttributes, yaml,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+slug = require('slug');
+
+yaml = require('js-yaml');
+
+fm = require('front-matter');
+
+standardAttributes = ['parents', 'data', 'kind', 'text', 'title', '_id', '_sha', '_created_at', '___id', '___s', 'path'];
+
+module.exports = {
+  preProcess: function(doc) {
+    var field, meta, value;
+    meta = {};
+    for (field in doc) {
+      value = doc[field];
+      if (__indexOf.call(standardAttributes, field) < 0) {
+        meta[field] = value;
+      }
+    }
+    return doc.text = '---\n' + yaml.dump(meta) + '---\n\n' + fm(doc.text).body;
+  },
+  postProcess: function(doc) {
+    var field, meta, parsed, value, _ref, _ref1;
+    if (!doc.slug) {
+      doc.slug = doc.slug || (doc.title ? slug(doc.title) : doc._id);
+    }
+    if ((_ref = doc.slug) === 'docs' || _ref === 'edit' || _ref === 'assets') {
+      doc.slug = doc.slug + '2';
+    }
+    meta = {};
+    parsed = fm(doc.text);
+    _ref1 = parsed.attributes;
+    for (field in _ref1) {
+      value = _ref1[field];
+      if (!(__indexOf.call(standardAttributes, field) < 0)) {
+        continue;
+      }
+      meta[field] = value;
+      if (meta[field] === null) {
+        delete meta[field];
+        delete doc[field];
+      }
+    }
+    for (field in meta) {
+      value = meta[field];
+      doc[field] = value;
+    }
+    return doc.text = parsed.body;
+  }
+};
+
+
+},{"front-matter":22,"js-yaml":51,"slug":220}],231:[function(require,module,exports){
 /*
  CSV-JS - A Comma-Separated Values parser for JS
 
@@ -42475,7 +42537,7 @@ module.exports = function(doc) {
 
 })();
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 var CSV, YAML;
 
 YAML = require('js-yaml');
@@ -42535,13 +42597,13 @@ module.exports = function(data) {
 };
 
 
-},{"./csv.js":230,"js-yaml":51}],232:[function(require,module,exports){
+},{"./csv.js":231,"js-yaml":51}],233:[function(require,module,exports){
 module.exports = function(doc) {
   return doc;
 };
 
 
-},{}],233:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 module.exports = function(doc) {
   var criteria, footSums, item, key, keys, pos, row, table, type, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
   if (!Array.isArray(doc._data)) {
@@ -42567,7 +42629,6 @@ module.exports = function(doc) {
       }
     }
   }
-  console.log(keys);
   for (key in keys) {
     type = keys[key];
     if (type === 'number') {
@@ -42589,14 +42650,13 @@ module.exports = function(doc) {
       key = _ref2[_k];
       row.push(item[key]);
       type = keys[key];
-      console.log(type, key, item[key]);
       if (table.foot && type === 'number') {
         footSums[key] += item[key];
       }
     }
     table.body.push(row);
   }
-  criteria = doc.sortBy || doc.sort || doc.orderBy || doc.order;
+  criteria = doc.sortBy || doc.orderBy;
   if (criteria) {
     pos = table.head(indexOf(criteria));
     if (pos !== -1) {
@@ -42623,7 +42683,7 @@ module.exports = function(doc) {
 };
 
 
-},{}],234:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 var TextLoad, req;
 
 req = require('superagent');

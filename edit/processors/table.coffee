@@ -20,8 +20,6 @@ module.exports = (doc) ->
         if keys[key] is 'number' and typeof value isnt 'number'
           keys[key] = typeof value
 
-  console.log keys
-
   # if one of the types is numerical,
   # add a foot to the table
   for key, type of keys
@@ -43,7 +41,6 @@ module.exports = (doc) ->
 
       # the foot part
       type = keys[key]
-      console.log type, key, item[key]
       if table.foot and type == 'number'
         footSums[key] += item[key]
       #
@@ -51,7 +48,7 @@ module.exports = (doc) ->
     table.body.push row
 
   # sort the list according to some criteria
-  criteria = doc.sortBy or doc.sort or doc.orderBy or doc.order
+  criteria = doc.sortBy or doc.orderBy
   if criteria
     pos = table.head indexOf criteria
     if pos isnt -1
@@ -66,4 +63,4 @@ module.exports = (doc) ->
       table.foot.push footSums[key]
 
   doc.table = table
-  doc
+  return doc

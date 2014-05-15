@@ -7,10 +7,17 @@
           {{#if title}}{{title}}{{/if}}{{#unless title}}{{_id}}{{/unless}}
         </a>
       {{/if}}
+      {{#if slug}}
+        <a href="{{ ../../site.baseUrl }}/{{{ cleanPath ../../doc.path }}}/{{ slug }}">
+          {{#if title}}{{title}}{{/if}}{{#unless title}}{{_id}}{{/unless}}
+        </a>
+      {{/if}}
       {{#unless path}}
-        {{#if title}}{{title}}{{/if}}{{#unless title}}{{_id}}{{/unless}}
+        {{#unless slug}}
+          {{ this }}
+        {{/unless}}
       {{/unless}}
-      {{#if date}} - <time>{{ date }}</time>{{/if}}
+      {{#if date}} - <small><time>{{ date }}</time></small>{{/if}}
     </li>
   {{/each}}
 </ul>
