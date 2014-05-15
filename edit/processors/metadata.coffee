@@ -17,7 +17,7 @@ module.exports =
     doc.text =
       '---\n' +
       yaml.dump(meta) +
-      '---\n\n' +
+      '---\n' +
       fm(doc.text).body
 
   postProcess: (doc) ->

@@ -316,7 +316,7 @@ Main = React.createClass({
           parents: {
             has: doc._id
           }
-        }).get();
+        }).order('order,date,_created_at').get();
         doc = CommonProcessor(doc, children);
         doc = Processors[doc.kind](doc);
         return doc;
@@ -347,17 +347,19 @@ Main = React.createClass({
       processed[doc._id] = html;
     }
     console.log(processed);
-    return gh.deploy(processed, function() {
-      var _k, _len2, _ref2, _results;
-      console.log('deployed!');
-      _ref2 = this.db().get();
-      _results = [];
-      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        doc = _ref2[_k];
-        _results.push(Metadata.preProcess(doc));
-      }
-      return _results;
-    });
+    return gh.deploy(processed, (function(_this) {
+      return function() {
+        var _k, _len2, _ref2, _results;
+        console.log('deployed!');
+        _ref2 = _this.db().get();
+        _results = [];
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          doc = _ref2[_k];
+          _results.push(Metadata.preProcess(doc));
+        }
+        return _results;
+      };
+    })(this));
   },
   handleUpdateDoc: function(docid, change) {
     this.db({
@@ -42195,7 +42197,7 @@ module.exports = {
         meta[field] = value;
       }
     }
-    return doc.text = '---\n' + yaml.dump(meta) + '---\n\n' + fm(doc.text).body;
+    return doc.text = '---\n' + yaml.dump(meta) + '---\n' + fm(doc.text).body;
   },
   postProcess: function(doc) {
     var field, meta, parsed, value, _ref, _ref1;

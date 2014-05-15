@@ -156,7 +156,7 @@ Main = React.createClass
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
-      children = @db({parents: {has: doc._id}}).get()
+      children = @db({parents: {has: doc._id}}).order('order,date,_created_at').get()
       doc = CommonProcessor doc, children
       doc = Processors[doc.kind] doc
       return doc
@@ -183,7 +183,7 @@ Main = React.createClass
       processed[doc._id] = html # eternal link
 
     console.log processed
-    gh.deploy processed, ->
+    gh.deploy processed, =>
       console.log 'deployed!'
       for doc in @db().get()
         Metadata.preProcess doc
