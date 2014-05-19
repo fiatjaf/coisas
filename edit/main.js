@@ -18,47 +18,19 @@ GitHub = function(user) {
       return this.headers['Authorization'] = 'token ' + token;
     },
     repo: function(repo) {
-      return this.repo = repo;
+      this.repo = repo;
+      return this.branch = repo === ("" + this.user + ".github.io") ? 'master' : 'gh-pages';
     },
     listDocs: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs")).set(this.headers).query({
-        branch: 'gh-pages'
+        branch: this.branch
       }).end(function(res) {
-        return cb(res.body);
-      });
-    },
-    fetchDoc: function(id, cb) {
-      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs/" + id + ".json")).set(this.headers).query({
-        branch: 'data'
-      }).end((function(_this) {
-        return function(res) {
-          var doc;
-          doc = JSON.parse(atob(res.body.content));
-          doc._sha = res.body.sha;
-          return cb(doc);
-        };
-      })(this));
-    },
-    saveDoc: function(doc, cb) {
-      var document;
-      if (!doc._id) {
-        doc._id = id();
-      }
-      document = btoa(JSON.stringify(doc));
-      return req.put(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs/" + doc._id + ".json")).set(this.headers).send({
-        branch: 'data',
-        path: "docs/" + doc._id + ".json",
-        sha: doc._sha ? doc._sha : void 0,
-        content: document,
-        message: doc._id
-      }).end(function(res) {
-        this.data_last_commit_sha = res.body.commit.sha;
         return cb(res.body);
       });
     },
     deleteFile: function(path, cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/" + path)).set(this.headers).query({
-        ref: 'gh-pages'
+        ref: this.branch
       }).end((function(_this) {
         return function(res) {
           if (res.status !== 200) {
@@ -67,7 +39,7 @@ GitHub = function(user) {
           return req.del(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/contents/" + path)).set(_this.headers).query({
             sha: res.body.sha,
             message: "DELETE " + path,
-            branch: 'gh-pages'
+            branch: _this.branch
           }).end(function(res) {
             if (res.status === 200) {
               return cb(res.body);
@@ -77,7 +49,7 @@ GitHub = function(user) {
       })(this));
     },
     deploy: function(processedDocs, cb) {
-      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/gh-pages")).set(this.headers).end((function(_this) {
+      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
         return function(res) {
           var content, last_commit_sha, last_tree_sha, path, tree;
           last_commit_sha = res.body.commit.sha;
@@ -108,7 +80,7 @@ GitHub = function(user) {
             }).end(function(res) {
               var new_commit_sha;
               new_commit_sha = res.body.sha;
-              return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/gh-pages")).set(_this.headers).send({
+              return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
                 sha: new_commit_sha,
                 force: true
               }).end(function(res) {
@@ -227,7 +199,9 @@ Main = React.createClass({
             return v.toString(16);
           });
         }
-        return this._created_at = (new Date()).getTime();
+        if (!this._created_at) {
+          return this._created_at = (new Date()).getTime();
+        }
       },
       cacheSize: 0
     });
@@ -2232,7 +2206,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 

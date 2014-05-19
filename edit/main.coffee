@@ -91,7 +91,8 @@ Main = React.createClass
             r = Math.random() * 16 | 0
             v = (if c is "x" then r else (r & 0x3 | 0x8))
             v.toString 16
-        this._created_at = (new Date()).getTime()
+        if not this._created_at
+          this._created_at = (new Date()).getTime()
       cacheSize: 0
 
     unless @db({_id: 'global'}).count()
