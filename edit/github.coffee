@@ -12,39 +12,16 @@ GitHub = (user) ->
     @headers['Authorization'] = 'token ' + token
   repo: (repo) ->
     @repo = repo
+    @branch = if repo == "#{@user}.github.io" then 'master' else 'gh-pages'
   listDocs: (cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs")
        .set(@headers)
-       .query(branch: 'gh-pages')
+       .query(branch: @branch)
        .end (res) -> cb res.body
-  fetchDoc: (id, cb) ->
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs/#{id}.json")
-       .set(@headers)
-       .query(branch: 'data')
-       .end (res) =>
-         doc = JSON.parse atob res.body.content
-         doc._sha = res.body.sha
-         cb doc
-  saveDoc: (doc, cb) ->
-    if not doc._id
-      doc._id = id()
-    document = btoa JSON.stringify doc
-    req.put(@base + "/repos/#{@user}/#{@repo}/contents/docs/#{doc._id}.json")
-       .set(@headers)
-       .send({
-          branch: 'data'
-          path: "docs/#{doc._id}.json"
-          sha: doc._sha if doc._sha
-          content: document
-          message: doc._id
-        })
-       .end (res) ->
-         @data_last_commit_sha = res.body.commit.sha
-         cb res.body
   deleteFile: (path, cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
        .set(@headers)
-       .query(ref: 'gh-pages')
+       .query(ref: @branch)
        .end (res) =>
          return cb() if res.status != 200
          req.del(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
@@ -52,14 +29,14 @@ GitHub = (user) ->
             .query({
               sha: res.body.sha
               message: "DELETE #{path}"
-              branch: 'gh-pages'
+              branch: @branch
             })
             .end (res) ->
               if res.status == 200
                 cb res.body
   deploy: (processedDocs, cb) ->
     # get last commit sha
-    req.get(@base + "/repos/#{@user}/#{@repo}/branches/gh-pages")
+    req.get(@base + "/repos/#{@user}/#{@repo}/branches/#{@branch}")
        .set(@headers)
        .end (res) =>
          last_commit_sha = res.body.commit.sha
@@ -100,7 +77,7 @@ GitHub = (user) ->
                    new_commit_sha = res.body.sha
 
                    # update the branch with the commit
-                   req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/gh-pages")
+                   req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/#{@branch}")
                       .set(@headers)
                       .send(sha: new_commit_sha, force: true)
                       .end (res) =>
