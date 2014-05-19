@@ -42230,7 +42230,9 @@ module.exports = {
       value = meta[field];
       doc[field] = value;
     }
-    return doc.text = parsed.body;
+    doc.text = parsed.body;
+    delete doc.___id;
+    return delete doc.___s;
   }
 };
 
