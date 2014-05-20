@@ -12,7 +12,10 @@ GitHub = (user) ->
     @headers['Authorization'] = 'token ' + token
   repo: (repo) ->
     @repo = repo
-    @branch = if repo == "#{@user}.github.io" then 'master' else 'gh-pages'
+    if repo == "#{@user}.github.io" or repo == "#{@user}.github.com"
+      @branch = 'master'
+    else
+      @branch = 'gh-pages'
   listDocs: (cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/contents/docs")
        .set(@headers)
