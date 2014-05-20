@@ -32,65 +32,61 @@ GitHub = function(user) {
         return cb(res.body);
       });
     },
-    deleteFile: function(path, cb) {
-      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/" + path)).set(this.headers).query({
-        ref: this.branch
-      }).end((function(_this) {
-        return function(res) {
-          if (res.status !== 200) {
-            return cb();
-          }
-          return req.del(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/contents/" + path)).set(_this.headers).query({
-            sha: res.body.sha,
-            message: "DELETE " + path,
-            branch: _this.branch
-          }).end(function(res) {
-            if (res.status === 200) {
-              return cb(res.body);
-            }
-          });
-        };
-      })(this));
-    },
     deploy: function(processedDocs, cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
         return function(res) {
-          var content, last_commit_sha, last_tree_sha, path, tree;
+          var last_commit_sha, last_tree_sha;
           last_commit_sha = res.body.commit.sha;
           last_tree_sha = res.body.commit.commit.tree.sha;
-          tree = [];
-          for (path in processedDocs) {
-            content = processedDocs[path];
-            tree.push({
-              path: path,
-              mode: '100644',
-              type: 'blob',
-              content: content
-            });
-          }
-          return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees")).set(_this.headers).send({
-            base_tree: last_tree_sha,
-            tree: tree
-          }).end(function(res) {
-            var new_tree_sha;
-            new_tree_sha = res.body.sha;
-            if (last_tree_sha === new_tree_sha) {
-              return true;
+          return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees/" + last_tree_sha)).set(_this.headers).end(function(res) {
+            var content, file, path, tree, _i, _len, _ref, _ref1;
+            tree = [];
+            _ref = res.body.tree;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              file = _ref[_i];
+              if ((_ref1 = file.path) === 'edit' || _ref1 === '.gitignore' || _ref1 === 'LICENSE' || _ref1 === 'README.md' || _ref1 === 'assets') {
+                continue;
+              } else {
+                tree.push({
+                  path: file.path,
+                  mode: file.mode,
+                  type: file.type,
+                  sha: file.sha
+                });
+              }
             }
-            return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/commits")).set(_this.headers).send({
-              message: 'P U B L I S H',
-              tree: new_tree_sha,
-              parents: [last_commit_sha]
+            for (path in processedDocs) {
+              content = processedDocs[path];
+              tree.push({
+                path: path,
+                mode: '100644',
+                type: 'blob',
+                content: content
+              });
+            }
+            return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees")).set(_this.headers).send({
+              tree: tree
             }).end(function(res) {
-              var new_commit_sha;
-              new_commit_sha = res.body.sha;
-              return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
-                sha: new_commit_sha,
-                force: true
+              var new_tree_sha;
+              new_tree_sha = res.body.sha;
+              if (last_tree_sha === new_tree_sha) {
+                return true;
+              }
+              return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/commits")).set(_this.headers).send({
+                message: 'P U B L I S H',
+                tree: new_tree_sha,
+                parents: [last_commit_sha]
               }).end(function(res) {
-                if (res.status === 200) {
-                  return cb(res.body);
-                }
+                var new_commit_sha;
+                new_commit_sha = res.body.sha;
+                return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
+                  sha: new_commit_sha,
+                  force: true
+                }).end(function(res) {
+                  if (res.status === 200) {
+                    return cb(res.body);
+                  }
+                });
               });
             });
           });
@@ -348,42 +344,10 @@ Main = React.createClass({
     return this.forceUpdate();
   },
   handleDeleteDoc: function(docid) {
-    var completePath, erase, htmlPaths;
-    htmlPaths = [];
-    completePath = function(doc, presentPath) {
-      var parent, path, _i, _len, _ref1, _results;
-      if (presentPath == null) {
-        presentPath = 'index.html';
-      }
-      path = doc.slug + '/' + presentPath;
-      if (doc.parents.length === 1 && doc.parents[0] === 'home') {
-        htmlPaths.push(path);
-        return;
-      }
-      _ref1 = doc.parents;
-      _results = [];
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        parent = _ref1[_i];
-        _results.push(completePath(parent, path));
-      }
-      return _results;
-    };
-    erase = (function(_this) {
-      return function(path, pathQueue) {
-        if (path) {
-          return gh.deleteFile(path, erase.bind(_this, pathQueue[0], pathQueue.slice(1)));
-        } else {
-          _this.db({
-            _id: docid
-          }).remove();
-          return _this.forceUpdate();
-        }
-      };
-    })(this);
-    completePath(this.db({
+    this.db({
       _id: docid
-    }).first());
-    return erase("docs/" + docid, htmlPaths);
+    }).remove();
+    return this.forceUpdate();
   },
   handleMovingChilds: function(childid, fromid, targetid) {
     var isAncestor, movedDoc;
