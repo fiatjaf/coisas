@@ -19,7 +19,11 @@ GitHub = function(user) {
     },
     repo: function(repo) {
       this.repo = repo;
-      return this.branch = repo === ("" + this.user + ".github.io") ? 'master' : 'gh-pages';
+      if (repo === ("" + this.user + ".github.io") || repo === ("" + this.user + ".github.com")) {
+        return this.branch = 'master';
+      } else {
+        return this.branch = 'gh-pages';
+      }
     },
     listDocs: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/contents/docs")).set(this.headers).query({
@@ -146,11 +150,11 @@ Handlebars.registerHelper('cleanPath', function(path) {
 
 _ref = React.DOM, main = _ref.main, aside = _ref.aside, article = _ref.article, header = _ref.header, div = _ref.div, ul = _ref.ul, li = _ref.li, span = _ref.span, table = _ref.table, thead = _ref.thead, tbody = _ref.tbody, tfoot = _ref.tfoot, tr = _ref.tr, td = _ref.td, th = _ref.th, b = _ref.b, i = _ref.i, a = _ref.a, h1 = _ref.h1, h2 = _ref.h2, h3 = _ref.h3, h4 = _ref.h4, small = _ref.small, form = _ref.form, label = _ref.label, input = _ref.input, select = _ref.select, option = _ref.option, textarea = _ref.textarea, button = _ref.button;
 
-gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href);
+gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)\/?(.*)/.exec(location.href);
 
 if (gh_data) {
   user = gh_data[1];
-  repo = gh_data[4] || ("" + user + ".github." + gh_data[3]);
+  repo = gh_data[5] ? gh_data[4] : "" + user + ".github." + gh_data[3];
 } else {
   user = localStorage.getItem(location.href + '-user');
   if (!user) {
@@ -162,6 +166,7 @@ if (gh_data) {
     repo = prompt("The name of the repository in which this blog is hosted:");
     localStorage.setItem(location.href + '-repo', repo);
   }
+  console.log("will connect to the repo " + user + "/" + repo);
 }
 
 gh = new GitHub(user);
@@ -3683,8 +3688,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":12,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"buffer":5,"events":8,"inherits":9,"process/browser.js":13,"string_decoder":18}],16:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./index.js":12,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"buffer":5,"events":8,"inherits":9,"process/browser.js":13,"string_decoder":18}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5248,8 +5253,8 @@ function attribute(key, value) {
 
 module.exports = xml;
 module.exports.element = module.exports.Element = element;
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./escapeForXML":20,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"stream":12}],22:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./escapeForXML":20,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"stream":12}],22:[function(require,module,exports){
 (function (process){
 
 const parser = require('yaml-js')
@@ -5288,8 +5293,8 @@ function test(string){
   return regex.test(string)
 }
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"yaml-js":35}],23:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10,"yaml-js":35}],23:[function(require,module,exports){
 (function() {
   var MarkedYAMLError, events, nodes, _ref,
     __hasProp = {}.hasOwnProperty,
@@ -9570,7 +9575,7 @@ exports["default"] = Handlebars;
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
 
-var VERSION = "2.0.0-alpha.2";
+var VERSION = "2.0.0-alpha.4";
 exports.VERSION = VERSION;var COMPILER_REVISION = 5;
 exports.COMPILER_REVISION = COMPILER_REVISION;
 var REVISION_CHANGES = {
@@ -9888,7 +9893,7 @@ var AST = {
     // a mustache is definitely a helper if:
     // * it is an eligible helper, and
     // * it has at least one parameter or hash segment
-    this.isHelper = params.length || hash;
+    this.isHelper = !!(params.length || hash);
 
     // a mustache is an eligible helper if:
     // * its id is simple (a single part, not `this` or `..`)
@@ -10342,7 +10347,7 @@ Compiler.prototype = {
       throw new Exception("You specified knownHelpersOnly, but used the unknown helper " + name, sexpr);
     } else {
       this.ID(id);
-      this.opcode('invokeHelper', params.length, name, sexpr.isRoot);
+      this.opcode('invokeHelper', params.length, id.original, sexpr.isRoot);
     }
   },
 
@@ -10523,11 +10528,17 @@ exports.precompile = precompile;function compile(input, options, env) {
     }
     return compiled.call(this, context, options);
   };
-  ret.child = function(i) {
+  ret._setup = function(options) {
     if (!compiled) {
       compiled = compileInput();
     }
-    return compiled.child(i);
+    return compiled._setup(options);
+  };
+  ret._child = function(i) {
+    if (!compiled) {
+      compiled = compileInput();
+    }
+    return compiled._child(i);
   };
   return ret;
 }
@@ -12311,13 +12322,6 @@ function template(templateSpec, env) {
     },
     programWithDepth: env.VM.programWithDepth,
 
-    initData: function(context, data) {
-      if (!data || !('root' in data)) {
-        data = data ? createFrame(data) : {};
-        data.root = context;
-      }
-      return data;
-    },
     data: function(data, depth) {
       while (data && depth--) {
         data = data._parent;
@@ -12340,28 +12344,31 @@ function template(templateSpec, env) {
 
   var ret = function(context, options) {
     options = options || {};
-    var namespace = options.partial ? options : env,
-        helpers,
+    var helpers,
         partials,
         data = options.data;
 
-    if (!options.partial) {
-      helpers = container.helpers = container.merge(options.helpers, namespace.helpers);
-
-      if (templateSpec.usePartial) {
-        partials = container.partials = container.merge(options.partials, namespace.partials);
-      }
-      if (templateSpec.useData) {
-        data = container.initData(context, data);
-      }
-    } else {
-      helpers = container.helpers = options.helpers;
-      partials = container.partials = options.partials;
+    ret._setup(options);
+    if (!options.partial && templateSpec.useData) {
+      data = initData(context, data);
     }
-    return templateSpec.main.call(container, context, helpers, partials, data);
+    return templateSpec.main.call(container, context, container.helpers, container.partials, data);
   };
 
-  ret.child = function(i) {
+  ret._setup = function(options) {
+    if (!options.partial) {
+      container.helpers = container.merge(options.helpers, env.helpers);
+
+      if (templateSpec.usePartial) {
+        container.partials = container.merge(options.partials, env.partials);
+      }
+    } else {
+      container.helpers = options.helpers;
+      container.partials = options.partials;
+    }
+  };
+
+  ret._child = function(i) {
     return container.programWithDepth(i);
   };
   return ret;
@@ -12406,7 +12413,13 @@ exports.program = program;function invokePartial(partial, name, context, helpers
 
 exports.invokePartial = invokePartial;function noop() { return ""; }
 
-exports.noop = noop;
+exports.noop = noop;function initData(context, data) {
+  if (!data || !('root' in data)) {
+    data = data ? createFrame(data) : {};
+    data.root = context;
+  }
+  return data;
+}
 },{"./base":38,"./exception":46,"./utils":49}],48:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
@@ -22816,8 +22829,8 @@ var DOMProperty = {
 
 module.exports = DOMProperty;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],92:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],92:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -23001,8 +23014,8 @@ var DOMPropertyOperations = {
 
 module.exports = DOMPropertyOperations;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./DOMProperty":91,"./escapeTextForBrowser":181,"./memoizeStringOnly":203,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],93:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./DOMProperty":91,"./escapeTextForBrowser":181,"./memoizeStringOnly":203,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],93:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -23192,8 +23205,8 @@ var Danger = {
 
 module.exports = Danger;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ExecutionEnvironment":103,"./createNodesFromMarkup":176,"./emptyFunction":179,"./getMarkupWrap":188,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],94:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ExecutionEnvironment":103,"./createNodesFromMarkup":176,"./emptyFunction":179,"./getMarkupWrap":188,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],94:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -23734,8 +23747,8 @@ var EventListener = {
 
 module.exports = EventListener;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./emptyFunction":179,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],99:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./emptyFunction":179,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],99:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -24033,8 +24046,8 @@ var EventPluginHub = {
 
 module.exports = EventPluginHub;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./EventPluginRegistry":100,"./EventPluginUtils":101,"./ExecutionEnvironment":103,"./accumulate":170,"./forEachAccumulated":184,"./invariant":195,"./isEventSupported":196,"./monitorCodeUse":208,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],100:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./EventPluginRegistry":100,"./EventPluginUtils":101,"./ExecutionEnvironment":103,"./accumulate":170,"./forEachAccumulated":184,"./invariant":195,"./isEventSupported":196,"./monitorCodeUse":208,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],100:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -24318,8 +24331,8 @@ var EventPluginRegistry = {
 
 module.exports = EventPluginRegistry;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],101:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],101:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -24536,8 +24549,8 @@ var EventPluginUtils = {
 
 module.exports = EventPluginUtils;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./EventConstants":97,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],102:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./EventConstants":97,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -24683,8 +24696,8 @@ var EventPropagators = {
 
 module.exports = EventPropagators;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./EventConstants":97,"./EventPluginHub":99,"./accumulate":170,"./forEachAccumulated":184,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],103:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./EventConstants":97,"./EventPluginHub":99,"./accumulate":170,"./forEachAccumulated":184,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],103:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -24893,8 +24906,8 @@ var LinkedValueUtils = {
 
 module.exports = LinkedValueUtils;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactPropTypes":147,"./invariant":195,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],105:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactPropTypes":147,"./invariant":195,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],105:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -25081,8 +25094,8 @@ var PooledClass = {
 
 module.exports = PooledClass;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],107:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],107:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -25182,8 +25195,8 @@ React.version = '0.10.0';
 
 module.exports = React;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./DOMPropertyOperations":92,"./EventPluginUtils":101,"./ExecutionEnvironment":103,"./ReactChildren":109,"./ReactComponent":110,"./ReactCompositeComponent":112,"./ReactContext":113,"./ReactCurrentOwner":114,"./ReactDOM":115,"./ReactDOMComponent":117,"./ReactDefaultInjection":127,"./ReactInstanceHandles":136,"./ReactMount":138,"./ReactMultiChild":140,"./ReactPerf":143,"./ReactPropTypes":147,"./ReactServerRendering":151,"./ReactTextComponent":153,"./onlyChild":211,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],108:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./DOMPropertyOperations":92,"./EventPluginUtils":101,"./ExecutionEnvironment":103,"./ReactChildren":109,"./ReactComponent":110,"./ReactCompositeComponent":112,"./ReactContext":113,"./ReactCurrentOwner":114,"./ReactDOM":115,"./ReactDOMComponent":117,"./ReactDefaultInjection":127,"./ReactInstanceHandles":136,"./ReactMount":138,"./ReactMultiChild":140,"./ReactPerf":143,"./ReactPropTypes":147,"./ReactServerRendering":151,"./ReactTextComponent":153,"./onlyChild":211,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],108:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -25228,8 +25241,8 @@ var ReactBrowserComponentMixin = {
 
 module.exports = ReactBrowserComponentMixin;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactMount":138,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],109:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactMount":138,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],109:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -25364,8 +25377,8 @@ var ReactChildren = {
 
 module.exports = ReactChildren;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./PooledClass":106,"./invariant":195,"./traverseAllChildren":216,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],110:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./PooledClass":106,"./invariant":195,"./traverseAllChildren":216,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],110:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -25963,8 +25976,8 @@ var ReactComponent = {
 
 module.exports = ReactComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactCurrentOwner":114,"./ReactOwner":142,"./ReactUpdates":154,"./invariant":195,"./keyMirror":201,"./merge":204,"./monitorCodeUse":208,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],111:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactCurrentOwner":114,"./ReactOwner":142,"./ReactUpdates":154,"./invariant":195,"./keyMirror":201,"./merge":204,"./monitorCodeUse":208,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],111:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -26091,8 +26104,8 @@ var ReactComponentBrowserEnvironment = {
 
 module.exports = ReactComponentBrowserEnvironment;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactDOMIDOperations":119,"./ReactMarkupChecksum":137,"./ReactMount":138,"./ReactPerf":143,"./ReactReconcileTransaction":149,"./getReactRootElementInContainer":190,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],112:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactDOMIDOperations":119,"./ReactMarkupChecksum":137,"./ReactMount":138,"./ReactPerf":143,"./ReactReconcileTransaction":149,"./getReactRootElementInContainer":190,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],112:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -27682,8 +27695,8 @@ var ReactCompositeComponent = {
 
 module.exports = ReactCompositeComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactComponent":110,"./ReactContext":113,"./ReactCurrentOwner":114,"./ReactErrorUtils":130,"./ReactOwner":142,"./ReactPerf":143,"./ReactPropTransferer":144,"./ReactPropTypeLocationNames":145,"./ReactPropTypeLocations":146,"./ReactUpdates":154,"./instantiateReactComponent":194,"./invariant":195,"./keyMirror":201,"./merge":204,"./mixInto":207,"./monitorCodeUse":208,"./objMap":209,"./shouldUpdateReactComponent":214,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],113:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactComponent":110,"./ReactContext":113,"./ReactCurrentOwner":114,"./ReactErrorUtils":130,"./ReactOwner":142,"./ReactPerf":143,"./ReactPropTransferer":144,"./ReactPropTypeLocationNames":145,"./ReactPropTypeLocations":146,"./ReactUpdates":154,"./instantiateReactComponent":194,"./invariant":195,"./keyMirror":201,"./merge":204,"./mixInto":207,"./monitorCodeUse":208,"./objMap":209,"./shouldUpdateReactComponent":214,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],113:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -28492,8 +28505,8 @@ mixInto(ReactDOMComponent, ReactBrowserComponentMixin);
 
 module.exports = ReactDOMComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./CSSPropertyOperations":86,"./DOMProperty":91,"./DOMPropertyOperations":92,"./ReactBrowserComponentMixin":108,"./ReactComponent":110,"./ReactEventEmitter":131,"./ReactMount":138,"./ReactMultiChild":140,"./ReactPerf":143,"./escapeTextForBrowser":181,"./invariant":195,"./keyOf":202,"./merge":204,"./mixInto":207,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],118:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./CSSPropertyOperations":86,"./DOMProperty":91,"./DOMPropertyOperations":92,"./ReactBrowserComponentMixin":108,"./ReactComponent":110,"./ReactEventEmitter":131,"./ReactMount":138,"./ReactMultiChild":140,"./ReactPerf":143,"./escapeTextForBrowser":181,"./invariant":195,"./keyOf":202,"./merge":204,"./mixInto":207,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -28778,8 +28791,8 @@ var ReactDOMIDOperations = {
 
 module.exports = ReactDOMIDOperations;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./CSSPropertyOperations":86,"./DOMChildrenOperations":90,"./DOMPropertyOperations":92,"./ReactMount":138,"./ReactPerf":143,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],120:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./CSSPropertyOperations":86,"./DOMChildrenOperations":90,"./DOMPropertyOperations":92,"./ReactMount":138,"./ReactPerf":143,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],120:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -29027,8 +29040,8 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMInput;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./AutoFocusMixin":84,"./DOMPropertyOperations":92,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./ReactMount":138,"./invariant":195,"./merge":204,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],122:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./AutoFocusMixin":84,"./DOMPropertyOperations":92,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./ReactMount":138,"./invariant":195,"./merge":204,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],122:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -29086,8 +29099,8 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMOption;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],123:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],123:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -29270,8 +29283,8 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./AutoFocusMixin":84,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./invariant":195,"./merge":204,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],124:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./AutoFocusMixin":84,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./invariant":195,"./merge":204,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],124:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -29609,8 +29622,8 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMTextarea;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./AutoFocusMixin":84,"./DOMPropertyOperations":92,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./invariant":195,"./merge":204,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],126:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./AutoFocusMixin":84,"./DOMPropertyOperations":92,"./LinkedValueUtils":104,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":112,"./ReactDOM":115,"./invariant":195,"./merge":204,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],126:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -29815,8 +29828,8 @@ module.exports = {
   inject: inject
 };
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ChangeEventPlugin":87,"./ClientReactRootIndex":88,"./CompositionEventPlugin":89,"./DefaultDOMPropertyConfig":94,"./DefaultEventPluginOrder":95,"./EnterLeaveEventPlugin":96,"./ExecutionEnvironment":103,"./MobileSafariClickEventPlugin":105,"./ReactBrowserComponentMixin":108,"./ReactComponentBrowserEnvironment":111,"./ReactDOM":115,"./ReactDOMButton":116,"./ReactDOMForm":118,"./ReactDOMImg":120,"./ReactDOMInput":121,"./ReactDOMOption":122,"./ReactDOMSelect":123,"./ReactDOMTextarea":125,"./ReactDefaultBatchingStrategy":126,"./ReactDefaultPerf":128,"./ReactEventTopLevelCallback":133,"./ReactInjection":134,"./ReactInstanceHandles":136,"./ReactMount":138,"./SelectEventPlugin":155,"./ServerReactRootIndex":156,"./SimpleEventPlugin":157,"./createFullPageComponent":175,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],128:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ChangeEventPlugin":87,"./ClientReactRootIndex":88,"./CompositionEventPlugin":89,"./DefaultDOMPropertyConfig":94,"./DefaultEventPluginOrder":95,"./EnterLeaveEventPlugin":96,"./ExecutionEnvironment":103,"./MobileSafariClickEventPlugin":105,"./ReactBrowserComponentMixin":108,"./ReactComponentBrowserEnvironment":111,"./ReactDOM":115,"./ReactDOMButton":116,"./ReactDOMForm":118,"./ReactDOMImg":120,"./ReactDOMInput":121,"./ReactDOMOption":122,"./ReactDOMSelect":123,"./ReactDOMTextarea":125,"./ReactDefaultBatchingStrategy":126,"./ReactDefaultPerf":128,"./ReactEventTopLevelCallback":133,"./ReactInjection":134,"./ReactInstanceHandles":136,"./ReactMount":138,"./SelectEventPlugin":155,"./ServerReactRootIndex":156,"./SimpleEventPlugin":157,"./createFullPageComponent":175,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -30644,8 +30657,8 @@ var ReactEventEmitter = merge(ReactEventEmitterMixin, {
 
 module.exports = ReactEventEmitter;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./EventConstants":97,"./EventListener":98,"./EventPluginHub":99,"./EventPluginRegistry":100,"./ExecutionEnvironment":103,"./ReactEventEmitterMixin":132,"./ViewportMetrics":169,"./invariant":195,"./isEventSupported":196,"./merge":204,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],132:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./EventConstants":97,"./EventListener":98,"./EventPluginHub":99,"./EventPluginRegistry":100,"./ExecutionEnvironment":103,"./ReactEventEmitterMixin":132,"./ViewportMetrics":169,"./invariant":195,"./isEventSupported":196,"./merge":204,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],132:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -31384,8 +31397,8 @@ var ReactInstanceHandles = {
 
 module.exports = ReactInstanceHandles;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactRootIndex":150,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],137:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactRootIndex":150,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],137:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -32092,8 +32105,8 @@ var ReactMount = {
 
 module.exports = ReactMount;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./DOMProperty":91,"./ReactEventEmitter":131,"./ReactInstanceHandles":136,"./ReactPerf":143,"./containsNode":172,"./getReactRootElementInContainer":190,"./instantiateReactComponent":194,"./invariant":195,"./shouldUpdateReactComponent":214,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],139:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./DOMProperty":91,"./ReactEventEmitter":131,"./ReactInstanceHandles":136,"./ReactPerf":143,"./containsNode":172,"./getReactRootElementInContainer":190,"./instantiateReactComponent":194,"./invariant":195,"./shouldUpdateReactComponent":214,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],139:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -32826,8 +32839,8 @@ var ReactOwner = {
 
 module.exports = ReactOwner;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./emptyObject":180,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],143:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./emptyObject":180,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],143:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -32915,8 +32928,8 @@ function _noMeasure(objName, fnName, func) {
 
 module.exports = ReactPerf;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],144:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],144:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -33066,8 +33079,8 @@ var ReactPropTransferer = {
 
 module.exports = ReactPropTransferer;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./emptyFunction":179,"./invariant":195,"./joinClasses":200,"./merge":204,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],145:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./emptyFunction":179,"./invariant":195,"./joinClasses":200,"./merge":204,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],145:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -33101,8 +33114,8 @@ if ("production" !== process.env.NODE_ENV) {
 
 module.exports = ReactPropTypeLocationNames;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],146:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],146:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -33495,8 +33508,8 @@ function createChainableTypeChecker(validate) {
 
 module.exports = Props;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactComponent":110,"./ReactPropTypeLocationNames":145,"./createObjectFrom":177,"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],148:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactComponent":110,"./ReactPropTypeLocationNames":145,"./createObjectFrom":177,"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -33873,8 +33886,8 @@ module.exports = {
   renderComponentToStaticMarkup: renderComponentToStaticMarkup
 };
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactComponent":110,"./ReactInstanceHandles":136,"./ReactMarkupChecksum":137,"./ReactServerRenderingTransaction":152,"./instantiateReactComponent":194,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],152:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactComponent":110,"./ReactInstanceHandles":136,"./ReactMarkupChecksum":137,"./ReactServerRenderingTransaction":152,"./instantiateReactComponent":194,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],152:[function(require,module,exports){
 /**
  * Copyright 2014 Facebook, Inc.
  *
@@ -34266,8 +34279,8 @@ var ReactUpdates = {
 
 module.exports = ReactUpdates;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactPerf":143,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],155:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactPerf":143,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -34923,8 +34936,8 @@ var SimpleEventPlugin = {
 
 module.exports = SimpleEventPlugin;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./EventConstants":97,"./EventPluginUtils":101,"./EventPropagators":102,"./SyntheticClipboardEvent":158,"./SyntheticDragEvent":160,"./SyntheticEvent":161,"./SyntheticFocusEvent":162,"./SyntheticKeyboardEvent":163,"./SyntheticMouseEvent":164,"./SyntheticTouchEvent":165,"./SyntheticUIEvent":166,"./SyntheticWheelEvent":167,"./invariant":195,"./keyOf":202,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],158:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./EventConstants":97,"./EventPluginUtils":101,"./EventPropagators":102,"./SyntheticClipboardEvent":158,"./SyntheticDragEvent":160,"./SyntheticEvent":161,"./SyntheticFocusEvent":162,"./SyntheticKeyboardEvent":163,"./SyntheticMouseEvent":164,"./SyntheticTouchEvent":165,"./SyntheticUIEvent":166,"./SyntheticWheelEvent":167,"./invariant":195,"./keyOf":202,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],158:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -35881,8 +35894,8 @@ var Transaction = {
 
 module.exports = Transaction;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],169:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],169:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -35978,8 +35991,8 @@ function accumulate(current, next) {
 
 module.exports = accumulate;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],171:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -36128,8 +36141,8 @@ function copyProperties(obj, a, b, c, d, e, f) {
 
 module.exports = copyProperties;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],174:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -36288,8 +36301,8 @@ function createFullPageComponent(componentClass) {
 
 module.exports = createFullPageComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactCompositeComponent":112,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],176:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactCompositeComponent":112,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],176:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -36385,8 +36398,8 @@ function createNodesFromMarkup(markup, handleScript) {
 
 module.exports = createNodesFromMarkup;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ExecutionEnvironment":103,"./createArrayFrom":174,"./getMarkupWrap":188,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],177:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ExecutionEnvironment":103,"./createArrayFrom":174,"./getMarkupWrap":188,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],177:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -36450,8 +36463,8 @@ function createObjectFrom(keys, values /* = true */) {
 
 module.exports = createObjectFrom;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],178:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],178:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -36585,8 +36598,8 @@ if ("production" !== process.env.NODE_ENV) {
 
 module.exports = emptyObject;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],181:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],181:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -36695,8 +36708,8 @@ function flattenChildren(children) {
 
 module.exports = flattenChildren;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"./traverseAllChildren":216,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],183:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"./traverseAllChildren":216,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],183:[function(require,module,exports){
 /**
  * Copyright 2014 Facebook, Inc.
  *
@@ -37051,8 +37064,8 @@ function getMarkupWrap(nodeName) {
 
 module.exports = getMarkupWrap;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ExecutionEnvironment":103,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],189:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ExecutionEnvironment":103,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],189:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -37377,8 +37390,8 @@ function instantiateReactComponent(descriptor) {
 
 module.exports = instantiateReactComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./warning":217,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],195:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./warning":217,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],195:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -37443,8 +37456,8 @@ if ("production" !== process.env.NODE_ENV) {
 
 module.exports = invariant;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],196:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -37741,8 +37754,8 @@ var keyMirror = function(obj) {
 
 module.exports = keyMirror;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],202:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],202:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -38004,8 +38017,8 @@ var mergeHelpers = {
 
 module.exports = mergeHelpers;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"./keyMirror":201,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],206:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"./keyMirror":201,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],206:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -38128,8 +38141,8 @@ function monitorCodeUse(eventName, data) {
 
 module.exports = monitorCodeUse;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],209:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],209:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -38273,8 +38286,8 @@ function onlyChild(children) {
 
 module.exports = onlyChild;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactComponent":110,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],212:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactComponent":110,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],212:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -38433,8 +38446,8 @@ function shouldUpdateReactComponent(prevComponentInstance, nextDescriptor) {
 
 module.exports = shouldUpdateReactComponent;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],215:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],215:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -38512,8 +38525,8 @@ function toArray(obj) {
 
 module.exports = toArray;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],216:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],216:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -38706,8 +38719,8 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./ReactInstanceHandles":136,"./ReactTextComponent":153,"./invariant":195,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],217:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./ReactInstanceHandles":136,"./ReactTextComponent":153,"./invariant":195,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],217:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -38758,8 +38771,8 @@ if ("production" !== process.env.NODE_ENV) {
 
 module.exports = warning;
 
-}).call(this,require("/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./emptyFunction":179,"/home/fiatjaf/comp/coisas/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],218:[function(require,module,exports){
+}).call(this,require("/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./emptyFunction":179,"/home/fiatjaf/comp/fiatjaf.github.io/edit/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":10}],218:[function(require,module,exports){
 module.exports = require('./lib/React');
 
 },{"./lib/React":107}],219:[function(require,module,exports){

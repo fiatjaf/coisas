@@ -50,10 +50,10 @@ Handlebars.registerHelper 'cleanPath', (path) ->
  form, label, input, select, option, textarea, button} = React.DOM
 
 # github client
-gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)/.exec(location.href)
+gh_data = /([\w-_]+)\.github\.((io|com)\/)([\w-_]*)\/?(.*)/.exec(location.href)
 if gh_data
   user = gh_data[1]
-  repo = gh_data[4] or "#{user}.github.#{gh_data[3]}"
+  repo = if gh_data[5] then gh_data[4] else "#{user}.github.#{gh_data[3]}"
 else
   user = localStorage.getItem location.href + '-user'
   if not user
@@ -64,6 +64,8 @@ else
   if not repo
     repo = prompt "The name of the repository in which this blog is hosted:"
     localStorage.setItem location.href + '-repo', repo
+
+  console.log "will connect to the repo #{user}/#{repo}"
 
 gh = new GitHub user
 pass = prompt "Password for the user #{user}:"
