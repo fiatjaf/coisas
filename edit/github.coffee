@@ -21,22 +21,6 @@ GitHub = (user) ->
        .set(@headers)
        .query(branch: @branch)
        .end (res) -> cb res.body
-  deleteFile: (path, cb) ->
-    req.get(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
-       .set(@headers)
-       .query(ref: @branch)
-       .end (res) =>
-         return cb() if res.status != 200
-         req.del(@base + "/repos/#{@user}/#{@repo}/contents/#{path}")
-            .set(@headers)
-            .query({
-              sha: res.body.sha
-              message: "DELETE #{path}"
-              branch: @branch
-            })
-            .end (res) ->
-              if res.status == 200
-                cb res.body
   deploy: (processedDocs, cb) ->
     # get last commit sha
     req.get(@base + "/repos/#{@user}/#{@repo}/branches/#{@branch}")
@@ -45,46 +29,63 @@ GitHub = (user) ->
          last_commit_sha = res.body.commit.sha
          last_tree_sha = res.body.commit.commit.tree.sha
 
-         # create new tree
-         tree = []
-         for path, content of processedDocs
-           tree.push
-             path: path
-             mode: '100644'
-             type: 'blob'
-             content: content
-
-         # post new tree
-         req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
+         # get fixed content from the last tree
+         req.get(@base + "/repos/#{@user}/#{@repo}/git/trees/#{last_tree_sha}")
             .set(@headers)
-            .send({
-              base_tree: last_tree_sha
-              tree: tree
-            })
             .end (res) =>
-              new_tree_sha = res.body.sha
 
-              # abort if deployment is unchanged / commit empty
-              if last_tree_sha == new_tree_sha
-                return true
+              # create new tree
+              tree = []
 
-              # commit the tree
-              req.post(@base + "/repos/#{@user}/#{@repo}/git/commits")
+              # add old content
+              for file in res.body.tree
+                if file.path in ['edit', '.gitignore', 'LICENSE', 'README.md', 'assets']
+                  continue
+                else
+                  tree.push
+                    path: file.path
+                    mode: file.mode
+                    type: file.type
+                    sha: file.sha
+
+              # add the newly rendered content (even if it is unchanged)
+              for path, content of processedDocs
+                tree.push
+                  path: path
+                  mode: '100644'
+                  type: 'blob'
+                  content: content
+
+              # post new tree
+              req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
                  .set(@headers)
-                 .send(
-                   message: 'P U B L I S H'
-                   tree: new_tree_sha
-                   parents: [last_commit_sha]
-                 )
+                 .send({
+                   tree: tree
+                 })
                  .end (res) =>
-                   new_commit_sha = res.body.sha
+                   new_tree_sha = res.body.sha
 
-                   # update the branch with the commit
-                   req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/#{@branch}")
+                   # abort if deployment is unchanged / commit empty
+                   if last_tree_sha == new_tree_sha
+                     return true
+
+                   # commit the tree
+                   req.post(@base + "/repos/#{@user}/#{@repo}/git/commits")
                       .set(@headers)
-                      .send(sha: new_commit_sha, force: true)
+                      .send(
+                        message: 'P U B L I S H'
+                        tree: new_tree_sha
+                        parents: [last_commit_sha]
+                      )
                       .end (res) =>
-                        if res.status == 200
-                          cb(res.body)
+                        new_commit_sha = res.body.sha
+
+                        # update the branch with the commit
+                        req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/#{@branch}")
+                           .set(@headers)
+                           .send(sha: new_commit_sha, force: true)
+                           .end (res) =>
+                             if res.status == 200
+                               cb(res.body)
 
 module.exports = GitHub
