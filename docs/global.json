@@ -6,6 +6,7 @@
   "text"        : "\n",
   "_id"         : "global",
   "_created_at" : 1400113679539,
-  "baseUrl"     : "http://fiatjaf.github.io/coisas",
-  "slug"        : "fiatjaf"
+  "baseUrl"     : "http://fiatjaf.github.io",
+  "slug"        : "fiatjaf",
+  "name"        : "fiatjaf"
 }
