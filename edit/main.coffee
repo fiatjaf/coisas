@@ -131,7 +131,13 @@ Main = React.createClass
     # post-process and add the pure docs
     for doc in @db().get()
       Metadata.postProcess doc
-      processed["docs/#{doc._id}.json"] = JSON.stringifyAligned doc, false, 2
+      
+      # clone and remove taffydb fields
+      _doc = JSON.parse JSON.stringify doc
+      delete _doc.___id
+      delete _doc.___s
+
+      processed["docs/#{_doc._id}.json"] = JSON.stringifyAligned _doc, false, 2
 
     # recursively get the docs and add paths to them
     goAfterTheChildrenOf = (parent, inheritedPathComponent) =>
@@ -185,8 +191,7 @@ Main = React.createClass
     console.log processed
     gh.deploy processed, =>
       console.log 'deployed!'
-      for doc in @db().get()
-        Metadata.preProcess doc
+      @setDocs @db().get()
 
   handleUpdateDoc: (docid, change) ->
     @db({_id: docid}).update(change)

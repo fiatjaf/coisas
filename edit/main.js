@@ -241,7 +241,7 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var doc, goAfterTheChildrenOf, html, pathfiedDocs, process, processed, render, site, _i, _j, _len, _len1, _ref1;
+    var doc, goAfterTheChildrenOf, html, pathfiedDocs, process, processed, render, site, _doc, _i, _j, _len, _len1, _ref1;
     if (!this.state.template) {
       return false;
     }
@@ -251,7 +251,10 @@ Main = React.createClass({
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       doc = _ref1[_i];
       Metadata.postProcess(doc);
-      processed["docs/" + doc._id + ".json"] = JSON.stringifyAligned(doc, false, 2);
+      _doc = JSON.parse(JSON.stringify(doc));
+      delete _doc.___id;
+      delete _doc.___s;
+      processed["docs/" + _doc._id + ".json"] = JSON.stringifyAligned(_doc, false, 2);
     }
     goAfterTheChildrenOf = (function(_this) {
       return function(parent, inheritedPathComponent) {
@@ -319,15 +322,8 @@ Main = React.createClass({
     console.log(processed);
     return gh.deploy(processed, (function(_this) {
       return function() {
-        var _k, _len2, _ref2, _results;
         console.log('deployed!');
-        _ref2 = _this.db().get();
-        _results = [];
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          doc = _ref2[_k];
-          _results.push(Metadata.preProcess(doc));
-        }
-        return _results;
+        return _this.setDocs(_this.db().get());
       };
     })(this));
   },
@@ -42230,9 +42226,7 @@ module.exports = {
       value = meta[field];
       doc[field] = value;
     }
-    doc.text = parsed.body;
-    delete doc.___id;
-    return delete doc.___s;
+    return doc.text = parsed.body;
   }
 };
 

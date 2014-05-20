@@ -44,7 +44,3 @@ module.exports =
 
     # save clean text body to doc
     doc.text = parsed.body
-
-    # delete taffydb special fields
-    delete doc.___id
-    delete doc.___s
