@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>{{#if doc.title}}{{ doc.title }} | {{/if}}{{ site.title }}</title>
+    <title>{{#if doc.title}}{{ doc.title }} | {{/if}}{{ site.name }}</title>
     <link rel="stylesheet/less" href="{{ site.baseUrl }}/assets/site.less" type="text/css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.0/less.min.js"></script>
   </head>
@@ -10,7 +10,7 @@
 
     <header>
       {{#if site.image}}<img class="image" src="{{ site.image }}">{{/if}}
-      {{#if site.title}}<h1 class="title"><a href="{{ site.baseUrl }}">{{ site.title }}</a></h1>{{/if}}
+      {{#if site.name}}<h1 class="title"><a href="{{ site.baseUrl }}">{{ site.name}}</a></h1>{{/if}}
       <p class="description">{{ site.description }}</p>
     </header>
     <aside class="menu">
@@ -22,7 +22,7 @@
       {{/if}}
       {{#each site.sections}}
       <section>
-        <a href="{{ ../site.baseUrl }}/{{ path }}">{{ title }}</a>
+        <li><a href="{{ ../site.baseUrl }}/{{ path }}">{{ name }}</a></li>
       </section>
       {{/each}}
     </aside>
