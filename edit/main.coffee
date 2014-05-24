@@ -72,51 +72,50 @@ if pass
 
 gh.repo repo
 
+db = Taffy.taffy()
+db.settings
+ template:
+   parents: ['home']
+   data: ''
+   kind: 'article'
+   title: ''
+   text: ''
+ onInsert: ->
+   if not this._id
+     this._id = "xyxxyxxx".replace /[xy]/g, (c) ->
+       r = Math.random() * 16 | 0
+       v = (if c is "x" then r else (r & 0x3 | 0x8))
+       v.toString 16
+   if not this._created_at
+     this._created_at = (new Date()).getTime()
+ cacheSize: 0
+
+ unless db({_id: 'global'}).count()
+   db.insert
+     _id: 'global'
+     parents: []
+     text: """
+       ---
+       baseUrl: #{location.href.split('/').slice(0, -2).join('/')}
+       title: this website
+       ---
+     """
+
+ unless db({_id: 'home'}).count()
+   db.insert
+     _id: 'home'
+     parents: []
+     kind: 'list'
+     title: 'home'
+     text: ''
+
 Main = React.createClass
   getInitialState: ->
     editingDoc: 'home'
 
-  componentWillMount: ->
-    @db = Taffy.taffy()
-    @db.settings
-      template:
-        parents: ['home']
-        data: ''
-        kind: 'article'
-        title: ''
-        text: ''
-      onInsert: ->
-        if not this._id
-          this._id = "xyxxyxxx".replace /[xy]/g, (c) ->
-            r = Math.random() * 16 | 0
-            v = (if c is "x" then r else (r & 0x3 | 0x8))
-            v.toString 16
-        if not this._created_at
-          this._created_at = (new Date()).getTime()
-      cacheSize: 0
-
-    unless @db({_id: 'global'}).count()
-      @db.insert
-        _id: 'global'
-        parents: []
-        text: """
-          ---
-          baseUrl: #{location.href.split('/').slice(0, -2).join('/')}
-          title: this website
-          ---
-        """
-
-    unless @db({_id: 'home'}).count()
-      @db.insert
-        _id: 'home'
-        parents: []
-        kind: 'list'
-        title: 'home'
-        text: ''
-
   setDocs: (docs) ->
     Metadata.preProcess doc for doc in docs
-    @db.merge(docs, '_id', true)
+    @props.db.merge(docs, '_id', true)
     @forceUpdate()
 
   setTemplate: (compiled) -> @setState template: compiled
@@ -129,7 +128,7 @@ Main = React.createClass
     console.log 'processing docs'
 
     # post-process and add the pure docs
-    for doc in @db().get()
+    for doc in @props.db().get()
       Metadata.postProcess doc
       
       # clone and remove taffydb fields
@@ -156,14 +155,16 @@ Main = React.createClass
       pathfiedDocs.push parent
 
       # go after its children
-      q = @db({parents: {has: parent._id}})
+      q = @props.db({parents: {has: parent._id}})
       if q.count()
         for doc in q.order('order,date,_created_at').get()
           goAfterTheChildrenOf doc, pathComponent
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
-      children = @db({parents: {has: doc._id}}).order('order,date,_created_at').get()
+      children = @props.db({
+        parents: {has: doc._id}
+      }).order('order,date,_created_at').get()
       doc = CommonProcessor doc, children
       doc = Processors[doc.kind] doc
       return doc
@@ -176,7 +177,7 @@ Main = React.createClass
       return rendered
 
     # get the site params
-    site = @db({_id: 'global'}).first()
+    site = @props.db({_id: 'global'}).first()
     site = process site
 
     # prepare an empty list to be filled with the docs pathfied
@@ -191,26 +192,26 @@ Main = React.createClass
     console.log processed
     gh.deploy processed, =>
       console.log 'deployed!'
-      @setDocs @db().get()
+      @setDocs @props.db().get()
 
   handleUpdateDoc: (docid, change) ->
-    @db({_id: docid}).update(change)
+    @props.db({_id: docid}).update(change)
     @forceUpdate()
 
   handleSelectDoc: (docid) ->
     @setState editingDoc: docid
 
   handleAddSon: (son) ->
-    @db.insert(son)
+    @props.db.insert(son)
     @forceUpdate()
 
   handleDeleteDoc: (docid) ->
-    @db({_id: docid}).remove()
+    @props.db({_id: docid}).remove()
     @forceUpdate()
 
   handleMovingChilds: (childid, fromid, targetid) ->
     isAncestor = (base, potentialAncestor) =>
-      doc = @db({_id: base}).first()
+      doc = @props.db({_id: base}).first()
       if not doc.parents.length
         return false
       for parent in doc.parents
@@ -222,10 +223,10 @@ Main = React.createClass
     if isAncestor targetid, childid
       return false
     else
-      movedDoc = @db({_id: childid}).first()
+      movedDoc = @props.db({_id: childid}).first()
       movedDoc.parents.splice movedDoc.parents.indexOf(fromid), 1
       movedDoc.parents.push targetid
-      @db.merge(movedDoc, '_id', true)
+      @props.db.merge(movedDoc, '_id', true)
       @forceUpdate()
       return true
 
@@ -234,28 +235,28 @@ Main = React.createClass
       (aside className: 'pure-u-1-5',
         (ul {},
           (Doc
-            data: @db({_id: 'home'}).first()
+            data: @props.db({_id: 'home'}).first()
             selected: true
             immediateParent: null
             onSelect: @handleSelectDoc
             onAddSon: @handleAddSon
             onMovedChild: @handleMovingChilds
-            db: @db
+            db: @props.db
           )
         )
       ),
       (main className: 'pure-u-4-5',
         (Menu
           showPublishButton: if @state.template then true else false
-          globalDoc: @db({_id: 'global'}).first()
+          globalDoc: @props.db({_id: 'global'}).first()
           onClickPublish: @publish
           onGlobalDocChange: @handleUpdateDoc.bind @, 'global'
         ),
         (DocEditable
-          data: @db({_id: @state.editingDoc}).first()
+          data: @props.db({_id: @state.editingDoc}).first()
           onUpdateDocAttr: @handleUpdateDoc
           onDelete: @handleDeleteDoc
-          db: @db
+          db: @props.db
         )
       )
     )
@@ -442,7 +443,7 @@ Menu = React.createClass
     )
 
 # render component without any docs
-MAIN = React.renderComponent Main(), document.body
+MAIN = React.renderComponent Main(db: db), document.body
 
 # prepare docs to load
 gh.listDocs (files) ->
