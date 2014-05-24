@@ -32,38 +32,43 @@ GitHub = function(user) {
         return cb(res.body);
       });
     },
-    deploy: function(processedDocs, cb) {
+    deploy: function(data, cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
         return function(res) {
           var last_commit_sha, last_tree_sha;
           last_commit_sha = res.body.commit.sha;
           last_tree_sha = res.body.commit.commit.tree.sha;
-          return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees/" + last_tree_sha)).set(_this.headers).end(function(res) {
+          return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees/" + last_tree_sha)).set(_this.headers).query({
+            recursive: 100
+          }).end(function(res) {
             var content, file, path, tree, _i, _len, _ref, _ref1;
             tree = [];
             _ref = res.body.tree;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               file = _ref[_i];
-              if ((_ref1 = file.path) === 'edit' || _ref1 === '.gitignore' || _ref1 === 'LICENSE' || _ref1 === 'README.md' || _ref1 === 'assets') {
-                continue;
-              } else {
+              if (!(file.path in data.deleted)) {
+                if (!(file.path in data.changed) || ((_ref1 = file.path.split('/')[0]) === 'edit' || _ref1 === '.gitignore' || _ref1 === 'LICENSE' || _ref1 === 'README.md' || _ref1 === 'assets')) {
+                  tree.push({
+                    path: file.path,
+                    mode: file.mode,
+                    type: file.type,
+                    sha: file.sha
+                  });
+                }
+              }
+            }
+            for (path in changed) {
+              content = changed[path];
+              if (!(path in deleted)) {
                 tree.push({
-                  path: file.path,
-                  mode: file.mode,
-                  type: file.type,
-                  sha: file.sha
+                  path: path,
+                  mode: '100644',
+                  type: 'blob',
+                  content: content
                 });
               }
             }
-            for (path in processedDocs) {
-              content = processedDocs[path];
-              tree.push({
-                path: path,
-                mode: '100644',
-                type: 'blob',
-                content: content
-              });
-            }
+            console.log(tree);
             return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees")).set(_this.headers).send({
               tree: tree
             }).end(function(res) {
@@ -100,7 +105,7 @@ module.exports = GitHub;
 
 
 },{"superagent":221}],2:[function(require,module,exports){
-var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Metadata, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
+var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Metadata, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, db, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
   __slice = [].slice;
 
 React = require('react');
@@ -133,8 +138,8 @@ Processors = {
 BaseTemplate = 'templates/base.html';
 
 Templates = {
-  names: ['article', 'table', 'list', 'chart', 'plaintext', 'graph'],
-  addresses: ['templates/article.html', 'templates/table.html', 'templates/list.html', 'templates/chart.html', 'templates/plaintext.html', 'templates/graph.html']
+  names: ['article', 'table', 'list', 'chart', 'plaintext'],
+  addresses: ['templates/article.html', 'templates/table.html', 'templates/list.html', 'templates/chart.html', 'templates/plaintext.html']
 };
 
 Handlebars.registerHelper('cleanPath', function(path) {
@@ -175,57 +180,51 @@ if (pass) {
 
 gh.repo(repo);
 
+db = Taffy.taffy();
+
+db.settings({
+  template: {
+    parents: ['home'],
+    data: '',
+    kind: 'article',
+    title: '',
+    text: ''
+  },
+  onInsert: function() {
+    if (!this._id) {
+      this._id = "xyxxyxxx".replace(/[xy]/g, function(c) {
+        var r, v;
+        r = Math.random() * 16 | 0;
+        v = (c === "x" ? r : r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    if (!this._created_at) {
+      return this._created_at = (new Date()).getTime();
+    }
+  },
+  cacheSize: 0
+}, !db({
+  _id: 'global'
+}).count() ? db.insert({
+  _id: 'global',
+  parents: [],
+  text: "---\nbaseUrl: " + (location.href.split('/').slice(0, -2).join('/')) + "\ntitle: this website\n---"
+}) : void 0, !db({
+  _id: 'home'
+}).count() ? db.insert({
+  _id: 'home',
+  parents: [],
+  kind: 'list',
+  title: 'home',
+  text: ''
+}) : void 0);
+
 Main = React.createClass({
   getInitialState: function() {
     return {
       editingDoc: 'home'
     };
-  },
-  componentWillMount: function() {
-    this.db = Taffy.taffy();
-    this.db.settings({
-      template: {
-        parents: ['home'],
-        data: '',
-        kind: 'article',
-        title: '',
-        text: ''
-      },
-      onInsert: function() {
-        if (!this._id) {
-          this._id = "xyxxyxxx".replace(/[xy]/g, function(c) {
-            var r, v;
-            r = Math.random() * 16 | 0;
-            v = (c === "x" ? r : r & 0x3 | 0x8);
-            return v.toString(16);
-          });
-        }
-        if (!this._created_at) {
-          return this._created_at = (new Date()).getTime();
-        }
-      },
-      cacheSize: 0
-    });
-    if (!this.db({
-      _id: 'global'
-    }).count()) {
-      this.db.insert({
-        _id: 'global',
-        parents: [],
-        text: "---\nbaseUrl: " + (location.href.split('/').slice(0, -2).join('/')) + "\ntitle: this website\n---"
-      });
-    }
-    if (!this.db({
-      _id: 'home'
-    }).count()) {
-      return this.db.insert({
-        _id: 'home',
-        parents: [],
-        kind: 'list',
-        title: 'home',
-        text: ''
-      });
-    }
   },
   setDocs: function(docs) {
     var doc, _i, _len;
@@ -233,7 +232,7 @@ Main = React.createClass({
       doc = docs[_i];
       Metadata.preProcess(doc);
     }
-    this.db.merge(docs, '_id', true);
+    this.props.db.merge(docs, '_id', true);
     return this.forceUpdate();
   },
   setTemplate: function(compiled) {
@@ -242,24 +241,40 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var doc, goAfterTheChildrenOf, html, pathfiedDocs, process, processed, render, site, _doc, _i, _j, _len, _len1, _ref1;
+    var changed, deleted, doc, html, process, render, site, traverse, _doc, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
     if (!this.state.template) {
       return false;
     }
-    processed = [];
+    changed = {};
+    deleted = {};
     console.log('processing docs');
-    _ref1 = this.db().get();
+    _ref1 = this.props.db().get();
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       doc = _ref1[_i];
       Metadata.postProcess(doc);
       _doc = JSON.parse(JSON.stringify(doc));
       delete _doc.___id;
       delete _doc.___s;
-      processed["docs/" + _doc._id + ".json"] = JSON.stringifyAligned(_doc, false, 2);
+      delete _doc._changed;
+      if (doc._changed) {
+        changed["docs/" + _doc._id + ".json"] = JSON.stringifyAligned(_doc, false, 2);
+      }
+      if (doc._deleted) {
+        deleted["docs/" + _doc._id + ".json"] = true;
+      }
     }
-    goAfterTheChildrenOf = (function(_this) {
-      return function(parent, inheritedPathComponent) {
+    traverse = (function(_this) {
+      return function(parent, query, inheritedPathComponent, array) {
         var pathComponent, q, _j, _len1, _ref2, _results;
+        if (query == null) {
+          query = {};
+        }
+        if (inheritedPathComponent == null) {
+          inheritedPathComponent = '';
+        }
+        if (array == null) {
+          array = [];
+        }
         parent = process(parent);
         if (parent._id !== 'home') {
           pathComponent = inheritedPathComponent + parent.slug + '/';
@@ -267,18 +282,17 @@ Main = React.createClass({
           pathComponent = '';
         }
         parent.path = pathComponent + 'index.html';
-        pathfiedDocs.push(parent);
-        q = _this.db({
-          parents: {
-            has: parent._id
-          }
-        });
+        array.push(parent);
+        query.parents = {
+          has: parent._id
+        };
+        q = _this.props.db(query);
         if (q.count()) {
           _ref2 = q.order('order,date,_created_at').get();
           _results = [];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             doc = _ref2[_j];
-            _results.push(goAfterTheChildrenOf(doc, pathComponent));
+            _results.push(traverse(doc, query, pathComponent, array));
           }
           return _results;
         }
@@ -287,7 +301,7 @@ Main = React.createClass({
     process = (function(_this) {
       return function(doc) {
         var children;
-        children = _this.db({
+        children = _this.props.db({
           parents: {
             has: doc._id
           }
@@ -299,39 +313,49 @@ Main = React.createClass({
     })(this);
     render = (function(_this) {
       return function(doc) {
-        var rendered;
-        rendered = _this.state.template({
+        return _this.state.template({
           doc: doc,
           site: site
         });
-        return rendered;
       };
     })(this);
-    site = this.db({
+    site = this.props.db({
       _id: 'global'
     }).first();
     site = process(site);
-    pathfiedDocs = [];
-    goAfterTheChildrenOf(this.db({
+    _ref2 = traverse(this.props.db({
       _id: 'home'
-    }).first(), '');
-    for (_j = 0, _len1 = pathfiedDocs.length; _j < _len1; _j++) {
-      doc = pathfiedDocs[_j];
+    }).first());
+    for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+      doc = _ref2[_j];
       html = render(doc);
-      processed[doc.path] = html;
+      changed[doc.path] = html;
     }
-    console.log(processed);
-    return gh.deploy(processed, (function(_this) {
+    _ref3 = traverse(this.props.db({
+      _id: 'home'
+    }).first(), {
+      _deleted: true
+    });
+    for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+      doc = _ref3[_k];
+      deleted[doc.path] = true;
+    }
+    return gh.deploy({
+      changed: changed,
+      deleted: deleted
+    }, (function(_this) {
       return function() {
         console.log('deployed!');
-        return _this.setDocs(_this.db().get());
+        return _this.setDocs(_this.props.db().get());
       };
     })(this));
   },
   handleUpdateDoc: function(docid, change) {
-    this.db({
+    this.props.db({
       _id: docid
-    }).update(change);
+    }).update(change).update({
+      _changed: true
+    });
     return this.forceUpdate();
   },
   handleSelectDoc: function(docid) {
@@ -340,21 +364,48 @@ Main = React.createClass({
     });
   },
   handleAddSon: function(son) {
-    this.db.insert(son);
+    var parentid, _i, _len, _ref1;
+    this.props.db.insert(son);
+    _ref1 = son.parents;
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      parentid = _ref1[_i];
+      this.props.db({
+        _id: parentid
+      }).update({
+        _changed: true
+      });
+    }
     return this.forceUpdate();
   },
   handleDeleteDoc: function(docid) {
-    this.db({
+    this.props.db({
       _id: docid
-    }).remove();
+    }).update({
+      _deleted: true
+    });
     return this.forceUpdate();
   },
   handleMovingChilds: function(childid, fromid, targetid) {
     var isAncestor, movedDoc;
+    this.props.db({
+      _id: childid
+    }).update({
+      _changed: true
+    });
+    this.props.db({
+      _id: fromid
+    }).update({
+      _changed: true
+    });
+    this.props.db({
+      _id: targetid
+    }).update({
+      _changed: true
+    });
     isAncestor = (function(_this) {
       return function(base, potentialAncestor) {
         var doc, parent, _i, _len, _ref1;
-        doc = _this.db({
+        doc = _this.props.db({
           _id: base
         }).first();
         if (!doc.parents.length) {
@@ -374,12 +425,12 @@ Main = React.createClass({
     if (isAncestor(targetid, childid)) {
       return false;
     } else {
-      movedDoc = this.db({
+      movedDoc = this.props.db({
         _id: childid
       }).first();
       movedDoc.parents.splice(movedDoc.parents.indexOf(fromid), 1);
       movedDoc.parents.push(targetid);
-      this.db.merge(movedDoc, '_id', true);
+      this.props.db.merge(movedDoc, '_id', true);
       this.forceUpdate();
       return true;
     }
@@ -390,7 +441,7 @@ Main = React.createClass({
     }, aside({
       className: 'pure-u-1-5'
     }, ul({}, Doc({
-      data: this.db({
+      data: this.props.db({
         _id: 'home'
       }).first(),
       selected: true,
@@ -398,23 +449,23 @@ Main = React.createClass({
       onSelect: this.handleSelectDoc,
       onAddSon: this.handleAddSon,
       onMovedChild: this.handleMovingChilds,
-      db: this.db
+      db: this.props.db
     }))), main({
       className: 'pure-u-4-5'
     }, Menu({
       showPublishButton: this.state.template ? true : false,
-      globalDoc: this.db({
+      globalDoc: this.props.db({
         _id: 'global'
       }).first(),
       onClickPublish: this.publish,
       onGlobalDocChange: this.handleUpdateDoc.bind(this, 'global')
     }), DocEditable({
-      data: this.db({
+      data: this.props.db({
         _id: this.state.editingDoc
       }).first(),
       onUpdateDocAttr: this.handleUpdateDoc,
       onDelete: this.handleDeleteDoc,
-      db: this.db
+      db: this.props.db
     })));
   }
 });
@@ -468,6 +519,9 @@ Doc = React.createClass({
     sons = this.props.db({
       parents: {
         has: this.props.data._id
+      },
+      _deleted: {
+        '!is': true
       }
     }).order('order,date,_created_at').get();
     if (!sons.length) {
@@ -645,7 +699,9 @@ Menu = React.createClass({
   }
 });
 
-MAIN = React.renderComponent(Main(), document.body);
+MAIN = React.renderComponent(Main({
+  db: db
+}), document.body);
 
 gh.listDocs(function(files) {
   var docAddresses, f;

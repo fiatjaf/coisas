@@ -124,7 +124,8 @@ Main = React.createClass
     if not @state.template
       return false
 
-    processed = []
+    changed = {}
+    deleted = {}
     console.log 'processing docs'
 
     # post-process and add the pure docs
@@ -135,11 +136,16 @@ Main = React.createClass
       _doc = JSON.parse JSON.stringify doc
       delete _doc.___id
       delete _doc.___s
+      delete _doc._changed
 
-      processed["docs/#{_doc._id}.json"] = JSON.stringifyAligned _doc, false, 2
+      if doc._changed
+        changed["docs/#{_doc._id}.json"] = JSON.stringifyAligned _doc, false, 2
+
+      if doc._deleted
+        deleted["docs/#{_doc._id}.json"] = true
 
     # recursively get the docs and add paths to them
-    goAfterTheChildrenOf = (parent, inheritedPathComponent) =>
+    traverse = (parent, query={}, inheritedPathComponent='', array=[]) =>
 
       # process the doc
       parent = process parent
@@ -151,14 +157,15 @@ Main = React.createClass
         pathComponent = ''
       parent.path = pathComponent + 'index.html'
 
-      # add it to the pathfiedDocs list
-      pathfiedDocs.push parent
+      # add it to the array
+      array.push parent
 
       # go after its children
-      q = @props.db({parents: {has: parent._id}})
+      query.parents = {has: parent._id}
+      q = @props.db(query)
       if q.count()
         for doc in q.order('order,date,_created_at').get()
-          goAfterTheChildrenOf doc, pathComponent
+          traverse doc, query, pathComponent, array
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
@@ -171,31 +178,30 @@ Main = React.createClass
         
     # the render function -- just render the doc to the base template
     render = (doc) =>
-      rendered = @state.template
+      @state.template
         doc: doc
         site: site
-      return rendered
 
     # get the site params
     site = @props.db({_id: 'global'}).first()
     site = process site
 
-    # prepare an empty list to be filled with the docs pathfied
-    pathfiedDocs = []
-    goAfterTheChildrenOf @db({_id: 'home'}).first(), ''
-
     # render and add all docs with their paths determined
-    for doc in pathfiedDocs
+    for doc in traverse @props.db({_id: 'home'}).first()
       html = render doc
-      processed[doc.path] = html
+      changed[doc.path] = html
 
-    console.log processed
-    gh.deploy processed, =>
+    # populate the paths of the deleted docs
+    for doc in traverse @props.db({_id: 'home'}).first(), {_deleted: true}
+      deleted[doc.path] = true
+
+    gh.deploy {changed: changed, deleted: deleted}, =>
       console.log 'deployed!'
       @setDocs @props.db().get()
 
   handleUpdateDoc: (docid, change) ->
     @props.db({_id: docid}).update(change)
+                     .update(_changed: true)
     @forceUpdate()
 
   handleSelectDoc: (docid) ->
@@ -203,13 +209,19 @@ Main = React.createClass
 
   handleAddSon: (son) ->
     @props.db.insert(son)
+    for parentid in son.parents
+      @props.db({_id: parentid}).update(_changed: true)
     @forceUpdate()
 
   handleDeleteDoc: (docid) ->
-    @props.db({_id: docid}).remove()
+    @props.db({_id: docid}).update(_deleted: true)
     @forceUpdate()
 
   handleMovingChilds: (childid, fromid, targetid) ->
+    @props.db({_id: childid}).update(_changed: true)
+    @props.db({_id: fromid}).update(_changed: true)
+    @props.db({_id: targetid}).update(_changed: true)
+
     isAncestor = (base, potentialAncestor) =>
       doc = @props.db({_id: base}).first()
       if not doc.parents.length
@@ -298,6 +310,8 @@ Doc = React.createClass
     sons = @props.db(
       parents:
         has: @props.data._id
+      _deleted:
+        '!is': true
     ).order('order,date,_created_at').get()
 
     if not sons.length
