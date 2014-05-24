@@ -26,7 +26,6 @@ Templates =
     'list',
     'chart',
     'plaintext',
-    'graph',
   ]
   addresses: [
     'templates/article.html',
@@ -34,7 +33,6 @@ Templates =
     'templates/list.html',
     'templates/chart.html',
     'templates/plaintext.html',
-    'templates/graph.html',
   ]
 
 # handlebars helpers
