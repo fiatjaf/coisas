@@ -21,7 +21,7 @@ GitHub = (user) ->
        .set(@headers)
        .query(branch: @branch)
        .end (res) -> cb res.body
-  deploy: (processedDocs, cb) ->
+  deploy: (data, cb) ->
     # get last commit sha
     req.get(@base + "/repos/#{@user}/#{@repo}/branches/#{@branch}")
        .set(@headers)
@@ -32,6 +32,7 @@ GitHub = (user) ->
          # get fixed content from the last tree
          req.get(@base + "/repos/#{@user}/#{@repo}/git/trees/#{last_tree_sha}")
             .set(@headers)
+            .query(recursive: 100)
             .end (res) =>
 
               # create new tree
@@ -39,29 +40,33 @@ GitHub = (user) ->
 
               # add old content
               for file in res.body.tree
-                if file.path in ['edit', '.gitignore', 'LICENSE', 'README.md', 'assets']
-                  continue
-                else
-                  tree.push
-                    path: file.path
-                    mode: file.mode
-                    type: file.type
-                    sha: file.sha
+                # static files and previously rendered
+                if file.path not of data.deleted
+                  if file.path not of data.changed or
+                     file.path.split('/')[0] in ['edit', '.gitignore',
+                                                 'LICENSE', 'README.md',
+                                                 'assets']
+                    tree.push
+                      path: file.path
+                      mode: file.mode
+                      type: file.type
+                      sha: file.sha
 
-              # add the newly rendered content (even if it is unchanged)
-              for path, content of processedDocs
-                tree.push
-                  path: path
-                  mode: '100644'
-                  type: 'blob'
-                  content: content
+              # add the newly rendered content
+              for path, content of changed
+                if path not of deleted
+                  tree.push
+                    path: path
+                    mode: '100644'
+                    type: 'blob'
+                    content: content
+
+              console.log tree
 
               # post new tree
               req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
                  .set(@headers)
-                 .send({
-                   tree: tree
-                 })
+                 .send(tree: tree)
                  .end (res) =>
                    new_tree_sha = res.body.sha
 
