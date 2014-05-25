@@ -145,7 +145,7 @@ Main = React.createClass
         deleted["docs/#{_doc._id}.json"] = true
 
     # recursively get the docs and add paths to them
-    traverse = (parent, query={}, inheritedPathComponent='', array=[]) =>
+    traverse = (parent, inheritedPathComponent='') =>
 
       # process the doc
       parent = process parent
@@ -157,15 +157,16 @@ Main = React.createClass
         pathComponent = ''
       parent.path = pathComponent + 'index.html'
 
-      # add it to the array
-      array.push parent
+      # add itself to the array
+      results = [parent]
 
       # go after its children
-      query.parents = {has: parent._id}
-      q = @props.db(query)
+      q = @props.db(parents: {has: parent._id})
       if q.count()
         for doc in q.order('order,date,_created_at').get()
-          traverse doc, query, pathComponent, array
+          results = results.concat traverse doc, pathComponent
+
+      return results
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
@@ -189,11 +190,8 @@ Main = React.createClass
     # render and add all docs with their paths determined
     for doc in traverse @props.db({_id: 'home'}).first()
       html = render doc
-      changed[doc.path] = html
-
-    # populate the paths of the deleted docs
-    for doc in traverse @props.db({_id: 'home'}).first(), {_deleted: true}
-      deleted[doc.path] = true
+      changed[doc.path] = html if doc._changed
+      deleted[doc.path] = true if doc._deleted
 
     gh.deploy {changed: changed, deleted: deleted}, =>
       console.log 'deployed!'
@@ -307,12 +305,9 @@ Doc = React.createClass
     @props.onAddSon {parents: [@props.data._id]}
 
   render: ->
-    sons = @props.db(
-      parents:
-        has: @props.data._id
-      _deleted:
-        '!is': true
-    ).order('order,date,_created_at').get()
+    _id = @props.data._id
+    sons = @props.db(-> return true if _id in this.parents and not this._deleted)
+                 .order('order,date,_created_at').get()
 
     if not sons.length
       sons = [{_id: ''}]

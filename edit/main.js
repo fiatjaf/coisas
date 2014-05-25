@@ -41,7 +41,7 @@ GitHub = function(user) {
           return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees/" + last_tree_sha)).set(_this.headers).query({
             recursive: 100
           }).end(function(res) {
-            var content, file, path, tree, _i, _len, _ref, _ref1;
+            var content, file, path, tree, _i, _len, _ref, _ref1, _ref2;
             tree = [];
             _ref = res.body.tree;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -57,9 +57,10 @@ GitHub = function(user) {
                 }
               }
             }
-            for (path in changed) {
-              content = changed[path];
-              if (!(path in deleted)) {
+            _ref2 = data.changed;
+            for (path in _ref2) {
+              content = _ref2[path];
+              if (!(path in data.deleted)) {
                 tree.push({
                   path: path,
                   mode: '100644',
@@ -106,6 +107,7 @@ module.exports = GitHub;
 
 },{"superagent":221}],2:[function(require,module,exports){
 var BaseTemplate, CommonProcessor, Doc, DocEditable, Feed, GitHub, Handlebars, MAIN, Main, Menu, Metadata, Processors, React, Taffy, Templates, TextLoad, a, article, aside, b, button, db, div, form, gh, gh_data, h1, h2, h3, h4, header, i, input, label, li, main, option, pass, repo, select, small, span, table, tbody, td, textarea, tfoot, th, thead, tr, ul, user, _ref,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   __slice = [].slice;
 
 React = require('react');
@@ -241,7 +243,7 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var changed, deleted, doc, html, process, render, site, traverse, _doc, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
+    var changed, deleted, doc, html, process, render, site, traverse, _doc, _i, _j, _len, _len1, _ref1, _ref2;
     if (!this.state.template) {
       return false;
     }
@@ -264,16 +266,10 @@ Main = React.createClass({
       }
     }
     traverse = (function(_this) {
-      return function(parent, query, inheritedPathComponent, array) {
-        var pathComponent, q, _j, _len1, _ref2, _results;
-        if (query == null) {
-          query = {};
-        }
+      return function(parent, inheritedPathComponent) {
+        var pathComponent, q, results, _j, _len1, _ref2;
         if (inheritedPathComponent == null) {
           inheritedPathComponent = '';
-        }
-        if (array == null) {
-          array = [];
         }
         parent = process(parent);
         if (parent._id !== 'home') {
@@ -282,20 +278,20 @@ Main = React.createClass({
           pathComponent = '';
         }
         parent.path = pathComponent + 'index.html';
-        array.push(parent);
-        query.parents = {
-          has: parent._id
-        };
-        q = _this.props.db(query);
+        results = [parent];
+        q = _this.props.db({
+          parents: {
+            has: parent._id
+          }
+        });
         if (q.count()) {
           _ref2 = q.order('order,date,_created_at').get();
-          _results = [];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             doc = _ref2[_j];
-            _results.push(traverse(doc, query, pathComponent, array));
+            results = results.concat(traverse(doc, pathComponent));
           }
-          return _results;
         }
+        return results;
       };
     })(this);
     process = (function(_this) {
@@ -329,16 +325,12 @@ Main = React.createClass({
     for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
       doc = _ref2[_j];
       html = render(doc);
-      changed[doc.path] = html;
-    }
-    _ref3 = traverse(this.props.db({
-      _id: 'home'
-    }).first(), {
-      _deleted: true
-    });
-    for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-      doc = _ref3[_k];
-      deleted[doc.path] = true;
+      if (doc._changed) {
+        changed[doc.path] = html;
+      }
+      if (doc._deleted) {
+        deleted[doc.path] = true;
+      }
     }
     return gh.deploy({
       changed: changed,
@@ -515,13 +507,11 @@ Doc = React.createClass({
     });
   },
   render: function() {
-    var son, sons;
-    sons = this.props.db({
-      parents: {
-        has: this.props.data._id
-      },
-      _deleted: {
-        '!is': true
+    var son, sons, _id;
+    _id = this.props.data._id;
+    sons = this.props.db(function() {
+      if (__indexOf.call(this.parents, _id) >= 0 && !this._deleted) {
+        return true;
       }
     }).order('order,date,_created_at').get();
     if (!sons.length) {

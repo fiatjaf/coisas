@@ -53,8 +53,8 @@ GitHub = (user) ->
                       sha: file.sha
 
               # add the newly rendered content
-              for path, content of changed
-                if path not of deleted
+              for path, content of data.changed
+                if path not of data.deleted
                   tree.push
                     path: path
                     mode: '100644'
