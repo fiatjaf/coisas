@@ -106,7 +106,7 @@ db.settings
      _id: 'home'
      parents: []
      kind: 'list'
-     title: 'home'
+     title: ''
      text: ''
 
 Main = React.createClass
@@ -114,8 +114,8 @@ Main = React.createClass
     editingDoc: 'home'
 
   setDocs: (docs) ->
-    Metadata.preProcess doc for doc in docs
     @props.db.merge(docs, '_id', true)
+    Metadata.beforeEdit  @props.db
     @forceUpdate()
 
   setTemplate: (compiled) -> @setState template: compiled
@@ -124,49 +124,20 @@ Main = React.createClass
     if not @state.template
       return false
 
-    changed = {}
-    deleted = {}
+    changed = {}   # {path: html}
+    deleted = {}   # {path: true}
+    relocated = {} # {oldPath: newPath}
     console.log 'processing docs'
 
     # post-process and add the pure docs
     for doc in @props.db().get()
-      Metadata.postProcess doc
-      
-      # clone and remove taffydb fields
-      _doc = JSON.parse JSON.stringify doc
-      delete _doc.___id
-      delete _doc.___s
-      delete _doc._changed
+      _doc = Metadata.cloneAndClearBeforePush doc, @props.db
 
       if doc._changed
         changed["docs/#{_doc._id}.json"] = JSON.stringifyAligned _doc, false, 2
 
       if doc._deleted
         deleted["docs/#{_doc._id}.json"] = true
-
-    # recursively get the docs and add paths to them
-    traverse = (parent, inheritedPathComponent='') =>
-
-      # process the doc
-      parent = process parent
-
-      # discover path
-      if parent._id != 'home'
-        pathComponent = inheritedPathComponent + parent.slug + '/'
-      else
-        pathComponent = ''
-      parent.path = pathComponent + 'index.html'
-
-      # add itself to the array
-      results = [parent]
-
-      # go after its children
-      q = @props.db(parents: {has: parent._id})
-      if q.count()
-        for doc in q.order('order,date,_created_at').get()
-          results = results.concat traverse doc, pathComponent
-
-      return results
 
     # the process function -- just calls the imported process methods
     process = (doc) =>
@@ -176,7 +147,7 @@ Main = React.createClass
       doc = CommonProcessor doc, children
       doc = Processors[doc.kind] doc
       return doc
-        
+
     # the render function -- just render the doc to the base template
     render = (doc) =>
       @state.template
@@ -188,18 +159,24 @@ Main = React.createClass
     site = process site
 
     # render and add all docs with their paths determined
-    for doc in traverse @props.db({_id: 'home'}).first()
-      html = render doc
-      changed[doc.path] = html if doc._changed
-      deleted[doc.path] = true if doc._deleted
+    for doc in @props.db().get()
+      for path in doc.paths
+        changed[path] = render doc if doc._changed
+        deleted[path] = true if doc._deleted
+        relocated[doc._relocated[path]] = path if doc._relocated
 
-    gh.deploy {changed: changed, deleted: deleted}, =>
+    gh.deploy {changed: changed, deleted: deleted, relocated: relocated}, =>
       console.log 'deployed!'
-      @setDocs @props.db().get()
+      location.reload()
 
   handleUpdateDoc: (docid, change) ->
-    @props.db({_id: docid}).update(change)
-                     .update(_changed: true)
+    q = @props.db({_id: docid})
+
+    doc = q.update(change)
+           .update(_changed: true)
+           .first()
+
+    Metadata.dinamicallyParseMetadata doc, @props.db
     @forceUpdate()
 
   handleSelectDoc: (docid) ->
@@ -216,10 +193,6 @@ Main = React.createClass
     @forceUpdate()
 
   handleMovingChilds: (childid, fromid, targetid) ->
-    @props.db({_id: childid}).update(_changed: true)
-    @props.db({_id: fromid}).update(_changed: true)
-    @props.db({_id: targetid}).update(_changed: true)
-
     isAncestor = (base, potentialAncestor) =>
       doc = @props.db({_id: base}).first()
       if not doc.parents.length
@@ -238,6 +211,11 @@ Main = React.createClass
       movedDoc.parents.push targetid
       @props.db.merge(movedDoc, '_id', true)
       @forceUpdate()
+
+      @props.db({_id: fromid}).update(_changed: true)
+      @props.db({_id: targetid}).update(_changed: true)
+      @props.db({_id: childid}).update(_changed: true)
+
       return true
 
   render: ->

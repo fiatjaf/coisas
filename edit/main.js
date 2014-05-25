@@ -46,15 +46,20 @@ GitHub = function(user) {
             _ref = res.body.tree;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               file = _ref[_i];
-              if (!(file.path in data.deleted)) {
-                if (!(file.path in data.changed) || ((_ref1 = file.path.split('/')[0]) === 'edit' || _ref1 === '.gitignore' || _ref1 === 'LICENSE' || _ref1 === 'README.md' || _ref1 === 'assets')) {
-                  tree.push({
-                    path: file.path,
-                    mode: file.mode,
-                    type: file.type,
-                    sha: file.sha
-                  });
+              if (!(file.path in data.deleted) && !(file.path in data.changed)) {
+                if ((_ref1 = file.path.split('/')[0]) === 'edit' || _ref1 === '.gitignore' || _ref1 === 'LICENSE' || _ref1 === 'README.md' || _ref1 === 'assets') {
+                  path = file.path;
+                } else if (file.path in data.relocated) {
+                  path = data.relocated[file.path];
+                } else {
+                  path = file.path;
                 }
+                tree.push({
+                  path: path,
+                  mode: file.mode,
+                  type: file.type,
+                  sha: file.sha
+                });
               }
             }
             _ref2 = data.changed;
@@ -218,7 +223,7 @@ db.settings({
   _id: 'home',
   parents: [],
   kind: 'list',
-  title: 'home',
+  title: '',
   text: ''
 }) : void 0);
 
@@ -229,12 +234,8 @@ Main = React.createClass({
     };
   },
   setDocs: function(docs) {
-    var doc, _i, _len;
-    for (_i = 0, _len = docs.length; _i < _len; _i++) {
-      doc = docs[_i];
-      Metadata.preProcess(doc);
-    }
     this.props.db.merge(docs, '_id', true);
+    Metadata.beforeEdit(this.props.db);
     return this.forceUpdate();
   },
   setTemplate: function(compiled) {
@@ -243,21 +244,18 @@ Main = React.createClass({
     });
   },
   publish: function() {
-    var changed, deleted, doc, html, process, render, site, traverse, _doc, _i, _j, _len, _len1, _ref1, _ref2;
+    var changed, deleted, doc, path, process, relocated, render, site, _doc, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
     if (!this.state.template) {
       return false;
     }
     changed = {};
     deleted = {};
+    relocated = {};
     console.log('processing docs');
     _ref1 = this.props.db().get();
     for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
       doc = _ref1[_i];
-      Metadata.postProcess(doc);
-      _doc = JSON.parse(JSON.stringify(doc));
-      delete _doc.___id;
-      delete _doc.___s;
-      delete _doc._changed;
+      _doc = Metadata.cloneAndClearBeforePush(doc, this.props.db);
       if (doc._changed) {
         changed["docs/" + _doc._id + ".json"] = JSON.stringifyAligned(_doc, false, 2);
       }
@@ -265,35 +263,6 @@ Main = React.createClass({
         deleted["docs/" + _doc._id + ".json"] = true;
       }
     }
-    traverse = (function(_this) {
-      return function(parent, inheritedPathComponent) {
-        var pathComponent, q, results, _j, _len1, _ref2;
-        if (inheritedPathComponent == null) {
-          inheritedPathComponent = '';
-        }
-        parent = process(parent);
-        if (parent._id !== 'home') {
-          pathComponent = inheritedPathComponent + parent.slug + '/';
-        } else {
-          pathComponent = '';
-        }
-        parent.path = pathComponent + 'index.html';
-        results = [parent];
-        q = _this.props.db({
-          parents: {
-            has: parent._id
-          }
-        });
-        if (q.count()) {
-          _ref2 = q.order('order,date,_created_at').get();
-          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-            doc = _ref2[_j];
-            results = results.concat(traverse(doc, pathComponent));
-          }
-        }
-        return results;
-      };
-    })(this);
     process = (function(_this) {
       return function(doc) {
         var children;
@@ -319,35 +288,43 @@ Main = React.createClass({
       _id: 'global'
     }).first();
     site = process(site);
-    _ref2 = traverse(this.props.db({
-      _id: 'home'
-    }).first());
+    _ref2 = this.props.db().get();
     for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
       doc = _ref2[_j];
-      html = render(doc);
-      if (doc._changed) {
-        changed[doc.path] = html;
-      }
-      if (doc._deleted) {
-        deleted[doc.path] = true;
+      _ref3 = doc.paths;
+      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+        path = _ref3[_k];
+        if (doc._changed) {
+          changed[path] = render(doc);
+        }
+        if (doc._deleted) {
+          deleted[path] = true;
+        }
+        if (doc._relocated) {
+          relocated[doc._relocated[path]] = path;
+        }
       }
     }
     return gh.deploy({
       changed: changed,
-      deleted: deleted
+      deleted: deleted,
+      relocated: relocated
     }, (function(_this) {
       return function() {
         console.log('deployed!');
-        return _this.setDocs(_this.props.db().get());
+        return location.reload();
       };
     })(this));
   },
   handleUpdateDoc: function(docid, change) {
-    this.props.db({
+    var doc, q;
+    q = this.props.db({
       _id: docid
-    }).update(change).update({
-      _changed: true
     });
+    doc = q.update(change).update({
+      _changed: true
+    }).first();
+    Metadata.dinamicallyParseMetadata(doc, this.props.db);
     return this.forceUpdate();
   },
   handleSelectDoc: function(docid) {
@@ -379,21 +356,6 @@ Main = React.createClass({
   },
   handleMovingChilds: function(childid, fromid, targetid) {
     var isAncestor, movedDoc;
-    this.props.db({
-      _id: childid
-    }).update({
-      _changed: true
-    });
-    this.props.db({
-      _id: fromid
-    }).update({
-      _changed: true
-    });
-    this.props.db({
-      _id: targetid
-    }).update({
-      _changed: true
-    });
     isAncestor = (function(_this) {
       return function(base, potentialAncestor) {
         var doc, parent, _i, _len, _ref1;
@@ -424,6 +386,21 @@ Main = React.createClass({
       movedDoc.parents.push(targetid);
       this.props.db.merge(movedDoc, '_id', true);
       this.forceUpdate();
+      this.props.db({
+        _id: fromid
+      }).update({
+        _changed: true
+      });
+      this.props.db({
+        _id: targetid
+      }).update({
+        _changed: true
+      });
+      this.props.db({
+        _id: childid
+      }).update({
+        _changed: true
+      });
       return true;
     }
   },
@@ -42200,7 +42177,7 @@ module.exports = function(doc) {
 
 
 },{}],230:[function(require,module,exports){
-var fm, slug, standardAttributes, yaml,
+var fm, getPaths, slug, standardAttributes, yaml,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 slug = require('slug');
@@ -42209,48 +42186,108 @@ yaml = require('js-yaml');
 
 fm = require('front-matter');
 
-standardAttributes = ['parents', 'data', 'kind', 'text', 'title', '_id', '_sha', '_created_at', '___id', '___s', 'path'];
+standardAttributes = ['parents', 'data', 'kind', 'text', 'title', '_id', '_sha', '_created_at', '___id', '___s', 'path', '_changed', '_deleted', '_relocated'];
 
 module.exports = {
-  preProcess: function(doc) {
-    var field, meta, value;
-    meta = {};
-    for (field in doc) {
-      value = doc[field];
+  beforeEdit: function(db) {
+    var doc, field, meta, value, _i, _len, _ref, _results;
+    _ref = db().get();
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      doc = _ref[_i];
+      meta = {};
+      for (field in doc) {
+        value = doc[field];
+        if (__indexOf.call(standardAttributes, field) < 0) {
+          meta[field] = value;
+        }
+      }
+      if (!doc.paths) {
+        doc.paths = getPaths(doc, db);
+      }
+      _results.push(doc.text = '---\n' + yaml.dump(meta) + '---\n' + fm(doc.text).body);
+    }
+    return _results;
+  },
+  dinamicallyParseMetadata: function(doc, db) {
+    var field, parsed, value, _ref, _ref1;
+    parsed = fm(doc.text);
+    _ref = parsed.attributes;
+    for (field in _ref) {
+      value = _ref[field];
       if (__indexOf.call(standardAttributes, field) < 0) {
-        meta[field] = value;
+        doc[field] = value;
       }
     }
-    return doc.text = '---\n' + yaml.dump(meta) + '---\n' + fm(doc.text).body;
-  },
-  postProcess: function(doc) {
-    var field, meta, parsed, value, _ref, _ref1;
-    if (!doc.slug) {
-      doc.slug = doc.slug || (doc.title ? slug(doc.title) : doc._id);
+    for (field in doc) {
+      if (__indexOf.call(standardAttributes, field) < 0) {
+        if (!(field in parsed.attributes)) {
+          delete doc[field];
+        }
+      }
     }
-    if ((_ref = doc.slug) === 'docs' || _ref === 'edit' || _ref === 'assets') {
+    doc.slug = doc.slug || (doc.title ? slug(doc.title) : slug(doc._id));
+    if ((_ref1 = doc.slug) === 'docs' || _ref1 === 'edit' || _ref1 === 'assets') {
       doc.slug = doc.slug + '2';
     }
-    meta = {};
-    parsed = fm(doc.text);
-    _ref1 = parsed.attributes;
-    for (field in _ref1) {
-      value = _ref1[field];
-      if (!(__indexOf.call(standardAttributes, field) < 0)) {
-        continue;
-      }
-      meta[field] = value;
-      if (meta[field] === null) {
-        delete meta[field];
-        delete doc[field];
-      }
-    }
-    for (field in meta) {
-      value = meta[field];
-      doc[field] = value;
-    }
-    return doc.text = parsed.body;
+    return doc.paths = getPaths(doc, db);
+  },
+  cloneAndClearBeforePush: function(doc, db) {
+    var parsed, _doc;
+    _doc = JSON.parse(JSON.stringify(doc));
+    parsed = fm(_doc.text);
+    _doc.text = parsed.body;
+    doc.paths = getPaths(_doc, db);
+    delete _doc.___id;
+    delete _doc.___s;
+    delete _doc._changed;
+    delete _doc._relocated;
+    delete _doc._deleted;
+    return _doc;
   }
+};
+
+getPaths = function(doc, db) {
+  var getPathComponents, i, newPath, oldPath, oldPaths, path, paths, _i, _j, _len, _len1, _ref;
+  oldPaths = doc.paths;
+  getPathComponents = function(parent) {
+    var grandparent, pathComponent, paths, q, _i, _j, _len, _len1, _ref, _ref1;
+    paths = [];
+    q = db({
+      _id: parent.parents
+    }).order('_id');
+    if (q.count()) {
+      _ref = q.get();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        grandparent = _ref[_i];
+        _ref1 = getPathComponents(grandparent);
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          pathComponent = _ref1[_j];
+          paths.push(pathComponent + parent.slug + '/');
+        }
+      }
+    } else {
+      paths.push('');
+    }
+    return paths;
+  };
+  paths = [];
+  _ref = getPathComponents(doc);
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    path = _ref[_i];
+    paths.push(path + 'index.html');
+  }
+  if (oldPaths !== JSON.stringify(paths) && typeof oldPaths !== 'undefined') {
+    if (!doc._relocated) {
+      doc._relocated = {};
+    }
+    for (i = _j = 0, _len1 = oldPaths.length; _j < _len1; i = ++_j) {
+      oldPath = oldPaths[i];
+      newPath = paths[i];
+      doc._relocated[newPath] = oldPath;
+    }
+  }
+  return paths;
 };
 
 

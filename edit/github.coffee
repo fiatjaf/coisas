@@ -40,17 +40,27 @@ GitHub = (user) ->
 
               # add old content
               for file in res.body.tree
-                # static files and previously rendered
-                if file.path not of data.deleted
-                  if file.path not of data.changed or
-                     file.path.split('/')[0] in ['edit', '.gitignore',
+                # static files and previously rendered files
+                if file.path not of data.deleted and file.path not of data.changed
+                  if file.path.split('/')[0] in ['edit', '.gitignore',
                                                  'LICENSE', 'README.md',
                                                  'assets']
-                    tree.push
-                      path: file.path
-                      mode: file.mode
-                      type: file.type
-                      sha: file.sha
+                    # static files
+                    path = file.path
+
+                  else if file.path of data.relocated
+                    # same files, just new paths
+                    path = data.relocated[file.path]
+
+                  else
+                    # exactly same files
+                    path = file.path
+
+                  tree.push
+                    path: path
+                    mode: file.mode
+                    type: file.type
+                    sha: file.sha
 
               # add the newly rendered content
               for path, content of data.changed
