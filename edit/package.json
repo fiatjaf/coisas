@@ -4,6 +4,7 @@
   "description": "",
   "main": "edit.coffee",
   "dependencies": {
+    "deep-diff": "^0.1.7",
     "envify": "~1.2.1",
     "feed": "~0.2.6",
     "front-matter": "~0.2.0",
@@ -14,8 +15,7 @@
     "react": "~0.10.0",
     "slug": "~0.4.2",
     "superagent": "~0.17.0",
-    "taffydb": "~2.7.2",
-    "xlsjs": "^0.6.17"
+    "taffydb": "^2.7.2"
   },
   "devDependencies": {
     "browserify": "~3.38.1",

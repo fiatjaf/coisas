@@ -6,6 +6,13 @@ marked.setOptions
   breaks: true
   smartypants: true
 
+Processors =
+  article: require './article.coffee'
+  table: require './table.coffee'
+  list: require './list.coffee'
+  chart: require './chart.coffee'
+  plaintext: require './plaintext.coffee'
+
 process = (doc, children) ->
   # clone
   doc = JSON.parse JSON.stringify doc
@@ -19,6 +26,9 @@ process = (doc, children) ->
 
   # process the data
   doc._data = JSON.parse JSON.stringify parse doc.data
+
+  # process the doc according to its kind
+  doc = Processors[doc.kind](doc)
 
   return doc
 

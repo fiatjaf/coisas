@@ -1,22 +1,8 @@
 React = require 'react'
-Feed = require 'feed'
 Handlebars = require 'handlebars'
-Taffy = require 'taffydb'
 TextLoad = require './textload.coffee'
 GitHub = require './github.coffee'
-
-JSON.stringifyAligned = require 'json-align'
-
-Metadata = require './processors/metadata.coffee'
-
-CommonProcessor = require './processors/common.coffee'
-Processors =
-  article: require './processors/article.coffee'
-  table: require './processors/table.coffee'
-  list: require './processors/list.coffee'
-  chart: require './processors/chart.coffee'
-  plaintext: require './processors/plaintext.coffee'
-  graph: require './processors/graph.coffee'
+Store = require './store.coffee'
 
 BaseTemplate = 'templates/base.html'
 Templates =
@@ -72,129 +58,35 @@ if pass
 
 gh.repo repo
 
-db = Taffy.taffy()
-db.settings
- template:
-   parents: ['home']
-   data: ''
-   kind: 'article'
-   title: ''
-   text: ''
- onInsert: ->
-   if not this._id
-     this._id = "xyxxyxxx".replace /[xy]/g, (c) ->
-       r = Math.random() * 16 | 0
-       v = (if c is "x" then r else (r & 0x3 | 0x8))
-       v.toString 16
-   if not this._created_at
-     this._created_at = (new Date()).getTime()
- cacheSize: 0
-
- unless db({_id: 'global'}).count()
-   db.insert
-     _id: 'global'
-     parents: []
-     text: """
-       ---
-       baseUrl: #{location.href.split('/').slice(0, -2).join('/')}
-       title: this website
-       ---
-     """
-
- unless db({_id: 'home'}).count()
-   db.insert
-     _id: 'home'
-     parents: []
-     kind: 'list'
-     title: ''
-     text: ''
-
 Main = React.createClass
   getInitialState: ->
     editingDoc: 'home'
 
-  setDocs: (docs) ->
-    @props.db.merge(docs, '_id', true)
-    Metadata.beforeEdit  @props.db
-    @forceUpdate()
-
-  setTemplate: (compiled) -> @setState template: compiled
-
   publish: ->
-    if not @state.template
-      return false
-
-    changed = {}   # {path: html}
-    deleted = {}   # {path: true}
-    relocated = {} # {oldPath: newPath}
-    console.log 'processing docs'
-
-    # post-process and add the pure docs
-    for doc in @props.db().get()
-      _doc = Metadata.cloneAndClearBeforePush doc, @props.db
-
-      if doc._changed
-        changed["docs/#{_doc._id}.json"] = JSON.stringifyAligned _doc, false, 2
-
-      if doc._deleted
-        deleted["docs/#{_doc._id}.json"] = true
-
-    # the process function -- just calls the imported process methods
-    process = (doc) =>
-      children = @props.db({
-        parents: {has: doc._id}
-      }).order('order,date,_created_at').get()
-      doc = CommonProcessor doc, children
-      doc = Processors[doc.kind] doc
-      return doc
-
-    # the render function -- just render the doc to the base template
-    render = (doc) =>
-      @state.template
-        doc: doc
-        site: site
-
-    # get the site params
-    site = @props.db({_id: 'global'}).first()
-    site = process site
-
-    # render and add all docs with their paths determined
-    for doc in @props.db().get()
-      for path in doc.paths
-        changed[path] = render doc if doc._changed
-        deleted[path] = true if doc._deleted
-        relocated[doc._relocated[path]] = path if doc._relocated
-
-    gh.deploy {changed: changed, deleted: deleted, relocated: relocated}, =>
-      console.log 'deployed!'
-      location.reload()
+    @props.store.publishTree()
 
   handleUpdateDoc: (docid, change) ->
-    q = @props.db({_id: docid})
-
-    doc = q.update(change)
-           .update(_changed: true)
-           .first()
-
-    Metadata.dinamicallyParseMetadata doc, @props.db
+    doc = @props.store.getDocToEdit docid
+    for field, value of change
+      doc[field] = value
+    @props.store.updateDoc doc
     @forceUpdate()
 
   handleSelectDoc: (docid) ->
     @setState editingDoc: docid
 
   handleAddSon: (son) ->
-    @props.db.insert(son)
-    for parentid in son.parents
-      @props.db({_id: parentid}).update(_changed: true)
+    son = @props.store.newDoc(son)
     @forceUpdate()
+    return son._id
 
   handleDeleteDoc: (docid) ->
-    @props.db({_id: docid}).update(_deleted: true)
+    @props.store.deleteDoc docid
     @forceUpdate()
 
   handleMovingChilds: (childid, fromid, targetid) ->
     isAncestor = (base, potentialAncestor) =>
-      doc = @props.db({_id: base}).first()
+      doc = @props.store.getDocToEdit base
       if not doc.parents.length
         return false
       for parent in doc.parents
@@ -206,15 +98,11 @@ Main = React.createClass
     if isAncestor targetid, childid
       return false
     else
-      movedDoc = @props.db({_id: childid}).first()
+      movedDoc = @props.store.getDocToEdit childid
       movedDoc.parents.splice movedDoc.parents.indexOf(fromid), 1
       movedDoc.parents.push targetid
-      @props.db.merge(movedDoc, '_id', true)
+      @props.store.updateDoc movedDoc
       @forceUpdate()
-
-      @props.db({_id: fromid}).update(_changed: true)
-      @props.db({_id: targetid}).update(_changed: true)
-      @props.db({_id: childid}).update(_changed: true)
 
       return true
 
@@ -222,29 +110,25 @@ Main = React.createClass
     (div className: 'pure-g',
       (aside className: 'pure-u-1-5',
         (ul {},
-          (Doc
-            data: @props.db({_id: 'home'}).first()
+          @transferPropsTo(Doc
+            doc: @props.store.getDocToEdit 'home'
             selected: true
             immediateParent: null
             onSelect: @handleSelectDoc
             onAddSon: @handleAddSon
             onMovedChild: @handleMovingChilds
-            db: @props.db
           )
         )
       ),
       (main className: 'pure-u-4-5',
-        (Menu
-          showPublishButton: if @state.template then true else false
-          globalDoc: @props.db({_id: 'global'}).first()
+        @transferPropsTo(Menu
+          globalDoc: @props.store.getDocToEdit 'global'
           onClickPublish: @publish
           onGlobalDocChange: @handleUpdateDoc.bind @, 'global'
         ),
-        (DocEditable
-          data: @props.db({_id: @state.editingDoc}).first()
+        @transferPropsTo(DocEditable
+          doc: @props.store.getDocToEdit @state.editingDoc
           onUpdateDocAttr: @handleUpdateDoc
-          onDelete: @handleDeleteDoc
-          db: @props.db
         )
       )
     )
@@ -254,9 +138,9 @@ Doc = React.createClass
     selected: @props.selected
 
   dragStart: (e) ->
-    console.log 'started dragging ' + @props.data._id
+    console.log 'started dragging ' + @props.doc._id
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData 'docid', @props.data._id
+    e.dataTransfer.setData 'docid', @props.doc._id
     e.dataTransfer.setData 'fromid', @props.immediateParent
 
   drop: (e) ->
@@ -264,15 +148,15 @@ Doc = React.createClass
     e.stopPropagation()
     childid = e.dataTransfer.getData 'docid'
     fromid = e.dataTransfer.getData 'fromid'
-    console.log childid + ' dropped here (at ' + @props.data._id + ') from ' + fromid
-    movedOk = @props.onMovedChild childid, fromid, @props.data._id
+    console.log childid + ' dropped here (at ' + @props.doc._id + ') from ' + fromid
+    movedOk = @props.onMovedChild childid, fromid, @props.doc._id
     if movedOk
       @select()
 
   preventDefault: (e) -> e.preventDefault()
 
   select: ->
-    @props.onSelect @props.data._id
+    @props.onSelect @props.doc._id
     @setState selected: true
 
   clickRetract: ->
@@ -280,21 +164,23 @@ Doc = React.createClass
 
   clickAdd: ->
     @select()
-    @props.onAddSon {parents: [@props.data._id]}
+    sonid = @props.onAddSon {parents: [@props.doc._id]}
 
   render: ->
-    _id = @props.data._id
-    sons = @props.db(-> return true if _id in this.parents and not this._deleted)
-                 .order('order,date,_created_at').get()
+    sons = @props.store.getSons(@props.doc._id)
 
     if not sons.length
       sons = [{_id: ''}]
 
-    if @props.data._id then (li {},
+    if @props.doc._id then (li {},
       (header
         onDragOver: @preventDefault
         onDrop: @drop
       ,
+        (button
+          className: 'pure-button delete'
+          onClick: @clickDelete
+        , 'x') if @state.selected and sons.length == 0
         (button
           className: 'pure-button retract'
           onClick: @clickRetract
@@ -303,18 +189,19 @@ Doc = React.createClass
           draggable: true
           onDragStart: @dragStart
           onClick: @select.bind(@, false)
-          @props.data.title or @props.data._id),
+          @props.doc.title or @props.doc._id),
         (button
           className: 'pure-button add'
           onClick: @clickAdd
         , '+')
       ),
       (ul {},
-        @transferPropsTo (Doc
-          data: son
+        @transferPropsTo(Doc
+          doc: son
           selected: false
           key: son._id
-          immediateParent: @props.data._id
+          ref: son._id
+          immediateParent: @props.doc._id
         ,
           son.title or son._id) for son in sons
       ) if @state.selected
@@ -329,23 +216,14 @@ DocEditable = React.createClass
 
     change = {}
     change[attr] = value
-    @props.onUpdateDocAttr @props.data._id, change
-
-  confirmDelete: ->
-    if confirm "are you sure you want to delete 
-        #{@props.data.title or @props.data._id} ?"
-      @props.onDelete @props.data._id
+    @props.onUpdateDocAttr @props.doc._id, change
 
   render: ->
-    if not @props.data
+    if not @props.doc
       (article {})
     else
       (article className: 'editing',
-        (h3 {}, "editing #{@props.data._id}"),
-        (button
-          className: 'pure-button del'
-          onClick: @confirmDelete
-        , 'x') if not @props.db({parents: {has: @props.data._id}}).count()
+        (h3 {}, "editing #{@props.doc._id}"),
         (form
           className: 'pure-form pure-form-aligned'
           onSubmit: @handleSubmit
@@ -355,7 +233,7 @@ DocEditable = React.createClass
             (select
               id: 'kind'
               onChange: @handleChange.bind @, 'kind'
-              value: @props.data.kind
+              value: @props.doc.kind
             ,
               (option
                 value: kind
@@ -369,13 +247,13 @@ DocEditable = React.createClass
               id: 'title'
               className: 'pure-input-2-3'
               onChange: @handleChange.bind @, 'title'
-              value: @props.data.title),
+              value: @props.doc.title),
           ),
           (div className: 'pure-control-group',
             (label {}, 'parents: ')
             (input
               onChange: @handleChange.bind @, 'parents'
-              value: @props.data.parents.join(', ')),
+              value: @props.doc.parents.join(', ')),
           ),
           (div className: 'pure-control-group',
             (label htmlFor: 'text', 'text: ')
@@ -383,7 +261,7 @@ DocEditable = React.createClass
               id: 'text'
               className: 'pure-input-2-3'
               onChange: @handleChange.bind @, 'text'
-              value: @props.data.text),
+              value: @props.doc.text),
           ),
           (div className: 'pure-control-group',
             (label htmlFor: 'data', 'data: ')
@@ -392,7 +270,7 @@ DocEditable = React.createClass
               id: 'data'
               className: 'pure-input-2-3'
               onChange: @handleChange.bind @, 'data'
-              value: @props.data.data),
+              value: @props.doc.data),
           ),
         )
       )
@@ -424,13 +302,10 @@ Menu = React.createClass
           (button
             className: 'pure-button publish'
             onClick: @handleClickPublish
-          , 'Publish!') if @props.showPublishButton
+          , 'Publish!')
         )
       ),
     )
-
-# render component without any docs
-MAIN = React.renderComponent Main(db: db), document.body
 
 # prepare docs to load
 gh.listDocs (files) ->
@@ -440,7 +315,6 @@ gh.listDocs (files) ->
     docAddresses = []
   # load docs
   TextLoad docAddresses, (docs...) ->
-    MAIN.setDocs (JSON.parse doc for doc in docs)
 
     # load templates and precompile them
     TextLoad Templates.addresses, (templates...) ->
@@ -455,4 +329,6 @@ gh.listDocs (files) ->
       # load the base template separatedly
       TextLoad BaseTemplate, (baseTemplateString) ->
         baseTemplate = Handlebars.compile baseTemplateString
-        MAIN.setTemplate baseTemplate
+
+        store = new Store gh, baseTemplate, docs.map JSON.parse
+        React.renderComponent Main(store: store), document.body
