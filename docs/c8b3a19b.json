@@ -1,12 +1,12 @@
 {
-  "parents" : [
-    "home"
-  ],
-  "data"        : "",
-  "kind"        : "list",
-  "title"       : "textos preservados da destruição",
-  "text"        : "\n",
-  "_id"         : "c8b3a19b",
-  "slug"        : "textos-preservados-da-destruicao",
-  "_created_at" : 1400504024073
+    "parents" : [
+        "home"
+    ],
+    "data"        : "",
+    "kind"        : "list",
+    "title"       : "textos preservados da destruição",
+    "text"        : "\n",
+    "_id"         : "c8b3a19b",
+    "slug"        : "coisas-salvas",
+    "_created_at" : 1400504024073
 }
