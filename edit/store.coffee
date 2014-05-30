@@ -144,7 +144,7 @@ class Store
 
   getSons: (_id) ->
     sons = []
-    for doc in @taffy(parents: {has: _id}).order('order,date,_created_at').get()
+    for doc in @taffy(parents: {has: _id}).order('order,date desc,_created_at desc').get()
       sons.push @getDocToEdit doc._id
     return sons
 
