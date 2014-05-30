@@ -4,12 +4,7 @@ CommonProcessor = require './processors/common.coffee'
 diff = require('deep-diff').diff
 slug = require 'slug'
 yaml = require 'js-yaml'
-fm = require 'front-matter'
 JSON.stringifyAligned = require 'json-align'
-
-standardAttributes = ['parents', 'data', 'kind', 'text',
-                      'title', '_id', '_created_at',
-                      '___id', '___s']
 
 class Store
   constructor: (gh, compiledTemplate, docs) ->
@@ -44,13 +39,6 @@ class Store
     for doc in docs
       @paths[doc._id] = @computePath doc
 
-  parseMetadata: (editedDoc) ->
-    parsed = fm editedDoc.text
-    editedDoc.text = parsed.body
-    editedDoc[field] = value for field, value of parsed.attributes
-
-    return editedDoc
-
   clearDoc: (doc) ->
     clear = JSON.parse JSON.stringify doc
     delete clear.___id
@@ -58,36 +46,31 @@ class Store
     return clear
 
   updateDoc: (editedDoc) ->
-    try
-      newDoc = @parseMetadata editedDoc
+    oldDoc = @taffy({_id: editedDoc._id}).first()
+    differences = diff(oldDoc, editedDoc)
 
-      oldDoc = @taffy({_id: newDoc._id}).first()
-      differences = diff(oldDoc, newDoc)
+    # save changes to taffy
+    @taffy({_id: editedDoc._id}).update(editedDoc)
 
-      # save changes to taffy
-      @taffy({_id: newDoc._id}).update(newDoc)
+    # change content of json file
+    delete @tree['docs/' + editedDoc._id + '.json'].sha
+    @tree['docs/' + editedDoc._id + '.json'].content = JSON.stringifyAligned @clearDoc editedDoc, false, 2
 
-      # change content of json file
-      delete @tree['docs/' + newDoc._id + '.json'].sha
-      @tree['docs/' + newDoc._id + '.json'].content = JSON.stringifyAligned @clearDoc newDoc, false, 2
+    # change paths of doc and sons, change content of parents
+    for difference in differences
+      if difference.path[0] in ['slug', 'parents']
+        @changePathInTree editedDoc
+        for parent in @taffy(_id: editedDoc.parents).get()
+          @changeContent parent
+        break
 
-      # change paths of doc and sons, change content of parents
-      for difference in differences
-        if difference.path[0] in ['slug', 'parents']
-          @changePathInTree newDoc
-          for parent in @taffy(_id: newDoc.parents).get()
-            @changeContent parent
-          break
-
-      # change content of doc and parents
-      for difference in differences
-        if difference.path not in ['slug', 'parents']
-          @changeContent newDoc
-          for parent in @taffy(_id: newDoc.parents).get()
-            @changeContent parent
-          break
-    catch e
-      return
+    # change content of doc and parents
+    for difference in differences
+      if difference.path not in ['slug', 'parents']
+        @changeContent editedDoc
+        for parent in @taffy(_id: editedDoc.parents).get()
+          @changeContent parent
+        break
 
   changePathInTree: (doc) ->
     # in this case, change the edited doc path and all of its
@@ -113,7 +96,6 @@ class Store
     @taffy(_id: _id).remove()
 
   newDoc: (doc) ->
-    doc = @parseMetadata doc
     doc.date = (new Date()).toISOString()
     createdDoc = @taffy.insert(doc).first()
 
@@ -125,27 +107,15 @@ class Store
       type: 'blob'
       content: @render createdDoc
     }
-    return @getDocToEdit createdDoc._id
+    return @getDoc createdDoc._id
 
-  getDocToEdit: (_id) ->
-    editing = JSON.parse JSON.stringify @taffy(_id: _id).first()
-
-    meta = {}
-    for field, value of editing when field not in standardAttributes
-      meta[field] = value
-
-    editing.text =
-      '---\n' +
-      yaml.dump(meta) +
-      '---\n' +
-      fm(editing.text).body
-
-    return editing
+  getDoc: (_id) ->
+    return JSON.parse JSON.stringify @taffy(_id: _id).first()
 
   getSons: (_id) ->
     sons = []
     for doc in @taffy(parents: {has: _id}).order('order,date,_created_at').get()
-      sons.push @getDocToEdit doc._id
+      sons.push @getDoc doc._id
     return sons
 
   traverseDown: (from, fn) ->
