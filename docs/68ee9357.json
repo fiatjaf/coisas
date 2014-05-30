@@ -1,12 +1,12 @@
 {
-  "parents" : [
-    "home"
-  ],
-  "data"        : "",
-  "kind"        : "list",
-  "title"       : "compêndio de dados",
-  "text"        : "\n",
-  "_id"         : "68ee9357",
-  "slug"        : "compendio",
-  "_created_at" : 1400504024064
+    "parents" : [
+        "home"
+    ],
+    "data"        : "",
+    "kind"        : "list",
+    "title"       : "arquivo de dados",
+    "text"        : "\n",
+    "_id"         : "68ee9357",
+    "slug"        : "arquivo-de-dados",
+    "_created_at" : 1400504024064
 }
