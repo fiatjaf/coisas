@@ -66,7 +66,7 @@ Main = React.createClass
     @props.store.publishTree()
 
   handleUpdateDoc: (docid, change) ->
-    doc = @props.store.getDocToEdit docid
+    doc = @props.store.getDoc docid
     for field, value of change
       doc[field] = value
     @props.store.updateDoc doc
@@ -86,7 +86,7 @@ Main = React.createClass
 
   handleMovingChilds: (childid, fromid, targetid) ->
     isAncestor = (base, potentialAncestor) =>
-      doc = @props.store.getDocToEdit base
+      doc = @props.store.getDoc base
       if not doc.parents.length
         return false
       for parent in doc.parents
@@ -98,7 +98,7 @@ Main = React.createClass
     if isAncestor targetid, childid
       return false
     else
-      movedDoc = @props.store.getDocToEdit childid
+      movedDoc = @props.store.getDoc childid
       movedDoc.parents.splice movedDoc.parents.indexOf(fromid), 1
       movedDoc.parents.push targetid
       @props.store.updateDoc movedDoc
@@ -111,7 +111,7 @@ Main = React.createClass
       (aside className: 'pure-u-1-5',
         (ul {},
           @transferPropsTo(Doc
-            doc: @props.store.getDocToEdit 'home'
+            doc: @props.store.getDoc 'home'
             selected: true
             immediateParent: null
             onSelect: @handleSelectDoc
@@ -122,12 +122,12 @@ Main = React.createClass
       ),
       (main className: 'pure-u-4-5',
         @transferPropsTo(Menu
-          globalDoc: @props.store.getDocToEdit 'global'
+          globalDoc: @props.store.getDoc 'global'
           onClickPublish: @publish
           onGlobalDocChange: @handleUpdateDoc.bind @, 'global'
         ),
         @transferPropsTo(DocEditable
-          doc: @props.store.getDocToEdit @state.editingDoc
+          doc: @props.store.getDoc @state.editingDoc
           onUpdateDocAttr: @handleUpdateDoc
         )
       )
@@ -208,6 +208,10 @@ Doc = React.createClass
     ) else (li {})
 
 DocEditable = React.createClass
+  standardAttributes: ['parents', 'data', 'kind', 'text',
+                       'title', '_id', '_created_at',
+                       '___id', '___s']
+
   handleChange: (attr, e) ->
     if attr == 'parents'
       value = (parent.trim() for parent in e.target.value.split(','))
@@ -218,10 +222,25 @@ DocEditable = React.createClass
     change[attr] = value
     @props.onUpdateDocAttr @props.doc._id, change
 
+  handleChangeMetaAttr: (prevAttr, e) ->
+    change = {}
+    attr = e.target.value
+    change[prevAttr] = undefined
+    change[attr] = @props.doc[prevAttr]
+    if attr not in @standardAttributes and attr != '_new'
+      @setState change
+
+  addMeta: ->
+    @setState _new: ''
+
   render: ->
     if not @props.doc
       (article {})
     else
+      meta = {}
+      for field, value of editing when field not in standardAttributes
+        meta[field] = value
+
       (article className: 'editing',
         (h3 {}, "editing #{@props.doc._id}"),
         (form
@@ -254,6 +273,24 @@ DocEditable = React.createClass
             (input
               onChange: @handleChange.bind @, 'parents'
               value: @props.doc.parents.join(', ')),
+          ),
+          (div {},
+            ((div
+              className: 'pure-control-group'
+              key: meta.attr
+              ,
+              (label
+                contentEditable: true
+                onInput: @handleChangeMetaAttr.bind @, meta.attr
+              , if meta.attr == '_new' then '' else meta.attr)
+              (input
+                onChange: @handleChange.bind @, meta.attr
+                value: meta.value),
+            ) for meta of meta)
+            (button
+              className: 'pure-button addmeta'
+              onClick: @addMeta
+            , '+')
           ),
           (div className: 'pure-control-group',
             (label htmlFor: 'text', 'text: ')

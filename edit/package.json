@@ -7,7 +7,6 @@
     "deep-diff": "^0.1.7",
     "envify": "~1.2.1",
     "feed": "~0.2.6",
-    "front-matter": "~0.2.0",
     "handlebars": "~2.0.0-alpha.2",
     "js-yaml": "^3.0.2",
     "json-align": "0.0.5",
