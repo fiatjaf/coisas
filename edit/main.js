@@ -155,7 +155,11 @@ Main = React.createClass({
     doc = this.props.store.getDoc(docid);
     for (field in change) {
       value = change[field];
-      doc[field] = value;
+      if (value !== null) {
+        doc[field] = value;
+      } else {
+        delete doc[field];
+      }
     }
     this.props.store.updateDoc(doc);
     return this.forceUpdate();
@@ -325,6 +329,11 @@ Doc = React.createClass({
 
 DocEditable = React.createClass({
   standardAttributes: ['parents', 'data', 'kind', 'text', 'title', '_id', '_created_at', '___id', '___s'],
+  getInitialState: function() {
+    return {
+      _new: ''
+    };
+  },
   handleChange: function(attr, e) {
     var change, parent, value;
     if (attr === 'parents') {
@@ -341,37 +350,61 @@ DocEditable = React.createClass({
     } else {
       value = e.target.value;
     }
-    change = {};
-    change[attr] = value;
-    return this.props.onUpdateDocAttr(this.props.doc._id, change);
-  },
-  handleChangeMetaAttr: function(prevAttr, e) {
-    var attr, change;
-    change = {};
-    attr = e.target.value;
-    change[prevAttr] = void 0;
-    change[attr] = this.props.doc[prevAttr];
-    if (__indexOf.call(this.standardAttributes, attr) < 0 && attr !== '_new') {
-      return this.setState(change);
+    if (attr !== '_new') {
+      change = {};
+      change[attr] = value;
+      return this.props.onUpdateDocAttr(this.props.doc._id, change);
+    } else {
+      return this.setState({
+        _new: value
+      });
     }
   },
-  addMeta: function() {
-    return this.setState({
-      _new: ''
-    });
+  handleChangeMetaAttr: function(prevAttr, e) {
+    var attr, change, value;
+    attr = e.target.innerText;
+    if (prevAttr !== attr && attr !== '_new' || attr === '' && prevAttr === '_new') {
+      if (prevAttr === '_new') {
+        value = this.state._new;
+        this.state._new = '';
+      } else {
+        value = this.props.doc[prevAttr];
+      }
+      change = {};
+      change[prevAttr] = null;
+      if (attr) {
+        change[attr] = value;
+      }
+      if (__indexOf.call(this.standardAttributes, attr) < 0) {
+        return this.props.onUpdateDocAttr(this.props.doc._id, change);
+      }
+    }
+  },
+  componentDidUpdate: function(nextProps) {
+    var component, node, ref, _ref1, _results;
+    _ref1 = this.refs;
+    _results = [];
+    for (ref in _ref1) {
+      component = _ref1[ref];
+      node = component.getDOMNode();
+      _results.push(node.innerText = ref === '_new' ? '' : ref);
+    }
+    return _results;
   },
   render: function() {
-    var field, kind, meta, value;
+    var attr, field, kind, meta, value, _ref1;
     if (!this.props.doc) {
       return article({});
     } else {
       meta = {};
-      for (field in editing) {
-        value = editing[field];
-        if (__indexOf.call(standardAttributes, field) < 0) {
+      _ref1 = this.props.doc;
+      for (field in _ref1) {
+        value = _ref1[field];
+        if (__indexOf.call(this.standardAttributes, field) < 0) {
           meta[field] = value;
         }
       }
+      meta._new = this.state._new;
       return article({
         className: 'editing'
       }, h3({}, "editing " + this.props.doc._id), form({
@@ -381,16 +414,16 @@ DocEditable = React.createClass({
         className: 'pure-control-group'
       }, label({
         htmlFor: 'kind'
-      }, 'kind: '), select({
+      }, 'kind'), select({
         id: 'kind',
         onChange: this.handleChange.bind(this, 'kind'),
         value: this.props.doc.kind
       }, (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = Templates.names;
+        var _i, _len, _ref2, _results;
+        _ref2 = Templates.names;
         _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          kind = _ref1[_i];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          kind = _ref2[_i];
           _results.push(option({
             value: kind,
             key: kind
@@ -401,40 +434,41 @@ DocEditable = React.createClass({
         className: 'pure-control-group'
       }, label({
         htmlFor: 'title'
-      }, 'title: '), input({
+      }, 'title'), input({
         id: 'title',
         className: 'pure-input-2-3',
         onChange: this.handleChange.bind(this, 'title'),
         value: this.props.doc.title
       })), div({
         className: 'pure-control-group'
-      }, label({}, 'parents: '), input({
+      }, label({}, 'parents'), input({
         onChange: this.handleChange.bind(this, 'parents'),
         value: this.props.doc.parents.join(', ')
-      })), div({}, (function() {
+      })), div({
+        className: 'meta'
+      }, (function() {
         var _results;
         _results = [];
-        for (meta in meta) {
+        for (attr in meta) {
+          value = meta[attr];
           _results.push(div({
             className: 'pure-control-group',
-            key: meta.attr
+            key: attr
           }, label({
             contentEditable: true,
-            onInput: this.handleChangeMetaAttr.bind(this, meta.attr)
-          }, meta.attr === '_new' ? '' : meta.attr), input({
-            onChange: this.handleChange.bind(this, meta.attr),
-            value: meta.value
+            ref: attr,
+            onBlur: this.handleChangeMetaAttr.bind(this, attr)
+          }, attr === '_new' ? '' : attr), input({
+            onChange: this.handleChange.bind(this, attr),
+            value: value
           })));
         }
         return _results;
-      }).call(this), button({
-        className: 'pure-button addmeta',
-        onClick: this.addMeta
-      }, '+')), div({
+      }).call(this)), div({
         className: 'pure-control-group'
       }, label({
         htmlFor: 'text'
-      }, 'text: '), textarea({
+      }, 'text'), textarea({
         id: 'text',
         className: 'pure-input-2-3',
         onChange: this.handleChange.bind(this, 'text'),
@@ -443,7 +477,7 @@ DocEditable = React.createClass({
         className: 'pure-control-group'
       }, label({
         htmlFor: 'data'
-      }, 'data: '), textarea({
+      }, 'data'), textarea({
         wrap: 'off',
         id: 'data',
         className: 'pure-input-2-3',
@@ -34051,6 +34085,9 @@ Store = (function() {
         if (!this._created_at) {
           this._created_at = (new Date()).getTime();
         }
+        if (!this.text) {
+          this.text = '';
+        }
         if (!this.data) {
           this.data = '';
         }
@@ -34105,6 +34142,9 @@ Store = (function() {
       _id: editedDoc._id
     }).first();
     differences = diff(oldDoc, editedDoc);
+    if (!differences) {
+      return;
+    }
     this.taffy({
       _id: editedDoc._id
     }).update(editedDoc);
@@ -34178,7 +34218,11 @@ Store = (function() {
     doc.date = (new Date()).toISOString();
     createdDoc = this.taffy.insert(doc).first();
     this.paths[createdDoc._id] = this.computePath(createdDoc);
-    this.tree['docs/' + createdDoc._id + '.json'] = JSON.stringifyAligned(createdDoc);
+    this.tree['docs/' + createdDoc._id + '.json'] = {
+      mode: '100644',
+      type: 'blob',
+      content: JSON.stringifyAligned(createdDoc)
+    };
     this.tree[this.paths[createdDoc._id]] = {
       mode: '100644',
       type: 'blob',

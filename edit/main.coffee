@@ -68,7 +68,10 @@ Main = React.createClass
   handleUpdateDoc: (docid, change) ->
     doc = @props.store.getDoc docid
     for field, value of change
-      doc[field] = value
+      if value != null
+        doc[field] = value
+      else
+        delete doc[field]
     @props.store.updateDoc doc
     @forceUpdate()
 
@@ -212,34 +215,55 @@ DocEditable = React.createClass
                        'title', '_id', '_created_at',
                        '___id', '___s']
 
+  getInitialState: ->
+    _new: ''
+
   handleChange: (attr, e) ->
     if attr == 'parents'
       value = (parent.trim() for parent in e.target.value.split(','))
     else
       value = e.target.value
 
-    change = {}
-    change[attr] = value
-    @props.onUpdateDocAttr @props.doc._id, change
+    if attr != '_new'
+      change = {}
+      change[attr] = value
+      @props.onUpdateDocAttr @props.doc._id, change
+
+    else
+      @setState _new: value
 
   handleChangeMetaAttr: (prevAttr, e) ->
-    change = {}
-    attr = e.target.value
-    change[prevAttr] = undefined
-    change[attr] = @props.doc[prevAttr]
-    if attr not in @standardAttributes and attr != '_new'
-      @setState change
+    attr = e.target.innerText
+    if prevAttr != attr and attr != '_new' or attr == '' and prevAttr == '_new'
 
-  addMeta: ->
-    @setState _new: ''
+      if prevAttr == '_new'
+        value = @state._new
+        @state._new = ''
+      else
+        value = @props.doc[prevAttr]
+
+      change = {}
+      change[prevAttr] = null
+
+      if attr
+        change[attr] = value
+
+      if attr not in @standardAttributes
+        @props.onUpdateDocAttr @props.doc._id, change
+
+  componentDidUpdate: (nextProps) ->
+    for ref, component of @refs
+      node = component.getDOMNode()
+      node.innerText = if ref == '_new' then '' else ref
 
   render: ->
     if not @props.doc
       (article {})
     else
       meta = {}
-      for field, value of editing when field not in standardAttributes
+      for field, value of @props.doc when field not in @standardAttributes
         meta[field] = value
+      meta._new = @state._new
 
       (article className: 'editing',
         (h3 {}, "editing #{@props.doc._id}"),
@@ -248,7 +272,7 @@ DocEditable = React.createClass
           onSubmit: @handleSubmit
         ,
           (div className: 'pure-control-group',
-            (label htmlFor: 'kind', 'kind: ')
+            (label htmlFor: 'kind', 'kind')
             (select
               id: 'kind'
               onChange: @handleChange.bind @, 'kind'
@@ -261,7 +285,7 @@ DocEditable = React.createClass
             ),
           ),
           (div className: 'pure-control-group',
-            (label htmlFor: 'title', 'title: ')
+            (label htmlFor: 'title', 'title')
             (input
               id: 'title'
               className: 'pure-input-2-3'
@@ -269,31 +293,28 @@ DocEditable = React.createClass
               value: @props.doc.title),
           ),
           (div className: 'pure-control-group',
-            (label {}, 'parents: ')
+            (label {}, 'parents')
             (input
               onChange: @handleChange.bind @, 'parents'
               value: @props.doc.parents.join(', ')),
           ),
-          (div {},
+          (div className: 'meta',
             ((div
               className: 'pure-control-group'
-              key: meta.attr
+              key: attr
               ,
               (label
                 contentEditable: true
-                onInput: @handleChangeMetaAttr.bind @, meta.attr
-              , if meta.attr == '_new' then '' else meta.attr)
+                ref: attr
+                onBlur: @handleChangeMetaAttr.bind @, attr
+              , if attr == '_new' then '' else attr)
               (input
-                onChange: @handleChange.bind @, meta.attr
-                value: meta.value),
-            ) for meta of meta)
-            (button
-              className: 'pure-button addmeta'
-              onClick: @addMeta
-            , '+')
+                onChange: @handleChange.bind @, attr
+                value: value),
+            ) for attr, value of meta)
           ),
           (div className: 'pure-control-group',
-            (label htmlFor: 'text', 'text: ')
+            (label htmlFor: 'text', 'text')
             (textarea
               id: 'text'
               className: 'pure-input-2-3'
@@ -301,7 +322,7 @@ DocEditable = React.createClass
               value: @props.doc.text),
           ),
           (div className: 'pure-control-group',
-            (label htmlFor: 'data', 'data: ')
+            (label htmlFor: 'data', 'data')
             (textarea
               wrap: 'off'
               id: 'data'

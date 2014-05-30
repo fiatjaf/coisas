@@ -21,6 +21,7 @@ class Store
             v.toString 16
         if not this._created_at
           this._created_at = (new Date()).getTime()
+        this.text = '' if not this.text
         this.data = '' if not this.data
         this.title = '' if not this.title
         this.kind = 'article' if not this.kind
@@ -48,6 +49,7 @@ class Store
   updateDoc: (editedDoc) ->
     oldDoc = @taffy({_id: editedDoc._id}).first()
     differences = diff(oldDoc, editedDoc)
+    return if not differences
 
     # save changes to taffy
     @taffy({_id: editedDoc._id}).update(editedDoc)
@@ -101,12 +103,14 @@ class Store
 
     @paths[createdDoc._id] = @computePath createdDoc
 
-    @tree['docs/' + createdDoc._id + '.json'] = JSON.stringifyAligned createdDoc
-    @tree[@paths[createdDoc._id]] = {
+    @tree['docs/' + createdDoc._id + '.json'] =
+      mode: '100644'
+      type: 'blob'
+      content: JSON.stringifyAligned createdDoc
+    @tree[@paths[createdDoc._id]] =
       mode: '100644'
       type: 'blob'
       content: @render createdDoc
-    }
     return @getDoc createdDoc._id
 
   getDoc: (_id) ->
