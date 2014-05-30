@@ -39578,9 +39578,6 @@ Store = (function() {
         if (!this._created_at) {
           this._created_at = (new Date()).getTime();
         }
-        if (!this.text) {
-          this.text = '---\n' + (new Date()).toISOString() + '\n---\n';
-        }
         if (!this.data) {
           this.data = '';
         }
@@ -39642,35 +39639,53 @@ Store = (function() {
   };
 
   Store.prototype.updateDoc = function(editedDoc) {
-    var difference, differences, newDoc, oldDoc, _i, _j, _len, _len1, _ref, _ref1, _results;
-    newDoc = this.parseMetadata(editedDoc);
-    oldDoc = this.taffy({
-      _id: newDoc._id
-    }).first();
-    differences = diff(oldDoc, newDoc);
-    this.taffy({
-      _id: newDoc._id
-    }).update(newDoc);
-    delete this.tree['docs/' + newDoc._id + '.json'].sha;
-    this.tree['docs/' + newDoc._id + '.json'].content = JSON.stringifyAligned(this.clearDoc(newDoc, false, 2));
-    for (_i = 0, _len = differences.length; _i < _len; _i++) {
-      difference = differences[_i];
-      if ((_ref = difference.path[0]) === 'slug' || _ref === 'parents') {
-        this.changePathInTree(newDoc);
-        break;
+    var difference, differences, e, newDoc, oldDoc, parent, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _results;
+    try {
+      newDoc = this.parseMetadata(editedDoc);
+      oldDoc = this.taffy({
+        _id: newDoc._id
+      }).first();
+      differences = diff(oldDoc, newDoc);
+      this.taffy({
+        _id: newDoc._id
+      }).update(newDoc);
+      delete this.tree['docs/' + newDoc._id + '.json'].sha;
+      this.tree['docs/' + newDoc._id + '.json'].content = JSON.stringifyAligned(this.clearDoc(newDoc, false, 2));
+      for (_i = 0, _len = differences.length; _i < _len; _i++) {
+        difference = differences[_i];
+        if ((_ref = difference.path[0]) === 'slug' || _ref === 'parents') {
+          this.changePathInTree(newDoc);
+          _ref1 = this.taffy({
+            _id: newDoc.parents
+          }).get();
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            parent = _ref1[_j];
+            this.changeContent(parent);
+          }
+          break;
+        }
       }
-    }
-    _results = [];
-    for (_j = 0, _len1 = differences.length; _j < _len1; _j++) {
-      difference = differences[_j];
-      if ((_ref1 = difference.path) !== 'slug' && _ref1 !== 'parents') {
-        this.changeContentInTree(newDoc);
-        break;
-      } else {
-        _results.push(void 0);
+      _results = [];
+      for (_k = 0, _len2 = differences.length; _k < _len2; _k++) {
+        difference = differences[_k];
+        if ((_ref2 = difference.path) !== 'slug' && _ref2 !== 'parents') {
+          this.changeContent(newDoc);
+          _ref3 = this.taffy({
+            _id: newDoc.parents
+          }).get();
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            parent = _ref3[_l];
+            this.changeContent(parent);
+          }
+          break;
+        } else {
+          _results.push(void 0);
+        }
       }
+      return _results;
+    } catch (_error) {
+      e = _error;
     }
-    return _results;
   };
 
   Store.prototype.changePathInTree = function(doc) {
@@ -39686,28 +39701,13 @@ Store = (function() {
     })(this));
   };
 
-  Store.prototype.changeContentInTree = function(doc) {
-    var parent, rerender, _i, _len, _ref, _results;
-    rerender = (function(_this) {
-      return function(doc) {
-        var path;
-        path = _this.paths[doc._id];
-        if (_this.tree[path]) {
-          delete _this.tree[path].sha;
-        }
-        return _this.tree[path].content = _this.render(doc);
-      };
-    })(this);
-    rerender(doc);
-    _ref = this.taffy({
-      _id: doc.parents
-    }).get();
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      parent = _ref[_i];
-      _results.push(rerender(parent));
+  Store.prototype.changeContent = function(doc) {
+    var path;
+    path = this.paths[doc._id];
+    if (this.tree[path]) {
+      delete this.tree[path].sha;
     }
-    return _results;
+    return this.tree[path].content = this.render(doc);
   };
 
   Store.prototype.deleteDoc = function(_id) {
@@ -39719,8 +39719,17 @@ Store = (function() {
 
   Store.prototype.newDoc = function(doc) {
     var createdDoc;
-    createdDoc = this.taffy.insert(this.parseMetadata(doc));
-    return this.getDocToEdit(createdDoc.first()._id);
+    doc = this.parseMetadata(doc);
+    doc.date = (new Date()).toISOString();
+    createdDoc = this.taffy.insert(doc).first();
+    this.paths[createdDoc._id] = this.computePath(createdDoc);
+    this.tree['docs/' + createdDoc._id + '.json'] = JSON.stringifyAligned(createdDoc);
+    this.tree[this.paths[createdDoc._id]] = {
+      mode: '100644',
+      type: 'blob',
+      content: this.render(createdDoc)
+    };
+    return this.getDocToEdit(createdDoc._id);
   };
 
   Store.prototype.getDocToEdit = function(_id) {
@@ -39774,12 +39783,13 @@ Store = (function() {
     var getPathComponent;
     getPathComponent = (function(_this) {
       return function(parent) {
-        var grandparent, path;
+        var grandparent, path, thisSlug;
         grandparent = _this.taffy({
           _id: parent.parents[0]
         }).first();
+        thisSlug = parent.slug || (parent.title ? slug(title) : parent._id);
         if (grandparent) {
-          path = getPathComponent(grandparent) + parent.slug + '/';
+          path = getPathComponent(grandparent) + thisSlug + '/';
         } else {
           path = '';
         }
@@ -39827,7 +39837,8 @@ Store = (function() {
       arrayTree.push(b);
     }
     return this.gh.deploy(arrayTree, function() {
-      return console.log('deployed!');
+      console.log('deployed!');
+      return location.reload();
     });
   };
 

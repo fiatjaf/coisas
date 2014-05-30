@@ -26,7 +26,6 @@ class Store
             v.toString 16
         if not this._created_at
           this._created_at = (new Date()).getTime()
-        this.text = '---\n' + (new Date()).toISOString() + '\n---\n' if not this.text
         this.data = '' if not this.data
         this.title = '' if not this.title
         this.kind = 'article' if not this.kind
@@ -49,6 +48,7 @@ class Store
     parsed = fm editedDoc.text
     editedDoc.text = parsed.body
     editedDoc[field] = value for field, value of parsed.attributes
+
     return editedDoc
 
   clearDoc: (doc) ->
@@ -58,27 +58,36 @@ class Store
     return clear
 
   updateDoc: (editedDoc) ->
-    newDoc = @parseMetadata editedDoc
+    try
+      newDoc = @parseMetadata editedDoc
 
-    oldDoc = @taffy({_id: newDoc._id}).first()
-    differences = diff oldDoc, newDoc
+      oldDoc = @taffy({_id: newDoc._id}).first()
+      differences = diff(oldDoc, newDoc)
 
-    # save changes to taffy
-    @taffy({_id: newDoc._id}).update(newDoc)
+      # save changes to taffy
+      @taffy({_id: newDoc._id}).update(newDoc)
 
-    # change path of json file
-    delete @tree['docs/' + newDoc._id + '.json'].sha
-    @tree['docs/' + newDoc._id + '.json'].content = JSON.stringifyAligned @clearDoc newDoc, false, 2
+      # change content of json file
+      delete @tree['docs/' + newDoc._id + '.json'].sha
+      @tree['docs/' + newDoc._id + '.json'].content = JSON.stringifyAligned @clearDoc newDoc, false, 2
 
-    for difference in differences
-      if difference.path[0] in ['slug', 'parents']
-        @changePathInTree newDoc
-        break
+      # change paths of doc and sons, change content of parents
+      for difference in differences
+        if difference.path[0] in ['slug', 'parents']
+          @changePathInTree newDoc
+          for parent in @taffy(_id: newDoc.parents).get()
+            @changeContent parent
+          break
 
-    for difference in differences
-      if difference.path not in ['slug', 'parents']
-        @changeContentInTree newDoc
-        break
+      # change content of doc and parents
+      for difference in differences
+        if difference.path not in ['slug', 'parents']
+          @changeContent newDoc
+          for parent in @taffy(_id: newDoc.parents).get()
+            @changeContent parent
+          break
+    catch e
+      return
 
   changePathInTree: (doc) ->
     # in this case, change the edited doc path and all of its
@@ -93,26 +102,30 @@ class Store
       delete @tree[oldPath]
 
       @paths[doc._id] = newPath
-
-  changeContentInTree: (doc) ->
-    # in this case, change the edited doc and its parents.
-
-    rerender = (doc) =>
-      path = @paths[doc._id]
-      delete @tree[path].sha if @tree[path]
-      @tree[path].content = @render doc
-
-    rerender doc
-    for parent in @taffy(_id: doc.parents).get()
-      rerender parent
+        
+  changeContent: (doc) ->
+    path = @paths[doc._id]
+    delete @tree[path].sha if @tree[path]
+    @tree[path].content = @render doc
 
   deleteDoc: (_id) ->
     delete @tree[@paths[_id]]
     @taffy(_id: _id).remove()
 
   newDoc: (doc) ->
-    createdDoc = @taffy.insert @parseMetadata doc
-    return @getDocToEdit createdDoc.first()._id
+    doc = @parseMetadata doc
+    doc.date = (new Date()).toISOString()
+    createdDoc = @taffy.insert(doc).first()
+
+    @paths[createdDoc._id] = @computePath createdDoc
+
+    @tree['docs/' + createdDoc._id + '.json'] = JSON.stringifyAligned createdDoc
+    @tree[@paths[createdDoc._id]] = {
+      mode: '100644'
+      type: 'blob'
+      content: @render createdDoc
+    }
+    return @getDocToEdit createdDoc._id
 
   getDocToEdit: (_id) ->
     editing = JSON.parse JSON.stringify @taffy(_id: _id).first()
@@ -146,8 +159,12 @@ class Store
 
     getPathComponent = (parent) =>
       grandparent = @taffy({_id: parent.parents[0]}).first()
+
+      # compute slug at path time
+      thisSlug = parent.slug or if parent.title then slug title else parent._id
+
       if grandparent
-        path = getPathComponent(grandparent) + parent.slug + '/'
+        path = getPathComponent(grandparent) + thisSlug + '/'
       else
         path = ''
       return path
@@ -172,5 +189,6 @@ class Store
 
     @gh.deploy arrayTree, ->
       console.log 'deployed!'
+      location.reload()
 
 module.exports = Store
