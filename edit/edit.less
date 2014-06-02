@@ -23,7 +23,7 @@ aside {
       }
       button {
         float: left;
-        margin: 0.3em 10px !important;
+        margin: 0.3em 0px 0.3em 2px !important;
         font-size: 70% !important;
         padding: 0.3em 0.8em !important;
         font-weight: bold;
@@ -48,25 +48,37 @@ aside {
 
 }
 
-article {
-  &.editing {
-    position: relative;
-
-    button.del {
-      position: absolute;
-      right: 18%;
-      top: 0;
-      cursor: pointer;
-      background-color: rgb(231, 16, 16);
-      color: white;
-      font-weight: bold;
-      padding: 0.6em 1.2em;
-      font-size: 62%;
+main {
+  header {
+    button {
+      &.publish {
+        margin: 2px;
+        background-color: rgb(124, 148, 127);
+        color: white;
+      }
     }
+  }
 
-    textarea {
-      height: 400px;
-      font-family: monospace;
+  article {
+    &.editing {
+      position: relative;
+  
+      button.del {
+        position: absolute;
+        right: 18%;
+        top: 0;
+        cursor: pointer;
+        background-color: rgb(231, 16, 16);
+        color: white;
+        font-weight: bold;
+        padding: 0.6em 1.2em;
+        font-size: 62%;
+      }
+  
+      textarea {
+        height: 400px;
+        font-family: monospace;
+      }
     }
   }
 }

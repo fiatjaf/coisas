@@ -144,7 +144,7 @@ gh.repo(repo);
 Main = React.createClass({
   getInitialState: function() {
     return {
-      editingDoc: 'home'
+      editingDoc: null
     };
   },
   publish: function() {
@@ -211,9 +211,9 @@ Main = React.createClass({
   },
   render: function() {
     return div({
-      className: 'pure-g'
+      className: 'pure-g-r'
     }, aside({
-      className: 'pure-u-1-5'
+      className: 'pure-u-6-24'
     }, ul({}, this.transferPropsTo(Doc({
       doc: this.props.store.getDoc('home'),
       selected: true,
@@ -228,7 +228,7 @@ Main = React.createClass({
       immediateParent: null,
       onSelect: this.handleSelectDoc
     })))), main({
-      className: 'pure-u-4-5'
+      className: 'pure-u-18-24'
     }, this.transferPropsTo(Menu({
       onClickPublish: this.publish
     })), this.transferPropsTo(DocEditable({
@@ -265,21 +265,23 @@ Doc = React.createClass({
   preventDefault: function(e) {
     return e.preventDefault();
   },
-  select: function() {
-    this.props.onSelect(this.props.doc._id);
-    return this.setState({
-      selected: true
-    });
-  },
   clickDelete: function() {
     if (confirm("Are you sure you want to delete \"" + (this.props.doc.title || this.props.doc._id) + "\"?")) {
       return this.props.onDelete(this.props.doc._id);
     }
   },
-  clickRetract: function() {
-    return this.setState({
-      selected: false
-    });
+  clickName: function() {
+    if (this.state.selected === false) {
+      this.props.onSelect(this.props.doc._id);
+      return this.setState({
+        selected: true
+      });
+    } else if (this.state.selected === true) {
+      this.props.onSelect(null);
+      return this.setState({
+        selected: false
+      });
+    }
   },
   clickAdd: function() {
     var sonid;
@@ -302,17 +304,14 @@ Doc = React.createClass({
       return li({}, header({
         onDragOver: this.preventDefault,
         onDrop: this.drop
-      }, this.state.selected && sons.length === 1 && sons[0]._id === '' && this.props.onDelete ? button({
-        className: 'pure-button delete',
-        onClick: this.clickDelete
-      }, 'x') : void 0, sons.length > 1 ? button({
-        className: 'pure-button retract',
-        onClick: this.clickRetract
-      }, '<') : void 0, h4({
+      }, h4({
         draggable: this.props.onMovedChild ? true : false,
         onDragStart: this.dragStart,
-        onClick: this.select.bind(this, false)
-      }, this.props.doc.title || this.props.doc._id), this.props.onAddSon ? button({
+        onClick: this.clickName
+      }, this.props.doc.title || this.props.doc._id), this.state.selected && sons.length === 1 && sons[0]._id === '' && this.props.onDelete ? button({
+        className: 'pure-button delete',
+        onClick: this.clickDelete
+      }, 'x') : void 0, this.state.selected && this.props.onAddSon ? button({
         className: 'pure-button add',
         onClick: this.clickAdd
       }, '+') : void 0), this.state.selected ? ul({}, (function() {
