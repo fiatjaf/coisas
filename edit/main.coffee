@@ -118,6 +118,7 @@ Main = React.createClass
             selected: true
             immediateParent: null
             onSelect: @handleSelectDoc
+            onDelete: @handleDeleteDoc
             onAddSon: @handleAddSon
             onMovedChild: @handleMovingChilds
           )
@@ -161,6 +162,10 @@ Doc = React.createClass
   select: ->
     @props.onSelect @props.doc._id
     @setState selected: true
+
+  clickDelete: ->
+    if confirm """Are you sure you want to delete "#{@props.doc.title or @props.doc._id}"?"""
+      @props.onDelete @props.doc._id
 
   clickRetract: ->
     @setState selected: false

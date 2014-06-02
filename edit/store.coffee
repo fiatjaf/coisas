@@ -95,9 +95,20 @@ class Store
     @tree[path].content = @render doc
 
   deleteDoc: (_id) ->
+    # delete from tree
     delete @tree[@paths[_id]]
     delete @tree['docs/' + _id + '.json']
+
+    # get the doc for subsequently getting its parents
+    doc = @taffy(_id: _id).first()
+
+    # delete the doc now so the parents can render themselves without it
     @taffy(_id: _id).remove()
+
+    # rerender parents
+    for parent in @taffy(_id: doc.parents).get()
+      @changeContent parent
+
 
   newDoc: (doc) ->
     doc.date = (new Date()).toISOString()

@@ -219,6 +219,7 @@ Main = React.createClass({
       selected: true,
       immediateParent: null,
       onSelect: this.handleSelectDoc,
+      onDelete: this.handleDeleteDoc,
       onAddSon: this.handleAddSon,
       onMovedChild: this.handleMovingChilds
     })))), main({
@@ -266,6 +267,11 @@ Doc = React.createClass({
     return this.setState({
       selected: true
     });
+  },
+  clickDelete: function() {
+    if (confirm("Are you sure you want to delete \"" + (this.props.doc.title || this.props.doc._id) + "\"?")) {
+      return this.props.onDelete(this.props.doc._id);
+    }
   },
   clickRetract: function() {
     return this.setState({
@@ -34210,11 +34216,24 @@ Store = (function() {
   };
 
   Store.prototype.deleteDoc = function(_id) {
+    var doc, parent, _i, _len, _ref, _results;
     delete this.tree[this.paths[_id]];
     delete this.tree['docs/' + _id + '.json'];
-    return this.taffy({
+    doc = this.taffy({
+      _id: _id
+    }).first();
+    this.taffy({
       _id: _id
     }).remove();
+    _ref = this.taffy({
+      _id: doc.parents
+    }).get();
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      parent = _ref[_i];
+      _results.push(this.changeContent(parent));
+    }
+    return _results;
   };
 
   Store.prototype.newDoc = function(doc) {
