@@ -60,7 +60,7 @@ gh.repo repo
 
 Main = React.createClass
   getInitialState: ->
-    editingDoc: 'home'
+    editingDoc: null
 
   publish: ->
     @props.store.publishTree()
@@ -110,8 +110,8 @@ Main = React.createClass
       return true
 
   render: ->
-    (div className: 'pure-g',
-      (aside className: 'pure-u-1-5',
+    (div className: 'pure-g-r',
+      (aside className: 'pure-u-6-24',
         (ul {},
           @transferPropsTo(Doc
             doc: @props.store.getDoc 'home'
@@ -132,7 +132,7 @@ Main = React.createClass
           )
         )
       ),
-      (main className: 'pure-u-4-5',
+      (main className: 'pure-u-18-24',
         @transferPropsTo(Menu
           onClickPublish: @publish
         ),
@@ -161,23 +161,25 @@ Doc = React.createClass
     console.log childid + ' dropped here (at ' + @props.doc._id + ') from ' + fromid
     movedOk = @props.onMovedChild childid, fromid, @props.doc._id
     if movedOk
-      @select()
+      @state.selected = false
+      @clickName()
 
   preventDefault: (e) -> e.preventDefault()
-
-  select: ->
-    @props.onSelect @props.doc._id
-    @setState selected: true
 
   clickDelete: ->
     if confirm """Are you sure you want to delete "#{@props.doc.title or @props.doc._id}"?"""
       @props.onDelete @props.doc._id
 
-  clickRetract: ->
-    @setState selected: false
+  clickName: ->
+    if @state.selected == false
+      @props.onSelect @props.doc._id
+      @setState selected: true
+
+    else if @state.selected == true
+      @props.onSelect null
+      @setState selected: false
 
   clickAdd: ->
-    @select()
     sonid = @props.onAddSon {parents: [@props.doc._id]}
 
   render: ->
@@ -191,23 +193,19 @@ Doc = React.createClass
         onDragOver: @preventDefault
         onDrop: @drop
       ,
+        (h4
+          draggable: if @props.onMovedChild then true else false
+          onDragStart: @dragStart
+          onClick: @clickName
+          @props.doc.title or @props.doc._id),
         (button
           className: 'pure-button delete'
           onClick: @clickDelete
         , 'x') if @state.selected and sons.length == 1 and sons[0]._id == '' and @props.onDelete
         (button
-          className: 'pure-button retract'
-          onClick: @clickRetract
-        , '<') if sons.length > 1,
-        (h4
-          draggable: if @props.onMovedChild then true else false
-          onDragStart: @dragStart
-          onClick: @select.bind(@, false)
-          @props.doc.title or @props.doc._id),
-        (button
           className: 'pure-button add'
           onClick: @clickAdd
-        , '+') if @props.onAddSon
+        , '+') if @state.selected and @props.onAddSon
       ),
       (ul {},
         @transferPropsTo(Doc
