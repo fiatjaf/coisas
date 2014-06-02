@@ -293,7 +293,7 @@ Doc = React.createClass({
       return li({}, header({
         onDragOver: this.preventDefault,
         onDrop: this.drop
-      }, this.state.selected && sons.length === 0 ? button({
+      }, this.state.selected && sons.length === 1 && sons[0]._id === '' ? button({
         className: 'pure-button delete',
         onClick: this.clickDelete
       }, 'x') : void 0, button({
@@ -34085,6 +34085,9 @@ Store = (function() {
         if (!this._created_at) {
           this._created_at = (new Date()).getTime();
         }
+        if (!this.slug) {
+          this.slug = this._id;
+        }
         if (!this.text) {
           this.text = '';
         }
@@ -34208,6 +34211,7 @@ Store = (function() {
 
   Store.prototype.deleteDoc = function(_id) {
     delete this.tree[this.paths[_id]];
+    delete this.tree['docs/' + _id + '.json'];
     return this.taffy({
       _id: _id
     }).remove();
@@ -34276,7 +34280,7 @@ Store = (function() {
         grandparent = _this.taffy({
           _id: parent.parents[0]
         }).first();
-        thisSlug = parent.slug || (parent.title ? slug(title) : parent._id);
+        thisSlug = parent.slug || (parent.title ? slug(parent.title) : parent._id);
         if (grandparent) {
           path = getPathComponent(grandparent) + thisSlug + '/';
         } else {

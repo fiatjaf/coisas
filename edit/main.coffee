@@ -183,7 +183,7 @@ Doc = React.createClass
         (button
           className: 'pure-button delete'
           onClick: @clickDelete
-        , 'x') if @state.selected and sons.length == 0
+        , 'x') if @state.selected and sons.length == 1 and sons[0]._id == ''
         (button
           className: 'pure-button retract'
           onClick: @clickRetract

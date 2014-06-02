@@ -21,6 +21,7 @@ class Store
             v.toString 16
         if not this._created_at
           this._created_at = (new Date()).getTime()
+        this.slug = this._id if not this.slug
         this.text = '' if not this.text
         this.data = '' if not this.data
         this.title = '' if not this.title
@@ -95,6 +96,7 @@ class Store
 
   deleteDoc: (_id) ->
     delete @tree[@paths[_id]]
+    delete @tree['docs/' + _id + '.json']
     @taffy(_id: _id).remove()
 
   newDoc: (doc) ->
@@ -135,7 +137,7 @@ class Store
       grandparent = @taffy({_id: parent.parents[0]}).first()
 
       # compute slug at path time
-      thisSlug = parent.slug or if parent.title then slug title else parent._id
+      thisSlug = parent.slug or if parent.title then slug parent.title else parent._id
 
       if grandparent
         path = getPathComponent(grandparent) + thisSlug + '/'
