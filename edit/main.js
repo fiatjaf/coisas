@@ -32,16 +32,49 @@ GitHub = function(user) {
         return cb(res.body);
       });
     },
-    getLastTree: function(cb) {
+    fetchDataSha: function(cb) {
+      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/data")).set(this.headers).end((function(_this) {
+        return function(res) {
+          if (res.body.commit) {
+            _this.data_commit_sha = res.body.commit.sha;
+            if (typeof cb === 'function') {
+              return cb(res.body);
+            }
+          } else {
+            return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/branches/" + _this.branch)).set(_this.headers).end(function(res) {
+              var commit_sha;
+              commit_sha = res.body.commit.sha;
+              return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs")).set(_this.headers).send({
+                ref: 'refs/heads/data',
+                sha: commit_sha
+              }).end(function(res) {
+                _this.data_commit_sha = res.body.object.sha;
+                if (typeof cb === 'function') {
+                  return cb(res.body);
+                }
+              });
+            });
+          }
+        };
+      })(this));
+    },
+    fetchMasterSha: function(cb) {
       return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
         return function(res) {
-          _this.last_commit_sha = res.body.commit.sha;
+          _this.master_commit_sha = res.body.commit.sha;
           _this.last_tree_sha = res.body.commit.commit.tree.sha;
-          return req.get(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/trees/" + _this.last_tree_sha)).set(_this.headers).query({
-            recursive: 100
-          }).end(function(res) {
-            return cb(res.body.tree);
-          });
+          if (typeof cb === 'function') {
+            return cb(res.body);
+          }
+        };
+      })(this));
+    },
+    getLastTree: function(cb) {
+      return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees/" + this.last_tree_sha)).set(this.headers).query({
+        recursive: 100
+      }).end((function(_this) {
+        return function(res) {
+          return cb(res.body.tree);
         };
       })(this));
     },
@@ -59,7 +92,7 @@ GitHub = function(user) {
           return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/commits")).set(_this.headers).send({
             message: 'P U B L I S H',
             tree: new_tree_sha,
-            parents: [_this.last_commit_sha]
+            parents: [_this.master_commit_sha, _this.data_commit_sha]
           }).end(function(res) {
             var new_commit_sha;
             new_commit_sha = res.body.sha;
@@ -34101,23 +34134,26 @@ Store = (function() {
       cacheSize: 0
     });
     this.tree = {};
-    this.gh.getLastTree((function(_this) {
-      return function(tree) {
-        var file, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = tree.length; _i < _len; _i++) {
-          file = tree[_i];
-          if (file.type !== 'tree') {
-            _results.push(_this.tree[file.path] = {
-              mode: file.mode,
-              type: file.type,
-              sha: file.sha
-            });
+    this.gh.fetchMasterSha((function(_this) {
+      return function() {
+        return _this.gh.getLastTree(function(tree) {
+          var file, _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = tree.length; _i < _len; _i++) {
+            file = tree[_i];
+            if (file.type !== 'tree') {
+              _results.push(_this.tree[file.path] = {
+                mode: file.mode,
+                type: file.type,
+                sha: file.sha
+              });
+            }
           }
-        }
-        return _results;
+          return _results;
+        });
       };
     })(this));
+    this.gh.fetchDataSha();
     this.paths = {};
     for (_i = 0, _len = docs.length; _i < _len; _i++) {
       doc = docs[_i];

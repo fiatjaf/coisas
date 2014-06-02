@@ -30,12 +30,14 @@ class Store
       cacheSize: 0
 
     @tree = {}
-    @gh.getLastTree (tree) =>
-      @tree[file.path] = {
-        mode: file.mode
-        type: file.type
-        sha: file.sha
-      } for file in tree when file.type isnt 'tree'
+    @gh.fetchMasterSha =>
+      @gh.getLastTree (tree) =>
+        @tree[file.path] = {
+          mode: file.mode
+          type: file.type
+          sha: file.sha
+        } for file in tree when file.type isnt 'tree'
+    @gh.fetchDataSha()
 
     @paths = {}
     for doc in docs
