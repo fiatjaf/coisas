@@ -222,12 +222,15 @@ Main = React.createClass({
       onDelete: this.handleDeleteDoc,
       onAddSon: this.handleAddSon,
       onMovedChild: this.handleMovingChilds
+    }))), ul({}, this.transferPropsTo(Doc({
+      doc: this.props.store.getDoc('global'),
+      selected: false,
+      immediateParent: null,
+      onSelect: this.handleSelectDoc
     })))), main({
       className: 'pure-u-4-5'
     }, this.transferPropsTo(Menu({
-      globalDoc: this.props.store.getDoc('global'),
-      onClickPublish: this.publish,
-      onGlobalDocChange: this.handleUpdateDoc.bind(this, 'global')
+      onClickPublish: this.publish
     })), this.transferPropsTo(DocEditable({
       doc: this.props.store.getDoc(this.state.editingDoc),
       onUpdateDocAttr: this.handleUpdateDoc
@@ -299,20 +302,20 @@ Doc = React.createClass({
       return li({}, header({
         onDragOver: this.preventDefault,
         onDrop: this.drop
-      }, this.state.selected && sons.length === 1 && sons[0]._id === '' ? button({
+      }, this.state.selected && sons.length === 1 && sons[0]._id === '' && this.props.onDelete ? button({
         className: 'pure-button delete',
         onClick: this.clickDelete
-      }, 'x') : void 0, button({
+      }, 'x') : void 0, sons.length > 1 ? button({
         className: 'pure-button retract',
         onClick: this.clickRetract
-      }, '<'), h4({
-        draggable: true,
+      }, '<') : void 0, h4({
+        draggable: this.props.onMovedChild ? true : false,
         onDragStart: this.dragStart,
         onClick: this.select.bind(this, false)
-      }, this.props.doc.title || this.props.doc._id), button({
+      }, this.props.doc.title || this.props.doc._id), this.props.onAddSon ? button({
         className: 'pure-button add',
         onClick: this.clickAdd
-      }, '+')), this.state.selected ? ul({}, (function() {
+      }, '+') : void 0), this.state.selected ? ul({}, (function() {
         var _i, _len, _results;
         _results = [];
         for (_i = 0, _len = sons.length; _i < _len; _i++) {
@@ -495,14 +498,6 @@ DocEditable = React.createClass({
 });
 
 Menu = React.createClass({
-  handleGlobalDocChange: function(e) {
-    var change;
-    change = {
-      text: e.target.value
-    };
-    this.props.onGlobalDocChange(change);
-    return e.preventDefault();
-  },
   handleClickPublish: function(e) {
     this.props.onClickPublish();
     return e.preventDefault();
@@ -512,13 +507,7 @@ Menu = React.createClass({
       className: 'pure-g-r'
     }, div({
       className: 'pure-u-4-5'
-    }, form({
-      className: 'pure-form'
-    }, textarea({
-      className: 'pure-input-1',
-      onChange: this.handleGlobalDocChange,
-      value: this.props.globalDoc.text
-    }))), div({
+    }), div({
       className: 'pure-u-1-5'
     }, button({
       className: 'pure-button publish',

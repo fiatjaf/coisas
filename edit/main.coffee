@@ -123,12 +123,18 @@ Main = React.createClass
             onMovedChild: @handleMovingChilds
           )
         )
+        (ul {},
+          @transferPropsTo(Doc
+            doc: @props.store.getDoc 'global'
+            selected: false
+            immediateParent: null
+            onSelect: @handleSelectDoc
+          )
+        )
       ),
       (main className: 'pure-u-4-5',
         @transferPropsTo(Menu
-          globalDoc: @props.store.getDoc 'global'
           onClickPublish: @publish
-          onGlobalDocChange: @handleUpdateDoc.bind @, 'global'
         ),
         @transferPropsTo(DocEditable
           doc: @props.store.getDoc @state.editingDoc
@@ -188,20 +194,20 @@ Doc = React.createClass
         (button
           className: 'pure-button delete'
           onClick: @clickDelete
-        , 'x') if @state.selected and sons.length == 1 and sons[0]._id == ''
+        , 'x') if @state.selected and sons.length == 1 and sons[0]._id == '' and @props.onDelete
         (button
           className: 'pure-button retract'
           onClick: @clickRetract
-        , '<'),
+        , '<') if sons.length > 1,
         (h4
-          draggable: true
+          draggable: if @props.onMovedChild then true else false
           onDragStart: @dragStart
           onClick: @select.bind(@, false)
           @props.doc.title or @props.doc._id),
         (button
           className: 'pure-button add'
           onClick: @clickAdd
-        , '+')
+        , '+') if @props.onAddSon
       ),
       (ul {},
         @transferPropsTo(Doc
@@ -339,12 +345,6 @@ DocEditable = React.createClass
       )
 
 Menu = React.createClass
-  handleGlobalDocChange: (e) ->
-    change =
-      text: e.target.value
-    @props.onGlobalDocChange change
-    e.preventDefault()
-
   handleClickPublish: (e) ->
     @props.onClickPublish()
     e.preventDefault()
@@ -353,13 +353,6 @@ Menu = React.createClass
     (header {},
       (div className: 'pure-g-r',
         (div className: 'pure-u-4-5',
-          (form className: 'pure-form',
-            (textarea
-              className: 'pure-input-1'
-              onChange: @handleGlobalDocChange
-              value: @props.globalDoc.text
-            )
-          ),
         ),
         (div className: 'pure-u-1-5',
           (button
