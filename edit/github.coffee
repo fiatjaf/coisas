@@ -68,8 +68,6 @@ GitHub = (user) ->
 
   deploy: (tree, cb) ->
     # post new tree
-    console.log tree
-
     req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
        .set(@headers)
        .send(tree: tree)

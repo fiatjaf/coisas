@@ -50,12 +50,13 @@ class Store
     return clear
 
   updateDoc: (editedDoc) ->
-    oldDoc = @taffy({_id: editedDoc._id}).first()
+    oldDoc = JSON.parse JSON.stringify @taffy({_id: editedDoc._id}).first()
     differences = diff(oldDoc, editedDoc)
     return if not differences
 
     # save changes to taffy
-    @taffy({_id: editedDoc._id}).update(editedDoc)
+    @taffy({_id: editedDoc._id}).remove()
+    @taffy.insert(editedDoc, false)
 
     # change content of json file
     delete @tree['docs/' + editedDoc._id + '.json'].sha
@@ -64,9 +65,15 @@ class Store
     # change paths of doc and sons, change content of parents
     for difference in differences
       if difference.path[0] in ['slug', 'parents']
+        # update the tree
         @changePathInTree editedDoc
-        for parent in @taffy(_id: editedDoc.parents).get()
+
+        # rerender the html of both the new parents and the old ones
+        allParents = JSON.parse JSON.stringify editedDoc.parents
+        allParents.push p for p in oldDoc.parents when p not in allParents
+        for parent in @taffy(_id: allParents).get()
           @changeContent parent
+
         break
 
     # change content of doc and parents
@@ -170,6 +177,7 @@ class Store
       site: site
 
   publishTree: ->
+    console.log @tree
     arrayTree = []
     for path, file of @tree
       b = file

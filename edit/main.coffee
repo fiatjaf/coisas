@@ -159,6 +159,13 @@ Doc = React.createClass
     childid = e.dataTransfer.getData 'docid'
     fromid = e.dataTransfer.getData 'fromid'
     console.log childid + ' dropped here (at ' + @props.doc._id + ') from ' + fromid
+    if fromid == @props.doc._id
+      console.log 'it is the same place'
+      return
+    if @props.doc._id == childid
+      console.log 'is itself'
+      return
+
     movedOk = @props.onMovedChild childid, fromid, @props.doc._id
     if movedOk
       @state.selected = false

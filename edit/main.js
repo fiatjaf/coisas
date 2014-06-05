@@ -79,7 +79,6 @@ GitHub = function(user) {
       })(this));
     },
     deploy: function(tree, cb) {
-      console.log(tree);
       return req.post(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees")).set(this.headers).send({
         tree: tree
       }).end((function(_this) {
@@ -290,6 +289,14 @@ Doc = React.createClass({
     childid = e.dataTransfer.getData('docid');
     fromid = e.dataTransfer.getData('fromid');
     console.log(childid + ' dropped here (at ' + this.props.doc._id + ') from ' + fromid);
+    if (fromid === this.props.doc._id) {
+      console.log('it is the same place');
+      return;
+    }
+    if (this.props.doc._id === childid) {
+      console.log('is itself');
+      return;
+    }
     movedOk = this.props.onMovedChild(childid, fromid, this.props.doc._id);
     if (movedOk) {
       this.state.selected = false;
@@ -34079,7 +34086,8 @@ module.exports = function(doc) {
 
 
 },{}],204:[function(require,module,exports){
-var CommonProcessor, Store, Taffy, diff, slug, yaml;
+var CommonProcessor, Store, Taffy, diff, slug, yaml,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 Taffy = require('taffydb');
 
@@ -34170,43 +34178,52 @@ Store = (function() {
   };
 
   Store.prototype.updateDoc = function(editedDoc) {
-    var difference, differences, oldDoc, parent, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _results;
-    oldDoc = this.taffy({
+    var allParents, difference, differences, oldDoc, p, parent, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _results;
+    oldDoc = JSON.parse(JSON.stringify(this.taffy({
       _id: editedDoc._id
-    }).first();
+    }).first()));
     differences = diff(oldDoc, editedDoc);
     if (!differences) {
       return;
     }
     this.taffy({
       _id: editedDoc._id
-    }).update(editedDoc);
+    }).remove();
+    this.taffy.insert(editedDoc, false);
     delete this.tree['docs/' + editedDoc._id + '.json'].sha;
     this.tree['docs/' + editedDoc._id + '.json'].content = JSON.stringifyAligned(this.clearDoc(editedDoc, false, 2));
     for (_i = 0, _len = differences.length; _i < _len; _i++) {
       difference = differences[_i];
       if ((_ref = difference.path[0]) === 'slug' || _ref === 'parents') {
         this.changePathInTree(editedDoc);
-        _ref1 = this.taffy({
-          _id: editedDoc.parents
-        }).get();
+        allParents = JSON.parse(JSON.stringify(editedDoc.parents));
+        _ref1 = oldDoc.parents;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          parent = _ref1[_j];
+          p = _ref1[_j];
+          if (__indexOf.call(allParents, p) < 0) {
+            allParents.push(p);
+          }
+        }
+        _ref2 = this.taffy({
+          _id: allParents
+        }).get();
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          parent = _ref2[_k];
           this.changeContent(parent);
         }
         break;
       }
     }
     _results = [];
-    for (_k = 0, _len2 = differences.length; _k < _len2; _k++) {
-      difference = differences[_k];
-      if ((_ref2 = difference.path) !== 'slug' && _ref2 !== 'parents') {
+    for (_l = 0, _len3 = differences.length; _l < _len3; _l++) {
+      difference = differences[_l];
+      if ((_ref3 = difference.path) !== 'slug' && _ref3 !== 'parents') {
         this.changeContent(editedDoc);
-        _ref3 = this.taffy({
+        _ref4 = this.taffy({
           _id: editedDoc.parents
         }).get();
-        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-          parent = _ref3[_l];
+        for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+          parent = _ref4[_m];
           this.changeContent(parent);
         }
         break;
@@ -34364,6 +34381,7 @@ Store = (function() {
 
   Store.prototype.publishTree = function() {
     var arrayTree, b, file, path, _ref;
+    console.log(this.tree);
     arrayTree = [];
     _ref = this.tree;
     for (path in _ref) {
