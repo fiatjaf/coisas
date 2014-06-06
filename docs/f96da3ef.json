@@ -1,0 +1,13 @@
+{
+    "parents" : [
+        "591db1ca"
+    ],
+    "_id"         : "f96da3ef",
+    "_created_at" : 1402098951808,
+    "slug"        : "1",
+    "text"        : "",
+    "data"        : "Giovanni,Pollyanna\n36,76\n16,60\n56,10\n36,12\n24,21\n59,7\n3,38\n57,14",
+    "title"       : "1",
+    "kind"        : "table",
+    "order"       : "1"
+}

@@ -1,13 +1,13 @@
 {
-  "parents" : [
-    "68ee9357"
-  ],
-  "data"        : "",
-  "kind"        : "list",
-  "title"       : "compêndio de resultados do tarot na casa do Ivan",
-  "text"        : "\njogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
-  "_id"         : "1ba1add5",
-  "slug"        : "compendio-de-resultados-do-tarot-na-casa-do-Ivan",
-  "_created_at" : 1400504024063,
-  "date"        : "2011..2013"
+    "parents" : [
+        "68ee9357"
+    ],
+    "data"        : "",
+    "kind"        : "list",
+    "title"       : "compêndio de resultados do tarot na casa do Ivan",
+    "text"        : "jogos acontecidos entre 2011 e 2013.\ncomo não tem a data nos papéis, colocarei-os numa ordem que eu acredito que seja a cronológica, de acordo com minha falha memória.",
+    "_id"         : "1ba1add5",
+    "slug"        : "tarot",
+    "_created_at" : 1400504024063,
+    "date"        : "2011..2013"
 }
