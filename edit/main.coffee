@@ -228,7 +228,7 @@ Doc = React.createClass
 
 DocEditable = React.createClass
   standardAttributes: ['parents', 'data', 'kind', 'text',
-                       'title', '_id', '_created_at',
+                       'title', 'slug', '_id', '_created_at',
                        '___id', '___s']
 
   getInitialState: ->
@@ -307,6 +307,14 @@ DocEditable = React.createClass
               className: 'pure-input-2-3'
               onChange: @handleChange.bind @, 'title'
               value: @props.doc.title),
+          ),
+          (div className: 'pure-control-group',
+            (label htmlFor: 'slug', 'slug')
+            (input
+              id: 'slug'
+              className: 'pure-input-2-3'
+              onChange: @handleChange.bind @, 'slug'
+              value: @props.doc.slug),
           ),
           (div className: 'pure-control-group',
             (label {}, 'parents')

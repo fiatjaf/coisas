@@ -21,12 +21,12 @@ class Store
             v.toString 16
         if not this._created_at
           this._created_at = (new Date()).getTime()
-        this.slug = this._id if not this.slug
         this.text = '' if not this.text
         this.data = '' if not this.data
         this.title = '' if not this.title
         this.kind = 'article' if not this.kind
         this.parents = [] if not this.parents
+        this.slug = this.slug or if this.title then slug this.title else this._id
       cacheSize: 0
 
     @tree = {}
@@ -155,9 +155,6 @@ class Store
 
     getPathComponent = (parent) =>
       grandparent = @taffy({_id: parent.parents[0]}).first()
-
-      # compute slug at path time
-      thisSlug = parent.slug or if parent.title then slug parent.title else parent._id
 
       if grandparent
         path = getPathComponent(grandparent) + thisSlug + '/'
