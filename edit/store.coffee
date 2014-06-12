@@ -78,7 +78,7 @@ class Store
 
     # change content of doc and parents
     for difference in differences
-      if difference.path not in ['slug', 'parents']
+      if difference.path[0] not in ['slug', 'parents']
         @changeContent editedDoc
         for parent in @taffy(_id: editedDoc.parents).get()
           @changeContent parent
