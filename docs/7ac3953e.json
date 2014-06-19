@@ -1,0 +1,13 @@
+{
+    "parents" : [
+        "591db1ca"
+    ],
+    "_id"         : "7ac3953e",
+    "_created_at" : 1403146470162,
+    "slug"        : "2",
+    "text"        : "",
+    "data"        : "Giovanni,Polly,Gloria\n32,17,12\n14,52,23\n12,32,17\n33,13,19",
+    "title"       : "2",
+    "kind"        : "table",
+    "order"       : "2"
+}
