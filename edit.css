@@ -1,0 +1,21 @@
+.tree-view {
+  overflow-y: hidden;
+}
+.tree-view_children {
+  margin-left: 16px;
+}
+.tree-view_children-collapsed {
+  height: 0px;
+}
+.tree-view_arrow {
+  cursor: pointer;
+  margin-right: 6px;
+  display: inline-block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.tree-view_arrow-collapsed {
+  -webkit-transform: rotate(-90deg);
+}
