@@ -1,5 +1,6 @@
-req = require 'superagent'
 AsyncCache = require 'async-cache'
+request = require 'superagent'
+mori = require 'mori'
 
 p = location.href.split('/')
 user = p[2].split('.')[0]
@@ -15,14 +16,16 @@ contents = new AsyncCache
   max: 1000
   maxAge: 1000 * 60 * 10
   load: (key, cb) ->
-    request.get("https://api.github.com/repos/#{user}/#{repo}/contents/#{key}")
+    if key.slice(-1)[0] == '/'
+      key = key.slice(0, -1)
+    request.get("https://api.github.com/repos/#{user}/#{repo}/contents/" + key)
            .set('Accept', 'application/vnd.github.v3+json')
            .set('Content-type', 'application/json')
-           .query('ref', branch)
+           .query('ref': branch)
            .end (res) ->
       o = res.body
       if o.content
-        o.content = btoa o.content
+        o.content = atob o.content
       cb o
 
 class GitHub
