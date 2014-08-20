@@ -1,6 +1,11 @@
 @import 'http://yui.yahooapis.com/pure/0.5.0/pure-min.css';
+.tree {
+  font-family: monospace;
+  font-size: 1.4em;
+}
 .tree ul {
   padding-left: 1.2em;
+  margin: 0;
 }
 .tree li {
   list-style: none;
@@ -10,4 +15,12 @@
 }
 .tree a {
   text-decoration: none;
+}
+.edit form,
+.edit textarea {
+  width: 100%;
+}
+.edit textarea {
+  min-height: 50%;
+  margin-bottom: 10px;
 }
