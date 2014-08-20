@@ -1,11 +1,8 @@
-React = require 'react'
 GitHub = require './github.coffee'
-Baby = require 'babyparse'
+YAML = require 'yaml-js'
 templateDefault = require './template-default.coffee'
-yaml = require 'yaml-js'
 fm = require 'front-matter'
 marked = require 'marked'
-mori = require 'mori'
 
 marked.setOptions
   gfm: true
@@ -20,8 +17,6 @@ marked.setOptions
  table, thead, tbody, tr, th, td, tfoot,
  dl, dt, dd, ul, li,
  h1, h2, h3, h4, h5, h6} = React.DOM
-
-gh = new GitHub
 
 Main = React.createClass
   getInitialState: ->
@@ -56,19 +51,14 @@ DocTree = React.createClass
     content: mori.hash_map()
     opened: if @props.defaultOpened then true else false
 
-  contentFilenames: mori.set ['data.json', 'data.csv', 'data.yaml', 'text.md', 'text.html']
   componentDidMount: ->
-    gh.fetch @props.key, (children) =>
-      if children.length # is array
-        for file in children
-          if file.type == 'dir' and file.path isnt 'assets'
-            @state.children = mori.conj @state.children, file
-          else if file.type == 'file'
-            filename = mori.last mori.filter mori.identity, file.path.split '/'
-            if mori.has_key @contentFilenames, filename
-              kind = mori.first filename.split '.'
-              @state.content = mori.assoc @state.content, kind, file
-        @setState @state
+    coisas.getListing(@props.key).then (listing) =>
+      for path, data of listing
+        if path.slice(-1)[0] == '/'
+          @state.children = mori.conj @state.children, path
+        else
+          @state.content = mori.assoc @state.content, data.mimeType, path
+      @setState @state
 
   openTree: (e) ->
     e.preventDefault()
@@ -104,65 +94,7 @@ Edit = React.createClass
     data: {}
     output: null
 
-  componentDidUpdate: (prevProps) ->
-    # do these things if it is a new file
-    if prevProps.path != @props.path
-      # text
-      textPath = (mori.get(@props.content, 'text') or {}).path
-      if textPath
-        gh.fetch textPath, (file) =>
-          @setState
-            text:
-              path: file.path + '?' + file.sha
-              content: file.content
-      else
-        @setState
-          text:
-            path: @props.path + '/text.md'
-            content: ''
-        
-      # data
-      dataPath = (mori.get(@props.content, 'data') or {}).path
-      if dataPath
-        gh.fetch dataPath, (file) =>
-          @setState
-            data:
-              path: file.path + '?' + file.sha
-              content: file.content
-      else
-        @setState
-          data:
-            path: @props.path + '/data.yaml'
-            content: ''
-
   renderHTML: ->
-    textType = mori.last (mori.get @props.content, 'text').split '.'
-    html = switch textType
-      when 'html' then @state.text.content
-      when 'md'
-        p = fm @state.text.content
-        meta = p.attributes
-        text = marked p.body
-
-        # data only matters when text is .md
-        dataType = mori.last (mori.get @props.content, 'data').split '.'
-        parseData = switch dataType
-          when 'csv' then (data) -> Baby.parse(csv).data
-          when 'yaml' then yaml.load
-          when 'json' then JSON.parse
-        try
-          data = parseData @state.data.content
-        catch (e)
-          data = {}
-
-        # processor and template
-        if not meta.template
-          @setState
-            html: templateDefault text, meta, data, @props.children
-        else
-          Templates.load meta.template, (template) =>
-            @setState
-              template: template text, meta, data, @props.children
 
   handleChange: (attr, e) ->
     @state[attr].content = e.target.value
@@ -171,9 +103,7 @@ Edit = React.createClass
 
   publish: (e) ->
     e.preventDefault() if e
-    gh.save
-      path: @state.path
-      @state.content
+    gh = new GitHub
 
   render: ->
     (form
@@ -195,5 +125,9 @@ Edit = React.createClass
           'Save and publish')
       )
     )
+
+remoteStorage.access.claim 'coisas', 'rw'
+remoteStorage.displayWidget()
+coisas = remoteStorage.scope '/coisas/'
 
 React.renderComponent Main(), document.getElementById 'main'
