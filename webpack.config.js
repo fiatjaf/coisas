@@ -1,10 +1,11 @@
-{
+module.exports = {
   module: {
     loaders: [
-      { test: /\.coffee$/, loader: "coffee" }
+      { test: /\.coffee$/, loader: "coffee" },
+      { test: /\.handlebars$/, loader: "handlebars" }
     ]
   },
   resolve: {
-    extensions: ["", ".web.coffee", ".web.js", ".coffee", ".js"]
+    extensions: ["", ".handlebars", ".web.coffee", ".web.js", ".coffee", ".js"]
   }
 }
