@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{#if page.title}}{{ page.title }} | {{/if}}{{ site.name }}</title>
+    <link rel="stylesheet" href="{{ site.baseUrl }}/site.css">
+    <script src="{{ site.baseUrl }}/site.js"></script>
+  </head>
+
+  <body id="{{ page.id }}" class="{{#each page.path}} {{ this }}{{/each}}">
+
+    <header>
+      {{#if site.image}}<img class="image" src="{{ site.image }}">{{/if}}
+      {{#if site.name}}<h1 class="title"><a href="{{ site.baseUrl }}">{{ site.name}}</a></h1>{{/if}}
+      <p class="description">{{ site.description }}</p>
+    </header>
+
+    <main>
+      <section class="breadcrumb">
+        <ul>
+          {{#each page.path}}
+            <li>{{ this }}</li>
+          {{/each}}
+        </ul>
+      </section>
+      <section class="text">
+        {{{ page.html }}}
+      </section>
+      <section class="data">
+        {{{ page.data }}}
+      </section>
+      <section class="children">
+        <ul>
+          {{#each page.children}}
+            <li>
+              <a href="{{ ../../site.baseUrl }}/{{#each ../../page.path }}{{ this }}/{{/each}}{{ slug }}">
+                {{#if title}}{{title}}{{/if}}{{#unless title}}{{slug}}{{/unless}}
+              </a>
+              {{#if date}} - <small><time>{{ date }}</time></small>{{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      </section>
+    </main>
+
+    <footer></footer>
+
+  </body>
+
+</html>

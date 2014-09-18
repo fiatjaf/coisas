@@ -1,0 +1,42 @@
+{
+  "name": "coisas",
+  "version": "0.0.1",
+  "description": "Serverless CMS for GitHub Pages",
+  "main": "index.js",
+  "dependencies": {
+    "front-matter": "~0.2.0",
+    "handlebars": "~2.0.0",
+    "marked": "~0.3.2",
+    "ramda": "~0.5.0",
+    "superagent": "~0.18.2"
+  },
+  "devDependencies": {
+    "less": "~1.7.5",
+    "html-loader": "^0.2.2",
+    "coffee-script": "^1.8.0",
+    "coffee-loader": "^0.7.2",
+    "webpack": "^1.4.0-beta10"
+  },
+  "scripts": {
+    "test": "echo \"everything will be fine someday\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fiatjaf/coisas.git"
+  },
+  "keywords": [
+    "cms",
+    "github",
+    "gh-pages",
+    "nobackend",
+    "backendless",
+    "blog",
+    "blogger"
+  ],
+  "author": "Giovanni T. Parra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fiatjaf/coisas/issues"
+  },
+  "homepage": "https://github.com/fiatjaf/coisas"
+}
