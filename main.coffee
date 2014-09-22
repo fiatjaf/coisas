@@ -36,10 +36,6 @@ Main = React.createClass
   render: ->
     (div className: 'row',
       (div className: 'fourth',
-        (button
-          className: 'deploy warning'
-          onClick: @publish
-        , 'Publish')
         (ul className: 'tree',
           (DocTree
             key: ''
@@ -47,6 +43,12 @@ Main = React.createClass
             children: DOCS.doc_index[''].children
             onSelect: @startEditing
             defaultOpened: true)
+        )
+        (div className: 'button-container',
+          (button
+            className: 'deploy warning'
+            onClick: @publish
+          , 'Publish')
         )
       )
       (div className: 'three-fourth',
@@ -100,7 +102,7 @@ Edit = React.createClass
     @fetch nextProps.path
 
   fetch: (path) ->
-    if not path
+    if typeof path isnt 'string'
       return
     DOCS.fetchRaw path, (raw) =>
       @setState raw: raw
@@ -123,11 +125,13 @@ Edit = React.createClass
             value: @state.raw
             onChange: @handleChange
           )
-          (button
-            className: 'primary'
-          , 'Save')
+          (div className: 'button-container',
+            (button
+              className: 'primary'
+            , 'Save')
+          )
         )
-      ) if @props.path
+      ) if typeof @props.path is 'string'
     )
 
 # github client

@@ -72,6 +72,7 @@ class Docs
 
   last_tree_index: {}
   doc_index: {}
+  preserved_tree: []
 
   getTree: (cb) ->
     paths = []
@@ -81,8 +82,14 @@ class Docs
        .end (res) =>
       for file in res.body.tree
         @last_tree_index[file.path] = file
-        if file.path.split('/').slice(-1)[0] == 'README.md'
+
+        filename = file.path.split('/').slice(-1)[0]
+        if filename == 'README.md'
+          # files we actually care about
           paths.push file.path
+        else if filename != 'index.html'
+          # files we will just maintain the way they are
+          @preserved_tree.push file
 
       @doc_index = {}
       for doc in docsFromPaths paths
@@ -136,7 +143,9 @@ class Docs
       (callback) =>
         if path of @deletedDocs
           callback null, [path, null]
-        else if path of @modifiedDocs or parentFromPath(path) of @modifiedDocs
+        else if path of @modifiedDocs or
+                parentFromPath(path) of @modifiedDocs
+          # to render the modified docs we need all its children
           @getFullDoc path, (fullDoc) =>
             callback null, [path, fullDoc]
         else
@@ -168,10 +177,20 @@ class Docs
           type: 'blob'
           path: concatPath [path, 'index.html']
         if fullDoc
-          readmeblob.content = @rawCache[path]
+          # if the doc was fetched, it is because we need
+          # to rerender it
           htmlblob.content = renderHTML
             site: {raw: @rawCache['']}
             doc: fullDoc
+
+          # but we will only reupload the readme if
+          # it was modified (not for parents of
+          # actually modified docs)
+          if path of @modifiedDocs
+            readmeblob.content = @rawCache[path]
+          else
+            readmeblob.sha = @last_tree_index[concatPath [path, 'README.md']].sha
+
         else if path of @deletedDocs
           continue
         else
@@ -180,6 +199,9 @@ class Docs
 
         tree.push readmeblob
         tree.push htmlblob
+
+      # add the files we don't care about
+      tree = tree.concat @preserved_tree
 
       cb null, tree
 
