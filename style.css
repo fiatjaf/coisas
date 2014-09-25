@@ -11,6 +11,7 @@
 }
 .edit {
   padding: 2% 4%;
+  position: fixed;
 }
 .edit form label,
 .edit form textarea,
