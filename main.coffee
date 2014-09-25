@@ -32,6 +32,7 @@ Main = React.createClass
       if not err
         DOCS.deploy tree, (err, res) =>
           console.log err, res
+          location.reload()
 
   render: ->
     (div className: 'row',
@@ -115,7 +116,7 @@ Edit = React.createClass
     DOCS.modifyRaw @props.path, @state.raw
 
   render: ->
-    (div className: 'edit',
+    (div className: 'edit three-fourth',
       (form
         onSubmit: @save
       ,

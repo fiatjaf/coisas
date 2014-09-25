@@ -2,6 +2,7 @@ R = require 'ramda'
 req = require 'superagent'
 series = require 'run-series'
 textload = require './textload.coffee'
+postTree = require './post-tree.coffee'
 renderHTML = require './renderHTML.coffee'
 concatPath = require './concat-path.coffee'
 docsFromPaths = require './docs-from-paths.coffee'
@@ -41,12 +42,7 @@ class Docs
 
   deploy: (tree, cb) ->
     # post new tree
-    req.post(@base + "/repos/#{@user}/#{@repo}/git/trees")
-       .set(@headers)
-       .send(tree: tree)
-       .end (res) =>
-         new_tree_sha = res.body.sha
-
+    postTree "#{@base}/repos/#{@user}/#{@repo}/git", @headers, tree, (err, new_tree_sha) =>
          # abort if deployment is unchanged / commit empty
          if @last_tree_sha == new_tree_sha
            return true
