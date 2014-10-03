@@ -14,9 +14,9 @@ TextLoad = (files, callback) ->
          results[res.req.url] = res.text
          waitingFor--
          if waitingFor == 0
-           callback.apply @, (text for r, text of results)
+           callback.apply @, [null].concat (text for r, text of results)
 
   if waitingFor == 0
-    callback.apply @, (text for r, text of results)
+    callback.apply @, [null].concat (text for r, text of results)
 
 module.exports = TextLoad

@@ -86,6 +86,15 @@
 	      };
 	    })(this));
 	  },
+	  republishAll: function() {
+	    return DOCS.touchAll((function(_this) {
+	      return function(err) {
+	        if (!err) {
+	          return _this.publish();
+	        }
+	      };
+	    })(this));
+	  },
 	  render: function() {
 	    return div({
 	      className: 'row'
@@ -104,7 +113,12 @@
 	    }, button({
 	      className: 'deploy warning',
 	      onClick: this.publish
-	    }, 'Publish'))), div({
+	    }, 'Publish')), div({
+	      className: 'button-container'
+	    }, button({
+	      className: 'deploy error',
+	      onClick: this.republishAll
+	    }, 'Rerender and republish all'))), div({
 	      className: 'three-fourth'
 	    }, Edit({
 	      path: this.state.editingPath
@@ -174,7 +188,7 @@
 	      return;
 	    }
 	    return DOCS.fetchRaw(path, (function(_this) {
-	      return function(raw) {
+	      return function(err, raw) {
 	        return _this.setState({
 	          raw: raw
 	        });
@@ -297,11 +311,11 @@
 
 	  Docs.prototype.gitStatus = function(cb) {
 	    return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
-	      return function(res) {
+	      return function(err, res) {
 	        _this.master_commit_sha = res.body.commit.sha;
 	        _this.last_tree_sha = res.body.commit.commit.tree.sha;
 	        if (typeof cb === 'function') {
-	          return cb(res.body);
+	          return cb(null, res.body);
 	        }
 	      };
 	    })(this));
@@ -317,16 +331,14 @@
 	          message: 'P U B L I S H',
 	          tree: new_tree_sha,
 	          parents: [_this.master_commit_sha]
-	        }).end(function(res) {
+	        }).end(function(err, res) {
 	          var new_commit_sha;
 	          new_commit_sha = res.body.sha;
 	          return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
 	            sha: new_commit_sha,
 	            force: true
-	          }).end(function(res) {
-	            if (res.status === 200) {
-	              return cb(res.body);
-	            }
+	          }).end(function(err, res) {
+	            return cb(err, res.body);
 	          });
 	        });
 	      };
@@ -345,7 +357,7 @@
 	    return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees/" + this.last_tree_sha + "?recursive=15")).set(this.headers).query({
 	      branch: this.branch
 	    }).end((function(_this) {
-	      return function(res) {
+	      return function(err, res) {
 	        var doc, file, filename, _i, _j, _len, _len1, _ref, _ref1;
 	        _ref = res.body.tree;
 	        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -371,7 +383,7 @@
 
 	  Docs.prototype.getFullDoc = function(path, cb) {
 	    return this.fetchRaw(path, (function(_this) {
-	      return function(raw) {
+	      return function(err, raw) {
 	        var doc;
 	        doc = {
 	          path: path,
@@ -379,7 +391,7 @@
 	          slug: _this.doc_index[path][0],
 	          children: _this.doc_index[path].children
 	        };
-	        return cb(doc);
+	        return cb(null, doc);
 	      };
 	    })(this));
 	  };
@@ -390,17 +402,31 @@
 	    var cached, docPath, url;
 	    cached = this.rawCache[path];
 	    if (cached) {
-	      return cb(cached);
+	      return cb(null, cached);
 	    } else {
 	      docPath = path;
 	      url = "http://rawgit.com/" + this.user + "/" + this.repo + "/" + this.branch + "/" + path + "/README.md";
 	      return textload(url, (function(_this) {
-	        return function(contents) {
+	        return function(err, contents) {
 	          _this.rawCache[docPath] = contents;
-	          return cb(contents);
+	          return cb(null, contents);
 	        };
 	      })(this));
 	    }
+	  };
+
+	  Docs.prototype.touchAll = function(cb) {
+	    var path, prefetchDocs;
+	    prefetchDocs = [];
+	    for (path in this.doc_index) {
+	      this.modifiedDocs[path] = true;
+	      prefetchDocs.push(((function(_this) {
+	        return function(callback) {
+	          return _this.fetchRaw(path, callback);
+	        };
+	      })(this)));
+	    }
+	    return series(prefetchDocs, cb);
 	  };
 
 	  Docs.prototype.modifiedDocs = {};
@@ -433,7 +459,7 @@
 	          if (path in _this.deletedDocs) {
 	            return callback(null, [path, null]);
 	          } else if (path in _this.modifiedDocs || parentFromPath(path) in _this.modifiedDocs) {
-	            return _this.getFullDoc(path, function(fullDoc) {
+	            return _this.getFullDoc(path, function(err, fullDoc) {
 	              return callback(null, [path, fullDoc]);
 	            });
 	          } else {
@@ -551,7 +577,7 @@
 	      results[res.req.url] = res.text;
 	      waitingFor--;
 	      if (waitingFor === 0) {
-	        return callback.apply(this, (function() {
+	        return callback.apply(this, [null].concat((function() {
 	          var _results;
 	          _results = [];
 	          for (r in results) {
@@ -559,12 +585,12 @@
 	            _results.push(text);
 	          }
 	          return _results;
-	        })());
+	        })()));
 	      }
 	    });
 	  }
 	  if (waitingFor === 0) {
-	    return callback.apply(this, (function() {
+	    return callback.apply(this, [null].concat((function() {
 	      var _results;
 	      _results = [];
 	      for (r in results) {
@@ -572,7 +598,7 @@
 	        _results.push(text);
 	      }
 	      return _results;
-	    })());
+	    })()));
 	  }
 	};
 
@@ -6239,8 +6265,8 @@
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(100);
-	var reduce = __webpack_require__(99);
+	var Emitter = __webpack_require__(99);
+	var reduce = __webpack_require__(100);
 
 	/**
 	 * Root reference for iframes.
@@ -21925,35 +21951,6 @@
 
 	
 	/**
-	 * Reduce `arr` with `fn`.
-	 *
-	 * @param {Array} arr
-	 * @param {Function} fn
-	 * @param {Mixed} initial
-	 *
-	 * TODO: combatible error handling?
-	 */
-
-	module.exports = function(arr, fn, initial){  
-	  var idx = 0;
-	  var len = arr.length;
-	  var curr = arguments.length == 3
-	    ? initial
-	    : arr[idx++];
-
-	  while (idx < len) {
-	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
-	  }
-	  
-	  return curr;
-	};
-
-/***/ },
-/* 100 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
 	 * Expose `Emitter`.
 	 */
 
@@ -22117,6 +22114,35 @@
 	  return !! this.listeners(event).length;
 	};
 
+
+/***/ },
+/* 100 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * Reduce `arr` with `fn`.
+	 *
+	 * @param {Array} arr
+	 * @param {Function} fn
+	 * @param {Mixed} initial
+	 *
+	 * TODO: combatible error handling?
+	 */
+
+	module.exports = function(arr, fn, initial){  
+	  var idx = 0;
+	  var len = arr.length;
+	  var curr = arguments.length == 3
+	    ? initial
+	    : arr[idx++];
+
+	  while (idx < len) {
+	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
+	  }
+	  
+	  return curr;
+	};
 
 /***/ },
 /* 101 */
@@ -32364,8 +32390,8 @@
 	 */
 
 	var base64 = __webpack_require__(185)
-	var ieee754 = __webpack_require__(183)
-	var isArray = __webpack_require__(184)
+	var ieee754 = __webpack_require__(182)
+	var isArray = __webpack_require__(183)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = Buffer
@@ -33659,7 +33685,7 @@
 	 * @typechecks
 	 */
 
-	var toArray = __webpack_require__(182);
+	var toArray = __webpack_require__(184);
 
 	/**
 	 * Perform a heuristic test to determine if an object is "array-like".
@@ -33735,88 +33761,6 @@
 
 /***/ },
 /* 182 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2014 Facebook, Inc.
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 * http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 *
-	 * @providesModule toArray
-	 * @typechecks
-	 */
-
-	var invariant = __webpack_require__(42);
-
-	/**
-	 * Convert array-like objects to arrays.
-	 *
-	 * This API assumes the caller knows the contents of the data type. For less
-	 * well defined inputs use createArrayFrom.
-	 *
-	 * @param {object|function|filelist} obj
-	 * @return {array}
-	 */
-	function toArray(obj) {
-	  var length = obj.length;
-
-	  // Some browse builtin objects can report typeof 'function' (e.g. NodeList in
-	  // old versions of Safari).
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    !Array.isArray(obj) &&
-	    (typeof obj === 'object' || typeof obj === 'function'),
-	    'toArray: Array-like object expected'
-	  ) : invariant(!Array.isArray(obj) &&
-	  (typeof obj === 'object' || typeof obj === 'function')));
-
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    typeof length === 'number',
-	    'toArray: Object needs a length property'
-	  ) : invariant(typeof length === 'number'));
-
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    length === 0 ||
-	    (length - 1) in obj,
-	    'toArray: Object should have keys for indices'
-	  ) : invariant(length === 0 ||
-	  (length - 1) in obj));
-
-	  // Old IE doesn't give collections access to hasOwnProperty. Assume inputs
-	  // without method will throw during the slice call and skip straight to the
-	  // fallback.
-	  if (obj.hasOwnProperty) {
-	    try {
-	      return Array.prototype.slice.call(obj);
-	    } catch (e) {
-	      // IE < 9 does not support Array#slice on collections objects
-	    }
-	  }
-
-	  // Fall back to copying key by key. This assumes all keys have a value,
-	  // so will not preserve sparsely populated inputs.
-	  var ret = Array(length);
-	  for (var ii = 0; ii < length; ii++) {
-	    ret[ii] = obj[ii];
-	  }
-	  return ret;
-	}
-
-	module.exports = toArray;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
-
-/***/ },
-/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -33906,7 +33850,7 @@
 
 
 /***/ },
-/* 184 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -33943,6 +33887,88 @@
 	  return !! val && '[object Array]' == str.call(val);
 	};
 
+
+/***/ },
+/* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2014 Facebook, Inc.
+	 *
+	 * Licensed under the Apache License, Version 2.0 (the "License");
+	 * you may not use this file except in compliance with the License.
+	 * You may obtain a copy of the License at
+	 *
+	 * http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS,
+	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 * See the License for the specific language governing permissions and
+	 * limitations under the License.
+	 *
+	 * @providesModule toArray
+	 * @typechecks
+	 */
+
+	var invariant = __webpack_require__(42);
+
+	/**
+	 * Convert array-like objects to arrays.
+	 *
+	 * This API assumes the caller knows the contents of the data type. For less
+	 * well defined inputs use createArrayFrom.
+	 *
+	 * @param {object|function|filelist} obj
+	 * @return {array}
+	 */
+	function toArray(obj) {
+	  var length = obj.length;
+
+	  // Some browse builtin objects can report typeof 'function' (e.g. NodeList in
+	  // old versions of Safari).
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    !Array.isArray(obj) &&
+	    (typeof obj === 'object' || typeof obj === 'function'),
+	    'toArray: Array-like object expected'
+	  ) : invariant(!Array.isArray(obj) &&
+	  (typeof obj === 'object' || typeof obj === 'function')));
+
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    typeof length === 'number',
+	    'toArray: Object needs a length property'
+	  ) : invariant(typeof length === 'number'));
+
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    length === 0 ||
+	    (length - 1) in obj,
+	    'toArray: Object should have keys for indices'
+	  ) : invariant(length === 0 ||
+	  (length - 1) in obj));
+
+	  // Old IE doesn't give collections access to hasOwnProperty. Assume inputs
+	  // without method will throw during the slice call and skip straight to the
+	  // fallback.
+	  if (obj.hasOwnProperty) {
+	    try {
+	      return Array.prototype.slice.call(obj);
+	    } catch (e) {
+	      // IE < 9 does not support Array#slice on collections objects
+	    }
+	  }
+
+	  // Fall back to copying key by key. This assumes all keys have a value,
+	  // so will not preserve sparsely populated inputs.
+	  var ret = Array(length);
+	  for (var ii = 0; ii < length; ii++) {
+	    ret[ii] = obj[ii];
+	  }
+	  return ret;
+	}
+
+	module.exports = toArray;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
 
 /***/ },
 /* 185 */

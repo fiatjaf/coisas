@@ -34,6 +34,10 @@ Main = React.createClass
           console.log err, res
           location.reload()
 
+  republishAll: ->
+    DOCS.touchAll (err) =>
+      @publish() if not err
+
   render: ->
     (div className: 'row',
       (div className: 'fourth',
@@ -50,6 +54,12 @@ Main = React.createClass
             className: 'deploy warning'
             onClick: @publish
           , 'Publish')
+        )
+        (div className: 'button-container',
+          (button
+            className: 'deploy error'
+            onClick: @republishAll
+          , 'Rerender and republish all')
         )
       )
       (div className: 'three-fourth',
@@ -105,7 +115,7 @@ Edit = React.createClass
   fetch: (path) ->
     if typeof path isnt 'string'
       return
-    DOCS.fetchRaw path, (raw) =>
+    DOCS.fetchRaw path, (err, raw) =>
       @setState raw: raw
 
   handleChange: (e) ->

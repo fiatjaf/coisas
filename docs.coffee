@@ -34,11 +34,11 @@ class Docs
   gitStatus: (cb) ->
     req.get(@base + "/repos/#{@user}/#{@repo}/branches/#{@branch}")
        .set(@headers)
-       .end (res) =>
+       .end (err, res) =>
          @master_commit_sha = res.body.commit.sha
          @last_tree_sha = res.body.commit.commit.tree.sha
 
-         cb(res.body) if typeof cb == 'function'
+         cb(null, res.body) if typeof cb == 'function'
 
   deploy: (tree, cb) ->
     # post new tree
@@ -55,16 +55,15 @@ class Docs
               tree: new_tree_sha
               parents: [@master_commit_sha]
             )
-            .end (res) =>
+            .end (err, res) =>
               new_commit_sha = res.body.sha
 
               # update the branch with the commit
               req.patch(@base + "/repos/#{@user}/#{@repo}/git/refs/heads/#{@branch}")
                  .set(@headers)
                  .send(sha: new_commit_sha, force: true)
-                 .end (res) =>
-                   if res.status == 200
-                     cb(res.body)
+                 .end (err, res) =>
+                   cb(err, res.body)
 
   last_tree_index: {}
   doc_index: {}
@@ -75,7 +74,7 @@ class Docs
     req.get(@base + "/repos/#{@user}/#{@repo}/git/trees/#{@last_tree_sha}?recursive=15")
        .set(@headers)
        .query(branch: @branch)
-       .end (res) =>
+       .end (err, res) =>
       for file in res.body.tree
         @last_tree_index[file.path] = file
 
@@ -94,25 +93,32 @@ class Docs
       cb()
 
   getFullDoc: (path, cb) ->
-    @fetchRaw path, (raw) =>
+    @fetchRaw path, (err, raw) =>
       doc =
         path: path
         raw: raw
         slug: @doc_index[path][0]
         children: @doc_index[path].children
-      cb doc
+      cb null, doc
 
   rawCache: {}
   fetchRaw: (path, cb) ->
     cached = @rawCache[path]
     if cached
-      cb cached
+      cb null, cached
     else
       docPath = path
       url = "http://rawgit.com/#{@user}/#{@repo}/#{@branch}/#{path}/README.md"
-      textload url, (contents) =>
+      textload url, (err, contents) =>
         @rawCache[docPath] = contents
-        cb contents
+        cb null, contents
+
+  touchAll: (cb) ->
+    prefetchDocs = []
+    for path of @doc_index
+      @modifiedDocs[path] = true
+      prefetchDocs.push ((callback) => @fetchRaw path, callback)
+    series prefetchDocs, cb
 
   modifiedDocs: {}
   modifyRaw: (path, raw) ->
@@ -132,7 +138,6 @@ class Docs
     @modifiedDocs[parentFromPath path] = true
 
   buildGitHubTree: (cb) ->
-
     # this function will run serially and fetch all docs needed to render
     # the modified docs (including parents and siblings)
     fetchAllDocs = R.map ((path) =>
@@ -142,7 +147,7 @@ class Docs
         else if path of @modifiedDocs or
                 parentFromPath(path) of @modifiedDocs
           # to render the modified docs we need all its children
-          @getFullDoc path, (fullDoc) =>
+          @getFullDoc path, (err, fullDoc) =>
             callback null, [path, fullDoc]
         else
           callback null, [path, null]

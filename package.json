@@ -4,12 +4,12 @@
   "description": "Serverless CMS for GitHub Pages",
   "main": "index.js",
   "dependencies": {
-    "front-matter": "~0.2.0",
     "marked": "~0.3.2",
     "ramda": "~0.5.0",
     "superagent": "~0.18.2",
     "react": "^0.11.2",
-    "run-series": "^1.0.2"
+    "run-series": "^1.0.2",
+    "front-matter": "^0.2.0"
   },
   "devDependencies": {
     "less": "~1.7.5",
