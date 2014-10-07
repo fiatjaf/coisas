@@ -9,7 +9,8 @@
     "superagent": "~0.18.2",
     "react": "^0.11.2",
     "run-series": "^1.0.2",
-    "front-matter": "^0.2.0"
+    "front-matter": "^0.2.0",
+    "pouchdb-collate": "^1.2.0"
   },
   "devDependencies": {
     "less": "~1.7.5",

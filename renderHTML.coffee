@@ -1,3 +1,4 @@
+collate = require 'pouchdb-collate'
 fm = require 'front-matter'
 marked = require 'marked'
 template = require './template.handlebars'
@@ -20,10 +21,21 @@ addChildrenAttrs = (page) ->
   if page.children.length
     page.children = (makePage child for child in page.children)
     page.children.sort (a, b) ->
-      a = a.order
-      b = b.order
+      if page.sort
+        if typeof page.sort is 'string' and page.sort[0] == '-'
+          invert = true
+          sort = page.sort.substr(1)
+        else
+          invert = false
+          sort = page.sort
 
-      invert = false
+        a = a[sort] or a.order
+        b = b[sort] or b.order
+      else
+        invert = false
+        a = a.order or a.date or a.title
+        b = b.order or b.date or b.title
+
       if typeof a is 'string' and a[0] == '-'
         invert = !invert
         a = a.slice 1
@@ -31,8 +43,8 @@ addChildrenAttrs = (page) ->
         invert = !invert
         b = b.slice 1
 
-      return if invert then (a - b) else not (a - b)
-    
+      return collate.collate(a, b) * (if invert then -1 else 1)
+
   return page
 
 module.exports = (d) ->
