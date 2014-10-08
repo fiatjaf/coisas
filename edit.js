@@ -736,6 +736,30 @@
 	  if (doc.path) {
 	    page.path = doc.path.split('/');
 	  }
+	  page.fullPath = doc.path;
+	  if (doc.path) {
+	    page.fullPaths = (function() {
+	      var fragment, fullPaths, i, makeFullPath, _i, _len, _ref;
+	      fullPaths = [];
+	      makeFullPath = function(pos) {
+	        var fullpath, p, _i;
+	        fullpath = [];
+	        for (p = _i = pos; pos <= 0 ? _i <= 0 : _i >= 0; p = pos <= 0 ? ++_i : --_i) {
+	          fullpath.unshift(doc.path.split('/')[p]);
+	        }
+	        return fullpath.join('/');
+	      };
+	      _ref = doc.path.split('/');
+	      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+	        fragment = _ref[i];
+	        fullPaths.push({
+	          fragment: fragment,
+	          full: makeFullPath(i)
+	        });
+	      }
+	      return fullPaths;
+	    })();
+	  }
 	  page.text = parsed.body;
 	  page.html = marked(page.text);
 	  page.children = doc.children;
@@ -7384,13 +7408,19 @@
 
 	function program3(depth0,data) {
 	  
+	  
+	  return "home";
+	  }
+
+	function program5(depth0,data) {
+	  
 	  var buffer = "";
 	  buffer += " "
 	    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0));
 	  return buffer;
 	  }
 
-	function program5(depth0,data) {
+	function program7(depth0,data) {
 	  
 	  var buffer = "", stack1;
 	  buffer += "<h1 class=\"title\"><a href=\""
@@ -7401,38 +7431,49 @@
 	  return buffer;
 	  }
 
-	function program7(depth0,data) {
+	function program9(depth0,data) {
 	  
-	  var buffer = "";
-	  buffer += "\n            <li>"
-	    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
-	    + "</li>\n          ";
+	  var buffer = "", stack1;
+	  buffer += "\n        <ul>\n          ";
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.program(10, program10, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n        </ul>\n        ";
+	  return buffer;
+	  }
+	function program10(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n            <li><a href=\"/"
+	    + escapeExpression(((stack1 = (depth0 && depth0.full)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\">"
+	    + escapeExpression(((stack1 = (depth0 && depth0.fragment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "</a></li>\n          ";
 	  return buffer;
 	  }
 
-	function program9(depth0,data,depth1) {
+	function program12(depth0,data,depth1) {
 	  
 	  var buffer = "", stack1, helper;
 	  buffer += "\n            <li>\n              <a href=\""
 	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
 	    + "/";
-	  stack1 = helpers.each.call(depth0, (depth0 && depth0.path), {hash:{},inverse:self.noop,fn:self.program(10, program10, data),data:data});
+	  stack1 = helpers.each.call(depth0, (depth0 && depth0.path), {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
 	  else { helper = (depth0 && depth0.slug); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
 	  buffer += escapeExpression(stack1)
 	    + "\">\n                ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(12, program12, data),data:data});
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  stack1 = helpers.unless.call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(14, program14, data),data:data});
+	  stack1 = helpers.unless.call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n              </a>\n              ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.date), {hash:{},inverse:self.noop,fn:self.program(16, program16, data),data:data});
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.date), {hash:{},inverse:self.noop,fn:self.program(19, program19, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n            </li>\n          ";
 	  return buffer;
 	  }
-	function program10(depth0,data) {
+	function program13(depth0,data) {
 	  
 	  var buffer = "";
 	  buffer += escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
@@ -7440,7 +7481,7 @@
 	  return buffer;
 	  }
 
-	function program12(depth0,data) {
+	function program15(depth0,data) {
 	  
 	  var stack1, helper;
 	  if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -7448,7 +7489,7 @@
 	  return escapeExpression(stack1);
 	  }
 
-	function program14(depth0,data) {
+	function program17(depth0,data) {
 	  
 	  var stack1, helper;
 	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -7456,7 +7497,7 @@
 	  return escapeExpression(stack1);
 	  }
 
-	function program16(depth0,data) {
+	function program19(depth0,data) {
 	  
 	  var buffer = "", stack1, helper;
 	  buffer += " - <small><time>";
@@ -7476,26 +7517,28 @@
 	    + "/site.css\">\n    <script src=\""
 	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
 	    + "/site.js\"></script>\n  </head>\n\n  <body id=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.id)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\" class=\"";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.path), {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
+	  stack1 = helpers.unless.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath), {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\"\n        class=\"";
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.path), {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\">\n\n    <header>\n      ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n      <p class=\"description\">"
 	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "</p>\n    </header>\n\n    <main>\n      <section class=\"breadcrumb\">\n        <ul>\n          ";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.path), {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data});
+	    + "</p>\n    </header>\n\n    <main>\n      <section class=\"breadcrumb\">\n        ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n        </ul>\n      </section>\n      <section class=\"text\">\n        ";
+	  buffer += "\n      </section>\n      <section class=\"text\">\n        ";
 	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.html)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n      </section>\n      <section class=\"data\">\n        ";
 	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.data)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n      </section>\n      <section class=\"children\">\n        <ul>\n          ";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.children), {hash:{},inverse:self.noop,fn:self.programWithDepth(9, program9, data, depth0),data:data});
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.children), {hash:{},inverse:self.noop,fn:self.programWithDepth(12, program12, data, depth0),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n        </ul>\n      </section>\n    </main>\n\n    <footer></footer>\n\n  </body>\n\n</html>\n";
 	  return buffer;

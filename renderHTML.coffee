@@ -12,6 +12,21 @@ makePage = (doc) ->
   parsed = fm doc.raw
   page = parsed.attributes
   page.path = doc.path.split('/') if doc.path
+  page.fullPath = doc.path
+  page.fullPaths = (->
+    fullPaths = []
+    makeFullPath = (pos) ->
+      fullpath = []
+      for p in [pos..0]
+        fullpath.unshift doc.path.split('/')[p]
+      return fullpath.join '/'
+    for fragment, i in doc.path.split('/')
+      fullPaths.push({
+        fragment: fragment
+        full: makeFullPath i
+      })
+    return fullPaths
+  )() if doc.path
   page.text = parsed.body
   page.html = marked page.text
   page.children = doc.children

@@ -6,7 +6,8 @@
     <script src="{{ site.baseURL }}/site.js"></script>
   </head>
 
-  <body id="{{ page.id }}" class="{{#each page.path}} {{ this }}{{/each}}">
+  <body id="{{ page.fullPath }}{{#unless page.fullPath}}home{{/unless}}"
+        class="{{#each page.path}} {{ this }}{{/each}}">
 
     <header>
       {{#if site.name}}<h1 class="title"><a href="{{ site.baseURL }}">{{ site.name}}</a></h1>{{/if}}
@@ -15,11 +16,13 @@
 
     <main>
       <section class="breadcrumb">
+        {{#if page.fullPaths}}
         <ul>
-          {{#each page.path}}
-            <li>{{ this }}</li>
+          {{#each page.fullPaths}}
+            <li><a href="/{{ this.full }}">{{ this.fragment }}</a></li>
           {{/each}}
         </ul>
+        {{/if}}
       </section>
       <section class="text">
         {{{ page.html }}}
