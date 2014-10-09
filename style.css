@@ -13,6 +13,9 @@
   padding: 2% 4%;
   position: fixed;
 }
+.edit .warning {
+  float: right;
+}
 .edit form label,
 .edit form textarea,
 .edit form button {

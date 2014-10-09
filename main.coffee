@@ -45,7 +45,6 @@ Main = React.createClass
           (DocTree
             key: ''
             title: ''
-            children: DOCS.doc_index[''].children
             onSelect: @startEditing
             defaultOpened: true)
         )
@@ -65,39 +64,58 @@ Main = React.createClass
       (div className: 'three-fourth',
         (Edit
           path: @state.editingPath
+          onDelete: @onDelete
         )
       )
     )
+
+  onDelete: ->
+    @setState editingPath: null
 
 DocTree = React.createClass
   getInitialState: ->
     opened: if @props.defaultOpened then true else false
 
   openTree: (e) ->
-    e.preventDefault()
+    e.preventDefault() if e
     @setState opened: !@state.opened
 
   editDocument: (e) ->
     e.preventDefault()
     @props.onSelect @props.key
 
+  addDocumentHere: (e) ->
+    e.preventDefault()
+    slug = prompt('Choose a slug for the new page (something that looks nice in a URL, like "my-new-page"):')
+    if slug
+      DOCS.addDoc concatPath [@props.key, slug]
+      if @state.opened
+        @forceUpdate()
+      else
+        @openTree()
+
   render: ->
+    children = DOCS.doc_index[@props.key].children
+
     (li {},
       (a
         href: '#'
         onClick: @openTree
-      , if @state.opened then '⇡' else '⇣') if @props.children.length
+      , if @state.opened then '⇡' else '⇣') if children.length
       (a
         href: '#'
         onClick: @editDocument
       , @props.title + '/')
+      (a
+        href: '#'
+        onClick: @addDocumentHere
+      , ' +')
       (ul {},
         (DocTree
           key: concatPath [@props.key, child.slug]
-          children: DOCS.doc_index[concatPath [@props.key, child.slug]].children
           title: child.slug
           onSelect: @props.onSelect
-        ) for child in @props.children
+        ) for child in children
       ) if @state.opened
     )
 
@@ -125,6 +143,12 @@ Edit = React.createClass
     e.preventDefault() if e
     DOCS.modifyRaw @props.path, @state.raw
 
+  delete: (e) ->
+    e.preventDefault()
+    if confirm('Are you sure you want to delete ' + @props.path + '?')
+      DOCS.deleteDoc @props.path
+      @props.onDelete()
+
   render: ->
     (div className: 'edit three-fourth',
       (form
@@ -132,6 +156,10 @@ Edit = React.createClass
       ,
         (fieldset {},
           (label {}, @props.path)
+          (button
+            className: 'warning'
+            onClick: @delete
+          , 'delete this')
           (textarea
             value: @state.raw
             onChange: @handleChange

@@ -105,7 +105,6 @@
 	    }, DocTree({
 	      key: '',
 	      title: '',
-	      children: DOCS.doc_index[''].children,
 	      onSelect: this.startEditing,
 	      defaultOpened: true
 	    })), div({
@@ -121,8 +120,14 @@
 	    }, 'Rerender and republish all'))), div({
 	      className: 'three-fourth'
 	    }, Edit({
-	      path: this.state.editingPath
+	      path: this.state.editingPath,
+	      onDelete: this.onDelete
 	    })));
+	  },
+	  onDelete: function() {
+	    return this.setState({
+	      editingPath: null
+	    });
 	  }
 	});
 
@@ -133,7 +138,9 @@
 	    };
 	  },
 	  openTree: function(e) {
-	    e.preventDefault();
+	    if (e) {
+	      e.preventDefault();
+	    }
 	    return this.setState({
 	      opened: !this.state.opened
 	    });
@@ -142,23 +149,38 @@
 	    e.preventDefault();
 	    return this.props.onSelect(this.props.key);
 	  },
+	  addDocumentHere: function(e) {
+	    var slug;
+	    e.preventDefault();
+	    slug = prompt('Choose a slug for the new page (something that looks nice in a URL, like "my-new-page"):');
+	    if (slug) {
+	      DOCS.addDoc(concatPath([this.props.key, slug]));
+	      if (this.state.opened) {
+	        return this.forceUpdate();
+	      } else {
+	        return this.openTree();
+	      }
+	    }
+	  },
 	  render: function() {
-	    var child;
-	    return li({}, this.props.children.length ? a({
+	    var child, children;
+	    children = DOCS.doc_index[this.props.key].children;
+	    return li({}, children.length ? a({
 	      href: '#',
 	      onClick: this.openTree
 	    }, this.state.opened ? '⇡' : '⇣') : void 0, a({
 	      href: '#',
 	      onClick: this.editDocument
-	    }, this.props.title + '/'), this.state.opened ? ul({}, (function() {
-	      var _i, _len, _ref1, _results;
-	      _ref1 = this.props.children;
+	    }, this.props.title + '/'), a({
+	      href: '#',
+	      onClick: this.addDocumentHere
+	    }, ' +'), this.state.opened ? ul({}, (function() {
+	      var _i, _len, _results;
 	      _results = [];
-	      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-	        child = _ref1[_i];
+	      for (_i = 0, _len = children.length; _i < _len; _i++) {
+	        child = children[_i];
 	        _results.push(DocTree({
 	          key: concatPath([this.props.key, child.slug]),
-	          children: DOCS.doc_index[concatPath([this.props.key, child.slug])].children,
 	          title: child.slug,
 	          onSelect: this.props.onSelect
 	        }));
@@ -206,12 +228,22 @@
 	    }
 	    return DOCS.modifyRaw(this.props.path, this.state.raw);
 	  },
+	  "delete": function(e) {
+	    e.preventDefault();
+	    if (confirm('Are you sure you want to delete ' + this.props.path + '?')) {
+	      DOCS.deleteDoc(this.props.path);
+	      return this.props.onDelete();
+	    }
+	  },
 	  render: function() {
 	    return div({
 	      className: 'edit three-fourth'
 	    }, typeof this.props.path === 'string' ? form({
 	      onSubmit: this.save
-	    }, fieldset({}, label({}, this.props.path), textarea({
+	    }, fieldset({}, label({}, this.props.path), button({
+	      className: 'warning',
+	      onClick: this["delete"]
+	    }, 'delete this'), textarea({
 	      value: this.state.raw,
 	      onChange: this.handleChange
 	    }), div({
@@ -347,38 +379,46 @@
 
 	  Docs.prototype.last_tree_index = {};
 
-	  Docs.prototype.doc_index = {};
-
 	  Docs.prototype.preserved_tree = [];
 
+	  Docs.prototype.doc_index = {};
+
+	  Docs.prototype.doc_paths = [];
+
 	  Docs.prototype.getTree = function(cb) {
-	    var paths;
-	    paths = [];
+	    this.doc_paths = [];
 	    return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees/" + this.last_tree_sha + "?recursive=15")).set(this.headers).query({
 	      branch: this.branch
 	    }).end((function(_this) {
 	      return function(err, res) {
-	        var doc, file, filename, _i, _j, _len, _len1, _ref, _ref1;
+	        var file, filename, _i, _len, _ref;
 	        _ref = res.body.tree;
 	        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
 	          file = _ref[_i];
 	          _this.last_tree_index[file.path] = file;
 	          filename = file.path.split('/').slice(-1)[0];
 	          if (filename === 'README.md') {
-	            paths.push(file.path);
+	            _this.doc_paths.push(file.path);
 	          } else if (filename !== 'index.html') {
 	            _this.preserved_tree.push(file);
 	          }
 	        }
-	        _this.doc_index = {};
-	        _ref1 = docsFromPaths(paths);
-	        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-	          doc = _ref1[_j];
-	          _this.doc_index[doc.path] = doc;
-	        }
+	        _this.updateDocIndex();
 	        return cb();
 	      };
 	    })(this));
+	  };
+
+	  Docs.prototype.updateDocIndex = function() {
+	    var doc, _i, _len, _ref, _results;
+	    this.doc_index = {};
+	    _ref = docsFromPaths(this.doc_paths);
+	    _results = [];
+	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      doc = _ref[_i];
+	      _results.push(this.doc_index[doc.path] = doc);
+	    }
+	    return _results;
 	  };
 
 	  Docs.prototype.getFullDoc = function(path, cb) {
@@ -401,7 +441,7 @@
 	  Docs.prototype.fetchRaw = function(path, cb) {
 	    var cached, docPath, url;
 	    cached = this.rawCache[path];
-	    if (cached) {
+	    if (typeof cached === 'string') {
 	      return cb(null, cached);
 	    } else {
 	      docPath = path;
@@ -438,17 +478,24 @@
 	  };
 
 	  Docs.prototype.addDoc = function(path) {
-	    this.rawCache[path] = '';
+	    this.rawCache[path] = "---\ntitle: " + (path.split('/').slice(-1)[0]) + "\n---\n\n";
 	    this.modifiedDocs[path] = true;
 	    this.modifiedDocs[parentFromPath(path)] = true;
-	    return this.doc_index[parentFromPath(path)].children.push(path.split('/'));
+	    this.doc_paths.push(concatPath([path, 'README.md']));
+	    return this.updateDocIndex();
 	  };
 
 	  Docs.prototype.deletedDocs = {};
 
 	  Docs.prototype.deleteDoc = function(path) {
+	    var pos;
 	    this.deletedDocs[path] = true;
-	    return this.modifiedDocs[parentFromPath(path)] = true;
+	    this.modifiedDocs[parentFromPath(path)] = true;
+	    pos = this.doc_paths.indexOf(concatPath([path, 'README.md']));
+	    if (pos !== -1) {
+	      this.doc_paths.splice(pos, 1);
+	    }
+	    return this.updateDocIndex();
 	  };
 
 	  Docs.prototype.buildGitHubTree = function(cb) {

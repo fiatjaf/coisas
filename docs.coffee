@@ -66,11 +66,12 @@ class Docs
                    cb(err, res.body)
 
   last_tree_index: {}
-  doc_index: {}
   preserved_tree: []
+  doc_index: {}
+  doc_paths: []
 
   getTree: (cb) ->
-    paths = []
+    @doc_paths = []
     req.get(@base + "/repos/#{@user}/#{@repo}/git/trees/#{@last_tree_sha}?recursive=15")
        .set(@headers)
        .query(branch: @branch)
@@ -81,16 +82,19 @@ class Docs
         filename = file.path.split('/').slice(-1)[0]
         if filename == 'README.md'
           # files we actually care about
-          paths.push file.path
+          @doc_paths.push file.path
         else if filename != 'index.html'
           # files we will just maintain the way they are
           @preserved_tree.push file
 
-      @doc_index = {}
-      for doc in docsFromPaths paths
-        @doc_index[doc.path] = doc
+      @updateDocIndex()
 
       cb()
+
+  updateDocIndex: ->
+    @doc_index = {}
+    for doc in docsFromPaths @doc_paths
+      @doc_index[doc.path] = doc
 
   getFullDoc: (path, cb) ->
     @fetchRaw path, (err, raw) =>
@@ -104,7 +108,7 @@ class Docs
   rawCache: {}
   fetchRaw: (path, cb) ->
     cached = @rawCache[path]
-    if cached
+    if typeof cached is 'string'
       cb null, cached
     else
       docPath = path
@@ -127,15 +131,19 @@ class Docs
     @modifiedDocs[parentFromPath path] = true
 
   addDoc: (path) ->
-    @rawCache[path] = ''
+    @rawCache[path] = "---\ntitle: #{path.split('/').slice(-1)[0]}\n---\n\n"
     @modifiedDocs[path] = true
     @modifiedDocs[parentFromPath path] = true
-    @doc_index[parentFromPath path].children.push path.split '/'
+    @doc_paths.push concatPath [path, 'README.md']
+    @updateDocIndex()
 
   deletedDocs: {}
   deleteDoc: (path) ->
     @deletedDocs[path] = true
     @modifiedDocs[parentFromPath path] = true
+    pos = @doc_paths.indexOf concatPath [path, 'README.md']
+    @doc_paths.splice pos, 1 if pos != -1
+    @updateDocIndex()
 
   buildGitHubTree: (cb) ->
     # this function will run serially and fetch all docs needed to render
