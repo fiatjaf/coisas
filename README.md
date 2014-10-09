@@ -1,3 +1,5 @@
+![A beautiful logo](coisas.png "What a beautiful logo!")
+
 coisas
 ========
 
