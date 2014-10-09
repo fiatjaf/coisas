@@ -1,11 +1,12 @@
 React = require 'react'
+Modal = require './Modal'
 Docs = require './docs.coffee'
 
 concatPath = require './concat-path.coffee'
 
 {html, body, head, title,
  img, b, small, span, i, a, p,
- script, link, meta, div, button,
+ script, link, meta, div, header, button,
  fieldset, legend, label, input, form, textarea,
  table, thead, tbody, tr, th, td, tfoot,
  dl, dt, dd, ul, li,
@@ -14,6 +15,7 @@ concatPath = require './concat-path.coffee'
 Main = React.createClass
   getInitialState: ->
     editingPath: null
+    status: null
 
   startEditing: (path) ->
     @setState
@@ -27,14 +29,18 @@ Main = React.createClass
         DOCS.password @pass
 
     # build tree and deploy
+    @setState status: 'Fetching your files and building your HTML'
     DOCS.buildGitHubTree (err, tree) =>
       console.log err if err
       if not err
+        @setState status: 'Deploying to GitHub'
         DOCS.deploy tree, (err, res) =>
           console.log err, res
+          @setState status: null
           location.reload()
 
   republishAll: ->
+    @setState status: 'Marking all files to rerender'
     DOCS.touchAll (err) =>
       @publish() if not err
 
@@ -66,6 +72,9 @@ Main = React.createClass
           path: @state.editingPath
           onDelete: @onDelete
         )
+      )
+      (Modal visible: @state.status,
+        (h1 {}, @state.status)
       )
     )
 
