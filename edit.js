@@ -7617,15 +7617,17 @@
 	  
 	  var buffer = "", stack1;
 	  buffer += "\n        <ul>\n          ";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.program(10, program10, data),data:data});
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.programWithDepth(10, program10, data, depth0),data:data});
 	  if(stack1 || stack1 === 0) { buffer += stack1; }
 	  buffer += "\n        </ul>\n        ";
 	  return buffer;
 	  }
-	function program10(depth0,data) {
+	function program10(depth0,data,depth1) {
 	  
 	  var buffer = "", stack1;
-	  buffer += "\n            <li><a href=\"/"
+	  buffer += "\n            <li><a href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "/"
 	    + escapeExpression(((stack1 = (depth0 && depth0.full)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
 	    + "\">"
 	    + escapeExpression(((stack1 = (depth0 && depth0.fragment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))

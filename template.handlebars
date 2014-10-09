@@ -19,7 +19,7 @@
         {{#if page.fullPaths}}
         <ul>
           {{#each page.fullPaths}}
-            <li><a href="/{{ this.full }}">{{ this.fragment }}</a></li>
+            <li><a href="{{ ../site.baseURL }}/{{ this.full }}">{{ this.fragment }}</a></li>
           {{/each}}
         </ul>
         {{/if}}
