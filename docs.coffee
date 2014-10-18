@@ -185,24 +185,17 @@ class Docs
           mode: '100644'
           type: 'blob'
           path: concatPath [path, 'index.html']
-        if fullDoc
-          # if the doc was fetched, it is because we need
-          # to rerender it
+        if fullDoc and path of @modifiedDocs
+          # only rerender the truly modifiedDocs
+          readmeblob.content = @rawCache[path]
           htmlblob.content = renderHTML
             site: {raw: @rawCache['']}
             doc: fullDoc
-
-          # but we will only reupload the readme if
-          # it was modified (not for parents of
-          # actually modified docs)
-          if path of @modifiedDocs
-            readmeblob.content = @rawCache[path]
-          else
-            readmeblob.sha = @last_tree_index[concatPath [path, 'README.md']].sha
-
         else if path of @deletedDocs
+          # don't add the deletedDocs to the tree
           continue
         else
+          # reuse the existing sha/blob for not docs not modified
           readmeblob.sha = @last_tree_index[concatPath [path, 'README.md']].sha
           htmlblob.sha = @last_tree_index[concatPath [path, 'index.html']].sha
 

@@ -684,18 +684,14 @@
 	            type: 'blob',
 	            path: concatPath([path, 'index.html'])
 	          };
-	          if (fullDoc) {
+	          if (fullDoc && path in _this.modifiedDocs) {
+	            readmeblob.content = _this.rawCache[path];
 	            htmlblob.content = renderHTML({
 	              site: {
 	                raw: _this.rawCache['']
 	              },
 	              doc: fullDoc
 	            });
-	            if (path in _this.modifiedDocs) {
-	              readmeblob.content = _this.rawCache[path];
-	            } else {
-	              readmeblob.sha = _this.last_tree_index[concatPath([path, 'README.md'])].sha;
-	            }
 	          } else if (path in _this.deletedDocs) {
 	            continue;
 	          } else {
