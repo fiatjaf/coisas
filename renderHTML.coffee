@@ -32,6 +32,38 @@ makePage = (doc) ->
   page.children = doc.children
   return page
 
+addSiteAttrs = (site) ->
+  if site.author
+    author = {}
+    if typeof site.author is 'string'
+      author.name = site.author
+    else
+      author.external_profiles = []
+      for k, v of site.author
+        if k == 'name'
+          author.name = v
+        else if /(pic|image|img|photo)/i.exec k
+          author.image = v
+        else if /(note|desc|intro)/i.exec k
+          author.note = marked v
+        else
+          if /(tel|phone|sms)/i.exec v
+            url = 'sms:' + (if v[0] == '+' then '' else '+') + v.replace /\D/g, ''
+            name = v
+          else if /mail/i.exec v
+            url = 'mailto:' + v.trim()
+            name = v
+          else
+            url = v.trim()
+            name = k.trim()
+
+          author.external_profiles.push {
+            name: name
+            url: url
+          }
+  site.author = author
+  return site
+
 addChildrenAttrs = (page) ->
   if page.children.length
     page.children = (makePage child for child in page.children)
@@ -64,7 +96,7 @@ addChildrenAttrs = (page) ->
 
 module.exports = (d) ->
   data =
-    site: makePage d.site
+    site: addSiteAttrs makePage d.site
     page: addChildrenAttrs makePage d.doc
 
   return template data

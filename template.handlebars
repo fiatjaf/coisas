@@ -8,13 +8,29 @@
 
   <body id="{{ page.fullPath }}{{#unless page.fullPath}}home{{/unless}}"
         class="{{#each page.path}} {{ this }}{{/each}}">
-
+        
     <header>
-      {{#if site.name}}<h1 class="title"><a href="{{ site.baseURL }}">{{ site.name}}</a></h1>{{/if}}
+      {{#if site.name}}
+      <h1 class="title"><a href="{{ site.baseURL }}">{{ site.name}}</a></h1>
+      {{/if}}
       <p class="description">{{ site.description }}</p>
+
+      {{#if site.author }}
+      <section class="author h-card">
+        {{#with site.author }}
+          <h3 class="p-name">{{ name }}</h3>
+          {{#if image}}<img src="{{ image }}" class="u-photo">{{/if}}
+          {{#if note}}<div class="p-note">{{ note }}</div>{{/if}}
+          {{#each external_profiles}}
+            <a href="{{ url }}" rel="me" class="u-url">{{ name }}</a>
+          {{/each}}
+        {{/with}}
+      </section>
+      {{/if}}
+
     </header>
 
-    <main>
+    <main class="h-entry">
       <section class="breadcrumb">
         {{#if page.fullPaths}}
         <ul>
@@ -24,7 +40,7 @@
         </ul>
         {{/if}}
       </section>
-      <section class="text">
+      <section class="text e-content">
         {{{ page.html }}}
       </section>
       <section class="data">
@@ -42,6 +58,11 @@
           {{/each}}
         </ul>
       </section>
+      {{#if page.date}}
+      <time class="dt-published dt-updated" datetime="{{ page.date }}">
+        {{ page.date }}
+      </time>
+      {{/if}}
     </main>
 
     <footer></footer>
