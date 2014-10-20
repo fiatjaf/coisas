@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>{{#if page.title}}{{ page.title }} | {{/if}}{{ site.name }}</title>
+    {{#if page.meta_description }}<meta name="description" content="{{ page.meta_description }}">{{/if}}
     <link rel="stylesheet" href="{{ site.baseURL }}/site.css">
     <script src="{{ site.baseURL }}/site.js"></script>
   </head>

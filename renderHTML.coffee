@@ -1,6 +1,7 @@
 collate = require 'pouchdb-collate'
 fm = require 'front-matter'
 marked = require 'marked'
+strip = require 'strip'
 template = require './template.handlebars'
 
 marked.setOptions
@@ -94,9 +95,13 @@ addChildrenAttrs = (page) ->
 
   return page
 
+addMeta = (page) ->
+  page.meta_description = page.description or strip(page.html.substr(0, 500)).substr(0, 250)
+  return page
+
 module.exports = (d) ->
   data =
     site: addSiteAttrs makePage d.site
-    page: addChildrenAttrs makePage d.doc
+    page: addMeta addChildrenAttrs makePage d.doc
 
   return template data
