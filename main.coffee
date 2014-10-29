@@ -29,15 +29,12 @@ Main = React.createClass
         DOCS.password @pass
 
     # build tree and deploy
-    @setState status: 'Fetching your files and building your HTML'
-    DOCS.buildGitHubTree (err, tree) =>
+    @setState status: 'Deploying to GitHub'
+    DOCS.deploy (err, res) =>
       console.log err if err
       if not err
-        @setState status: 'Deploying to GitHub'
-        DOCS.deploy tree, (err, res) =>
-          console.log err, res
-          @setState status: null
-          location.reload()
+        @setState status: null
+        location.reload()
 
   republishAll: ->
     @setState status: 'Marking all files to rerender'

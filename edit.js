@@ -76,24 +76,18 @@
 	      }
 	    }
 	    this.setState({
-	      status: 'Fetching your files and building your HTML'
+	      status: 'Deploying to GitHub'
 	    });
-	    return DOCS.buildGitHubTree((function(_this) {
-	      return function(err, tree) {
+	    return DOCS.deploy((function(_this) {
+	      return function(err, res) {
 	        if (err) {
 	          console.log(err);
 	        }
 	        if (!err) {
 	          _this.setState({
-	            status: 'Deploying to GitHub'
+	            status: null
 	          });
-	          return DOCS.deploy(tree, function(err, res) {
-	            console.log(err, res);
-	            _this.setState({
-	              status: null
-	            });
-	            return location.reload();
-	          });
+	          return location.reload();
 	        }
 	      };
 	    })(this));
@@ -419,11 +413,11 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Docs, R, concatPath, docsFromPaths, parentFromPath, postTree, renderHTML, req, series, textload;
+	var Docs, R, concatPath, docsFromPaths, parentFromPath, postTree, renderHTML, series, superagent, textload;
 
 	R = __webpack_require__(11);
 
-	req = __webpack_require__(13);
+	superagent = __webpack_require__(13);
 
 	series = __webpack_require__(10);
 
@@ -439,7 +433,7 @@
 
 	parentFromPath = __webpack_require__(9);
 
-	req = __webpack_require__(13);
+	superagent = __webpack_require__(13);
 
 	Docs = (function() {
 	  function Docs(user, repo) {
@@ -477,7 +471,7 @@
 	  };
 
 	  Docs.prototype.gitStatus = function(cb) {
-	    return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
+	    return superagent.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/branches/" + this.branch)).set(this.headers).end((function(_this) {
 	      return function(err, res) {
 	        _this.master_commit_sha = res.body.commit.sha;
 	        _this.last_tree_sha = res.body.commit.commit.tree.sha;
@@ -488,28 +482,154 @@
 	    })(this));
 	  };
 
-	  Docs.prototype.deploy = function(tree, cb) {
-	    return postTree("" + this.base + "/repos/" + this.user + "/" + this.repo + "/git", this.headers, tree, (function(_this) {
-	      return function(err, new_tree_sha) {
-	        if (_this.last_tree_sha === new_tree_sha) {
-	          return true;
-	        }
-	        return req.post(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/commits")).set(_this.headers).send({
-	          message: 'P U B L I S H',
-	          tree: new_tree_sha,
-	          parents: [_this.master_commit_sha]
-	        }).end(function(err, res) {
-	          var new_commit_sha;
-	          new_commit_sha = res.body.sha;
-	          return req.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
-	            sha: new_commit_sha,
-	            force: true
+	  Docs.prototype.deploy = function(cb) {
+	    if (!Object.keys(this.deletedDocs).length) {
+	      return this.buildTreeWithModifiedFilesOnly((function(_this) {
+	        return function(err, tree) {
+	          if (err) {
+	            return console.log(err);
+	          }
+	          return superagent.post("" + _this.base + "/repos/" + _this.user + "/" + _this.repo + "/git/trees").set(_this.headers).send({
+	            tree: tree,
+	            base_tree: _this.last_tree_sha
 	          }).end(function(err, res) {
-	            return cb(err, res.body);
+	            if (!err && res.body && res.body.sha) {
+	              if (_this.last_tree_sha === res.body.sha) {
+	                return true;
+	              }
+	              return _this.commit(res.body.sha, cb);
+	            }
 	          });
+	        };
+	      })(this));
+	    } else {
+	      return this.buildTreeFromScratch((function(_this) {
+	        return function(err, tree) {
+	          if (err) {
+	            return console.log(err);
+	          }
+	          return postTree("" + _this.base + "/repos/" + _this.user + "/" + _this.repo + "/git", _this.headers, tree, function(err, new_tree_sha) {
+	            if (_this.last_tree_sha === new_tree_sha) {
+	              return true;
+	            }
+	            return _this.commit(new_tree_sha, cb);
+	          });
+	        };
+	      })(this));
+	    }
+	  };
+
+	  Docs.prototype.commit = function(new_tree_sha, cb) {
+	    return superagent.post(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/commits")).set(this.headers).send({
+	      message: 'P U B L I S H',
+	      tree: new_tree_sha,
+	      parents: [this.master_commit_sha]
+	    }).end((function(_this) {
+	      return function(err, res) {
+	        var new_commit_sha;
+	        new_commit_sha = res.body.sha;
+	        return superagent.patch(_this.base + ("/repos/" + _this.user + "/" + _this.repo + "/git/refs/heads/" + _this.branch)).set(_this.headers).send({
+	          sha: new_commit_sha,
+	          force: true
+	        }).end(function(err, res) {
+	          return cb(err, res.body);
 	        });
 	      };
 	    })(this));
+	  };
+
+	  Docs.prototype.buildTreeWithModifiedFilesOnly = function(cb) {
+	    return this.buildTreeFromScratch((function(_this) {
+	      return function(err, tree) {
+	        var file, liteTree, _i, _len;
+	        liteTree = [];
+	        for (_i = 0, _len = tree.length; _i < _len; _i++) {
+	          file = tree[_i];
+	          if (file.content) {
+	            liteTree.push(file);
+	          }
+	        }
+	        return cb(null, liteTree);
+	      };
+	    })(this));
+	  };
+
+	  Docs.prototype.buildTreeFromScratch = function(cb) {
+	    return this.fetchNecessaryDocs((function(_this) {
+	      return function(err, results) {
+	        var attr, child, fullDoc, fullDocIndex, htmlblob, path, readmeblob, tree, val, _, _i, _len, _ref, _ref1;
+	        fullDocIndex = R.fromPairs(results);
+	        for (_ in fullDocIndex) {
+	          fullDoc = fullDocIndex[_];
+	          if (fullDoc) {
+	            _ref = fullDoc.children;
+	            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	              child = _ref[_i];
+	              child.path = concatPath([fullDoc.path, child.slug]);
+	              if (child.path in fullDocIndex && fullDocIndex[child.path]) {
+	                _ref1 = fullDocIndex[child.path];
+	                for (attr in _ref1) {
+	                  val = _ref1[attr];
+	                  child[attr] = val;
+	                }
+	              }
+	            }
+	          }
+	        }
+	        tree = [];
+	        for (path in fullDocIndex) {
+	          fullDoc = fullDocIndex[path];
+	          readmeblob = {
+	            mode: '100644',
+	            type: 'blob',
+	            path: concatPath([path, 'README.md'])
+	          };
+	          htmlblob = {
+	            mode: '100644',
+	            type: 'blob',
+	            path: concatPath([path, 'index.html'])
+	          };
+	          if (fullDoc && path in _this.modifiedDocs) {
+	            readmeblob.content = _this.rawCache[path];
+	            htmlblob.content = renderHTML({
+	              site: {
+	                raw: _this.rawCache['']
+	              },
+	              doc: fullDoc
+	            });
+	          } else if (path in _this.deletedDocs) {
+	            continue;
+	          } else {
+	            readmeblob.sha = _this.last_tree_index[concatPath([path, 'README.md'])].sha;
+	            htmlblob.sha = _this.last_tree_index[concatPath([path, 'index.html'])].sha;
+	          }
+	          tree.push(readmeblob);
+	          tree.push(htmlblob);
+	        }
+	        tree = tree.concat(_this.preserved_tree);
+	        return cb(null, tree);
+	      };
+	    })(this));
+	  };
+
+	  Docs.prototype.fetchNecessaryDocs = function(cb) {
+	    var fetchAllDocs;
+	    fetchAllDocs = R.map(((function(_this) {
+	      return function(path) {
+	        return function(callback) {
+	          if (path in _this.deletedDocs) {
+	            return callback(null, [path, null]);
+	          } else if (path in _this.modifiedDocs || parentFromPath(path) in _this.modifiedDocs) {
+	            return _this.getFullDoc(path, function(err, fullDoc) {
+	              return callback(null, [path, fullDoc]);
+	            });
+	          } else {
+	            return callback(null, [path, null]);
+	          }
+	        };
+	      };
+	    })(this)), R.keys(this.doc_index));
+	    return series(fetchAllDocs, cb);
 	  };
 
 	  Docs.prototype.last_tree_index = {};
@@ -522,7 +642,7 @@
 
 	  Docs.prototype.getTree = function(cb) {
 	    this.doc_paths = [];
-	    return req.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees/" + this.last_tree_sha + "?recursive=15")).set(this.headers).query({
+	    return superagent.get(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/trees/" + this.last_tree_sha + "?recursive=15")).set(this.headers).query({
 	      branch: this.branch
 	    }).end((function(_this) {
 	      return function(err, res) {
@@ -631,80 +751,6 @@
 	      this.doc_paths.splice(pos, 1);
 	    }
 	    return this.updateDocIndex();
-	  };
-
-	  Docs.prototype.buildGitHubTree = function(cb) {
-	    var fetchAllDocs;
-	    fetchAllDocs = R.map(((function(_this) {
-	      return function(path) {
-	        return function(callback) {
-	          if (path in _this.deletedDocs) {
-	            return callback(null, [path, null]);
-	          } else if (path in _this.modifiedDocs || parentFromPath(path) in _this.modifiedDocs) {
-	            return _this.getFullDoc(path, function(err, fullDoc) {
-	              return callback(null, [path, fullDoc]);
-	            });
-	          } else {
-	            return callback(null, [path, null]);
-	          }
-	        };
-	      };
-	    })(this)), R.keys(this.doc_index));
-	    return series(fetchAllDocs, (function(_this) {
-	      return function(err, results) {
-	        var attr, child, fullDoc, fullDocIndex, htmlblob, path, readmeblob, tree, val, _, _i, _len, _ref, _ref1;
-	        fullDocIndex = R.fromPairs(results);
-	        for (_ in fullDocIndex) {
-	          fullDoc = fullDocIndex[_];
-	          if (fullDoc) {
-	            _ref = fullDoc.children;
-	            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	              child = _ref[_i];
-	              child.path = concatPath([fullDoc.path, child.slug]);
-	              if (child.path in fullDocIndex && fullDocIndex[child.path]) {
-	                _ref1 = fullDocIndex[child.path];
-	                for (attr in _ref1) {
-	                  val = _ref1[attr];
-	                  child[attr] = val;
-	                }
-	              }
-	            }
-	          }
-	        }
-	        tree = [];
-	        for (path in fullDocIndex) {
-	          fullDoc = fullDocIndex[path];
-	          readmeblob = {
-	            mode: '100644',
-	            type: 'blob',
-	            path: concatPath([path, 'README.md'])
-	          };
-	          htmlblob = {
-	            mode: '100644',
-	            type: 'blob',
-	            path: concatPath([path, 'index.html'])
-	          };
-	          if (fullDoc && path in _this.modifiedDocs) {
-	            readmeblob.content = _this.rawCache[path];
-	            htmlblob.content = renderHTML({
-	              site: {
-	                raw: _this.rawCache['']
-	              },
-	              doc: fullDoc
-	            });
-	          } else if (path in _this.deletedDocs) {
-	            continue;
-	          } else {
-	            readmeblob.sha = _this.last_tree_index[concatPath([path, 'README.md'])].sha;
-	            htmlblob.sha = _this.last_tree_index[concatPath([path, 'index.html'])].sha;
-	          }
-	          tree.push(readmeblob);
-	          tree.push(htmlblob);
-	        }
-	        tree = tree.concat(_this.preserved_tree);
-	        return cb(null, tree);
-	      };
-	    })(this));
 	  };
 
 	  return Docs;
@@ -32415,12 +32461,12 @@
 	function webpackContextResolve(req) {
 		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
 	};
-	webpackContext.id = 173;
 	webpackContext.keys = function webpackContextKeys() {
 		return Object.keys(map);
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
+	webpackContext.id = 173;
 
 
 /***/ },
@@ -34913,7 +34959,7 @@
 
 		exports.toByteArray = b64ToByteArray
 		exports.fromByteArray = uint8ToBase64
-	}(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
+	}(false ? (this.base64js = {}) : exports))
 
 
 /***/ }
