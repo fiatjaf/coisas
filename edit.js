@@ -1059,8 +1059,8 @@
 	        b = b[sort] || b.order;
 	      } else {
 	        invert = false;
-	        a = a.order || a.date || a.title;
-	        b = b.order || b.date || b.title;
+	        a = typeof a.order === void 0 ? a.date || a.title : a.order;
+	        b = typeof b.order === void 0 ? b.date || b.title : b.order;
 	      }
 	      if (typeof a === 'string' && a[0] === '-') {
 	        invert = !invert;

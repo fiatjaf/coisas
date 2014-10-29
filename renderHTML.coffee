@@ -81,8 +81,8 @@ addChildrenAttrs = (page) ->
         b = b[sort] or b.order
       else
         invert = false
-        a = a.order or a.date or a.title
-        b = b.order or b.date or b.title
+        a = if typeof a.order is undefined then a.date or a.title else a.order
+        b = if typeof b.order is undefined then b.date or b.title else b.order
 
       if typeof a is 'string' and a[0] == '-'
         invert = !invert
