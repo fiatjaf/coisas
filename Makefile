@@ -1,6 +1,6 @@
 all:
 	./node_modules/.bin/lessc style.less > style.css
-	./node_modules/.bin/webpack main.coffee edit.js
+	./node_modules/.bin/browserify -t coffeeify main.coffee > edit.js
 
 run:
 	make

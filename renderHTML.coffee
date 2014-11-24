@@ -1,8 +1,9 @@
+Handlebars = require 'handlebars'
+TextLoad = require './textload.coffee'
 collate = require 'pouchdb-collate'
 fm = require 'front-matter'
 marked = require 'marked'
 strip = require 'strip'
-template = require './template.handlebars'
 
 marked.setOptions
   gfm: true
@@ -104,9 +105,28 @@ addMeta = (page) ->
   page.meta_description = page.description or strip(page.html.substr(0, 500)).substr(0, 250)
   return page
 
+getHandlebarsTemplate = (->
+  @template = null
+
+  # start loading the template here, don't care when it finishes
+  TextLoad [
+    'template.html'
+    'https://rawgit.com/fiatjaf/coisas/master/template.html'
+  ], (err, template, basetemplate) =>
+    @template = Handlebars.compile(template or basetemplate)
+
+  # return the template if it finished loading, otherwise fail
+  return =>
+    if typeof @template is 'function'
+      return @template
+    throw new Error('template not yet loaded')
+
+)()
+
 module.exports = (d) ->
   data =
     site: addSiteAttrs makePage d.site
     page: addMeta addChildrenAttrs makePage d.doc
 
-  return template data
+  return getHandlebarsTemplate()(data)
+

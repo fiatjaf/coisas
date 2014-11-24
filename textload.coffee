@@ -10,8 +10,8 @@ TextLoad = (files, callback) ->
   for addr in files
     results[addr] = null
     req.get(addr)
-       .end (res) ->
-         results[res.req.url] = res.text
+       .end (err, res) ->
+         results[res.req.url] = if err or res.statusType == 4 then '' else res.text
          waitingFor--
          if waitingFor == 0
            callback.apply @, [null].concat (text for r, text of results)
