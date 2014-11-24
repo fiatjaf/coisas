@@ -72,11 +72,14 @@ class Docs
           @commit new_tree_sha, cb
 
   commit: (new_tree_sha, cb) ->
+    # get a commit message
+    message = prompt 'An optional message for the commit:'
+
     # commit the tree
     superagent.post(@base + "/repos/#{@user}/#{@repo}/git/commits")
               .set(@headers)
               .send(
-                message: 'P U B L I S H'
+                message: message or 'P U B L I S H'
                 tree: new_tree_sha
                 parents: [@master_commit_sha]
               )

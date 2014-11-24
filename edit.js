@@ -520,8 +520,10 @@
 	  };
 
 	  Docs.prototype.commit = function(new_tree_sha, cb) {
+	    var message;
+	    message = prompt('An optional message for the commit:');
 	    return superagent.post(this.base + ("/repos/" + this.user + "/" + this.repo + "/git/commits")).set(this.headers).send({
-	      message: 'P U B L I S H',
+	      message: message || 'P U B L I S H',
 	      tree: new_tree_sha,
 	      parents: [this.master_commit_sha]
 	    }).end((function(_this) {
@@ -947,7 +949,7 @@
 
 	strip = __webpack_require__(15);
 
-	template = __webpack_require__(37);
+	template = __webpack_require__(16);
 
 	marked.setOptions({
 	  gfm: true,
@@ -6429,27 +6431,27 @@
 
 	"use strict";
 
-	var DOMPropertyOperations = __webpack_require__(16);
-	var EventPluginUtils = __webpack_require__(17);
-	var ReactChildren = __webpack_require__(18);
-	var ReactComponent = __webpack_require__(19);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactContext = __webpack_require__(21);
-	var ReactCurrentOwner = __webpack_require__(22);
-	var ReactDescriptor = __webpack_require__(23);
-	var ReactDOM = __webpack_require__(24);
-	var ReactDOMComponent = __webpack_require__(25);
-	var ReactDefaultInjection = __webpack_require__(26);
-	var ReactInstanceHandles = __webpack_require__(27);
-	var ReactMount = __webpack_require__(28);
-	var ReactMultiChild = __webpack_require__(29);
-	var ReactPerf = __webpack_require__(30);
-	var ReactPropTypes = __webpack_require__(31);
-	var ReactServerRendering = __webpack_require__(32);
-	var ReactTextComponent = __webpack_require__(33);
+	var DOMPropertyOperations = __webpack_require__(17);
+	var EventPluginUtils = __webpack_require__(18);
+	var ReactChildren = __webpack_require__(19);
+	var ReactComponent = __webpack_require__(20);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactContext = __webpack_require__(22);
+	var ReactCurrentOwner = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
+	var ReactDOM = __webpack_require__(25);
+	var ReactDOMComponent = __webpack_require__(26);
+	var ReactDefaultInjection = __webpack_require__(27);
+	var ReactInstanceHandles = __webpack_require__(28);
+	var ReactMount = __webpack_require__(29);
+	var ReactMultiChild = __webpack_require__(30);
+	var ReactPerf = __webpack_require__(31);
+	var ReactPropTypes = __webpack_require__(32);
+	var ReactServerRendering = __webpack_require__(33);
+	var ReactTextComponent = __webpack_require__(34);
 
-	var onlyChild = __webpack_require__(34);
-	var warning = __webpack_require__(35);
+	var onlyChild = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	ReactDefaultInjection.inject();
 
@@ -6516,7 +6518,7 @@
 	};
 
 	if ("production" !== process.env.NODE_ENV) {
-	  var ExecutionEnvironment = __webpack_require__(36);
+	  var ExecutionEnvironment = __webpack_require__(37);
 	  if (ExecutionEnvironment.canUseDOM &&
 	      window.top === window.self &&
 	      navigator.userAgent.indexOf('Chrome') > -1) {
@@ -7677,6 +7679,269 @@
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = __webpack_require__(102).default.template(function (Handlebars,depth0,helpers,partials,data) {
+	  this.compilerInfo = [4,'>= 1.0.0'];
+	helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+	  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+	function program1(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.title)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + " | ";
+	  return buffer;
+	  }
+
+	function program3(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "<meta name=\"description\" content=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.meta_description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\">";
+	  return buffer;
+	  }
+
+	function program5(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "<link href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.webmention_endpoint)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\" rel=\"webmention\">";
+	  return buffer;
+	  }
+
+	function program7(depth0,data) {
+	  
+	  
+	  return "home";
+	  }
+
+	function program9(depth0,data) {
+	  
+	  var buffer = "";
+	  buffer += " "
+	    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0));
+	  return buffer;
+	  }
+
+	function program11(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n      <h1 class=\"title\"><a href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\">"
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "</a></h1>\n      ";
+	  return buffer;
+	  }
+
+	function program13(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n      <section class=\"author h-card\">\n        ";
+	  stack1 = helpers['with'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.author), {hash:{},inverse:self.noop,fn:self.program(14, program14, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n      </section>\n      ";
+	  return buffer;
+	  }
+	function program14(depth0,data) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += "\n          <h3 class=\"p-name\">";
+	  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "</h3>\n          ";
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.image), {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n          ";
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.note), {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n          ";
+	  stack1 = helpers.each.call(depth0, (depth0 && depth0.external_profiles), {hash:{},inverse:self.noop,fn:self.program(19, program19, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n        ";
+	  return buffer;
+	  }
+	function program15(depth0,data) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += "<img src=\"";
+	  if (helper = helpers.image) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.image); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "\" class=\"u-photo\">";
+	  return buffer;
+	  }
+
+	function program17(depth0,data) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += "<div class=\"p-note\">";
+	  if (helper = helpers.note) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.note); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "</div>";
+	  return buffer;
+	  }
+
+	function program19(depth0,data) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += "\n            <a href=\"";
+	  if (helper = helpers.url) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.url); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "\" rel=\"me\" class=\"u-url\">";
+	  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "</a>\n          ";
+	  return buffer;
+	  }
+
+	function program21(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n        <ul>\n          ";
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.programWithDepth(22, program22, data, depth0),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n        </ul>\n        ";
+	  return buffer;
+	  }
+	function program22(depth0,data,depth1) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n            <li><a href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "/"
+	    + escapeExpression(((stack1 = (depth0 && depth0.full)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\">"
+	    + escapeExpression(((stack1 = (depth0 && depth0.fragment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "</a></li>\n          ";
+	  return buffer;
+	  }
+
+	function program24(depth0,data,depth1) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += "\n            <li>\n              <a href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "/";
+	  stack1 = helpers.each.call(depth0, (depth0 && depth0.path), {hash:{},inverse:self.noop,fn:self.program(25, program25, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.slug); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "\">\n                ";
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(27, program27, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  stack1 = helpers.unless.call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(29, program29, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n              </a>\n              ";
+	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.date), {hash:{},inverse:self.noop,fn:self.program(31, program31, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n            </li>\n          ";
+	  return buffer;
+	  }
+	function program25(depth0,data) {
+	  
+	  var buffer = "";
+	  buffer += escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+	    + "/";
+	  return buffer;
+	  }
+
+	function program27(depth0,data) {
+	  
+	  var stack1, helper;
+	  if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  return escapeExpression(stack1);
+	  }
+
+	function program29(depth0,data) {
+	  
+	  var stack1, helper;
+	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.slug); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  return escapeExpression(stack1);
+	  }
+
+	function program31(depth0,data) {
+	  
+	  var buffer = "", stack1, helper;
+	  buffer += " - <small><time>";
+	  if (helper = helpers.date) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+	  else { helper = (depth0 && depth0.date); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+	  buffer += escapeExpression(stack1)
+	    + "</time></small>";
+	  return buffer;
+	  }
+
+	function program33(depth0,data) {
+	  
+	  var buffer = "", stack1;
+	  buffer += "\n      <time class=\"dt-published dt-updated\" datetime=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\">\n        "
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "\n      </time>\n      ";
+	  return buffer;
+	  }
+
+	  buffer += "<!doctype html>\n<html>\n  <head>\n    <title>";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.title), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "</title>\n    ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.meta_description), {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n    ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.webmention_endpoint), {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n    <link rel=\"stylesheet\" href=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "/site.css\">\n    <script src=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "/site.js\"></script>\n  </head>\n\n  <body id=\""
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
+	  stack1 = helpers.unless.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath), {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\"\n        class=\"";
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.path), {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\">\n        \n    <header>\n      ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n      <p class=\"description\">"
+	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+	    + "</p>\n\n      ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.author), {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n\n    </header>\n\n    <main class=\"h-entry\">\n      <section class=\"breadcrumb\">\n        ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.program(21, program21, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n      </section>\n      <section class=\"text e-content\">\n        ";
+	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.html)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n      </section>\n      <section class=\"data\">\n        ";
+	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.data)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n      </section>\n      <section class=\"children\">\n        <ul>\n          ";
+	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.children), {hash:{},inverse:self.noop,fn:self.programWithDepth(24, program24, data, depth0),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n        </ul>\n      </section>\n      ";
+	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date), {hash:{},inverse:self.noop,fn:self.program(33, program33, data),data:data});
+	  if(stack1 || stack1 === 0) { buffer += stack1; }
+	  buffer += "\n    </main>\n\n    <footer></footer>\n\n  </body>\n\n</html>\n";
+	  return buffer;
+	  });
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-2014 Facebook, Inc.
 	 *
@@ -7702,7 +7967,7 @@
 
 	var escapeTextForBrowser = __webpack_require__(42);
 	var memoizeStringOnly = __webpack_require__(43);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	function shouldIgnoreValue(name, value) {
 	  return value == null ||
@@ -7874,7 +8139,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8105,7 +8370,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8131,7 +8396,7 @@
 	var PooledClass = __webpack_require__(46);
 
 	var traverseAllChildren = __webpack_require__(47);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	var twoArgumentPooler = PooledClass.twoArgumentPooler;
 	var threeArgumentPooler = PooledClass.threeArgumentPooler;
@@ -8265,7 +8530,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8288,7 +8553,7 @@
 
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 	var ReactOwner = __webpack_require__(48);
 	var ReactUpdates = __webpack_require__(49);
 
@@ -8718,7 +8983,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8741,15 +9006,15 @@
 
 	"use strict";
 
-	var ReactComponent = __webpack_require__(19);
-	var ReactContext = __webpack_require__(21);
-	var ReactCurrentOwner = __webpack_require__(22);
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactComponent = __webpack_require__(20);
+	var ReactContext = __webpack_require__(22);
+	var ReactCurrentOwner = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 	var ReactDescriptorValidator = __webpack_require__(52);
 	var ReactEmptyComponent = __webpack_require__(53);
 	var ReactErrorUtils = __webpack_require__(54);
 	var ReactOwner = __webpack_require__(48);
-	var ReactPerf = __webpack_require__(30);
+	var ReactPerf = __webpack_require__(31);
 	var ReactPropTransferer = __webpack_require__(55);
 	var ReactPropTypeLocations = __webpack_require__(56);
 	var ReactPropTypeLocationNames = __webpack_require__(57);
@@ -8763,7 +9028,7 @@
 	var monitorCodeUse = __webpack_require__(60);
 	var mapObject = __webpack_require__(61);
 	var shouldUpdateReactComponent = __webpack_require__(62);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	/**
 	 * Policies that describe methods in `ReactCompositeComponentInterface`.
@@ -10150,7 +10415,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10223,7 +10488,7 @@
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10268,7 +10533,7 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10291,11 +10556,11 @@
 
 	"use strict";
 
-	var ReactContext = __webpack_require__(21);
-	var ReactCurrentOwner = __webpack_require__(22);
+	var ReactContext = __webpack_require__(22);
+	var ReactCurrentOwner = __webpack_require__(23);
 
 	var merge = __webpack_require__(51);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	/**
 	 * Warn for mutations.
@@ -10526,7 +10791,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10550,9 +10815,9 @@
 
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 	var ReactDescriptorValidator = __webpack_require__(52);
-	var ReactDOMComponent = __webpack_require__(25);
+	var ReactDOMComponent = __webpack_require__(26);
 
 	var mergeInto = __webpack_require__(63);
 	var mapObject = __webpack_require__(61);
@@ -10744,7 +11009,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10770,13 +11035,13 @@
 
 	var CSSPropertyOperations = __webpack_require__(64);
 	var DOMProperty = __webpack_require__(41);
-	var DOMPropertyOperations = __webpack_require__(16);
+	var DOMPropertyOperations = __webpack_require__(17);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactComponent = __webpack_require__(19);
+	var ReactComponent = __webpack_require__(20);
 	var ReactBrowserEventEmitter = __webpack_require__(66);
-	var ReactMount = __webpack_require__(28);
-	var ReactMultiChild = __webpack_require__(29);
-	var ReactPerf = __webpack_require__(30);
+	var ReactMount = __webpack_require__(29);
+	var ReactMultiChild = __webpack_require__(30);
+	var ReactPerf = __webpack_require__(31);
 
 	var escapeTextForBrowser = __webpack_require__(42);
 	var invariant = __webpack_require__(45);
@@ -11169,7 +11434,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -11198,14 +11463,14 @@
 	var CompositionEventPlugin = __webpack_require__(71);
 	var DefaultEventPluginOrder = __webpack_require__(72);
 	var EnterLeaveEventPlugin = __webpack_require__(73);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 	var HTMLDOMPropertyConfig = __webpack_require__(74);
 	var MobileSafariClickEventPlugin = __webpack_require__(75);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
 	var ReactComponentBrowserEnvironment =
 	  __webpack_require__(76);
 	var ReactDefaultBatchingStrategy = __webpack_require__(77);
-	var ReactDOM = __webpack_require__(24);
+	var ReactDOM = __webpack_require__(25);
 	var ReactDOMButton = __webpack_require__(78);
 	var ReactDOMForm = __webpack_require__(79);
 	var ReactDOMImg = __webpack_require__(80);
@@ -11215,8 +11480,8 @@
 	var ReactDOMTextarea = __webpack_require__(84);
 	var ReactEventListener = __webpack_require__(85);
 	var ReactInjection = __webpack_require__(86);
-	var ReactInstanceHandles = __webpack_require__(27);
-	var ReactMount = __webpack_require__(28);
+	var ReactInstanceHandles = __webpack_require__(28);
+	var ReactMount = __webpack_require__(29);
 	var SelectEventPlugin = __webpack_require__(87);
 	var ServerReactRootIndex = __webpack_require__(88);
 	var SimpleEventPlugin = __webpack_require__(89);
@@ -11304,7 +11569,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -11649,7 +11914,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -11674,17 +11939,17 @@
 
 	var DOMProperty = __webpack_require__(41);
 	var ReactBrowserEventEmitter = __webpack_require__(66);
-	var ReactCurrentOwner = __webpack_require__(22);
-	var ReactDescriptor = __webpack_require__(23);
-	var ReactInstanceHandles = __webpack_require__(27);
-	var ReactPerf = __webpack_require__(30);
+	var ReactCurrentOwner = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
+	var ReactInstanceHandles = __webpack_require__(28);
+	var ReactPerf = __webpack_require__(31);
 
 	var containsNode = __webpack_require__(94);
 	var getReactRootElementInContainer = __webpack_require__(95);
 	var instantiateReactComponent = __webpack_require__(58);
 	var invariant = __webpack_require__(45);
 	var shouldUpdateReactComponent = __webpack_require__(62);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	var SEPARATOR = ReactInstanceHandles.SEPARATOR;
 
@@ -12337,7 +12602,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -12361,7 +12626,7 @@
 
 	"use strict";
 
-	var ReactComponent = __webpack_require__(19);
+	var ReactComponent = __webpack_require__(20);
 	var ReactMultiChildUpdateTypes = __webpack_require__(96);
 
 	var flattenChildren = __webpack_require__(97);
@@ -12773,7 +13038,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -12865,7 +13130,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -12888,7 +13153,7 @@
 
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 	var ReactPropTypeLocationNames = __webpack_require__(57);
 
 	var emptyFunction = __webpack_require__(98);
@@ -13214,7 +13479,7 @@
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -13237,8 +13502,8 @@
 	 */
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
-	var ReactInstanceHandles = __webpack_require__(27);
+	var ReactDescriptor = __webpack_require__(24);
+	var ReactInstanceHandles = __webpack_require__(28);
 	var ReactMarkupChecksum = __webpack_require__(99);
 	var ReactServerRenderingTransaction =
 	  __webpack_require__(100);
@@ -13310,7 +13575,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13334,10 +13599,10 @@
 
 	"use strict";
 
-	var DOMPropertyOperations = __webpack_require__(16);
+	var DOMPropertyOperations = __webpack_require__(17);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactComponent = __webpack_require__(19);
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactComponent = __webpack_require__(20);
+	var ReactDescriptor = __webpack_require__(24);
 
 	var escapeTextForBrowser = __webpack_require__(42);
 	var mixInto = __webpack_require__(59);
@@ -13423,7 +13688,7 @@
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -13445,7 +13710,7 @@
 	 */
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 
 	var invariant = __webpack_require__(45);
 
@@ -13473,7 +13738,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -13528,7 +13793,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13582,269 +13847,6 @@
 
 	module.exports = ExecutionEnvironment;
 
-
-/***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(102).default.template(function (Handlebars,depth0,helpers,partials,data) {
-	  this.compilerInfo = [4,'>= 1.0.0'];
-	helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-	  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
-
-	function program1(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.title)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + " | ";
-	  return buffer;
-	  }
-
-	function program3(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "<meta name=\"description\" content=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.meta_description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\">";
-	  return buffer;
-	  }
-
-	function program5(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "<link href=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.webmention_endpoint)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\" rel=\"webmention\">";
-	  return buffer;
-	  }
-
-	function program7(depth0,data) {
-	  
-	  
-	  return "home";
-	  }
-
-	function program9(depth0,data) {
-	  
-	  var buffer = "";
-	  buffer += " "
-	    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0));
-	  return buffer;
-	  }
-
-	function program11(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "\n      <h1 class=\"title\"><a href=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\">"
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "</a></h1>\n      ";
-	  return buffer;
-	  }
-
-	function program13(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "\n      <section class=\"author h-card\">\n        ";
-	  stack1 = helpers['with'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.author), {hash:{},inverse:self.noop,fn:self.program(14, program14, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n      </section>\n      ";
-	  return buffer;
-	  }
-	function program14(depth0,data) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += "\n          <h3 class=\"p-name\">";
-	  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "</h3>\n          ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.image), {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n          ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.note), {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n          ";
-	  stack1 = helpers.each.call(depth0, (depth0 && depth0.external_profiles), {hash:{},inverse:self.noop,fn:self.program(19, program19, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n        ";
-	  return buffer;
-	  }
-	function program15(depth0,data) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += "<img src=\"";
-	  if (helper = helpers.image) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.image); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "\" class=\"u-photo\">";
-	  return buffer;
-	  }
-
-	function program17(depth0,data) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += "<div class=\"p-note\">";
-	  if (helper = helpers.note) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.note); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "</div>";
-	  return buffer;
-	  }
-
-	function program19(depth0,data) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += "\n            <a href=\"";
-	  if (helper = helpers.url) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.url); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "\" rel=\"me\" class=\"u-url\">";
-	  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "</a>\n          ";
-	  return buffer;
-	  }
-
-	function program21(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "\n        <ul>\n          ";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.programWithDepth(22, program22, data, depth0),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n        </ul>\n        ";
-	  return buffer;
-	  }
-	function program22(depth0,data,depth1) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "\n            <li><a href=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "/"
-	    + escapeExpression(((stack1 = (depth0 && depth0.full)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\">"
-	    + escapeExpression(((stack1 = (depth0 && depth0.fragment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "</a></li>\n          ";
-	  return buffer;
-	  }
-
-	function program24(depth0,data,depth1) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += "\n            <li>\n              <a href=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth1 && depth1.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "/";
-	  stack1 = helpers.each.call(depth0, (depth0 && depth0.path), {hash:{},inverse:self.noop,fn:self.program(25, program25, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.slug); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "\">\n                ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(27, program27, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  stack1 = helpers.unless.call(depth0, (depth0 && depth0.title), {hash:{},inverse:self.noop,fn:self.program(29, program29, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n              </a>\n              ";
-	  stack1 = helpers['if'].call(depth0, (depth0 && depth0.date), {hash:{},inverse:self.noop,fn:self.program(31, program31, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n            </li>\n          ";
-	  return buffer;
-	  }
-	function program25(depth0,data) {
-	  
-	  var buffer = "";
-	  buffer += escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
-	    + "/";
-	  return buffer;
-	  }
-
-	function program27(depth0,data) {
-	  
-	  var stack1, helper;
-	  if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  return escapeExpression(stack1);
-	  }
-
-	function program29(depth0,data) {
-	  
-	  var stack1, helper;
-	  if (helper = helpers.slug) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.slug); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  return escapeExpression(stack1);
-	  }
-
-	function program31(depth0,data) {
-	  
-	  var buffer = "", stack1, helper;
-	  buffer += " - <small><time>";
-	  if (helper = helpers.date) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-	  else { helper = (depth0 && depth0.date); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-	  buffer += escapeExpression(stack1)
-	    + "</time></small>";
-	  return buffer;
-	  }
-
-	function program33(depth0,data) {
-	  
-	  var buffer = "", stack1;
-	  buffer += "\n      <time class=\"dt-published dt-updated\" datetime=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\">\n        "
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "\n      </time>\n      ";
-	  return buffer;
-	  }
-
-	  buffer += "<!doctype html>\n<html>\n  <head>\n    <title>";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.title), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "</title>\n    ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.meta_description), {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n    ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.webmention_endpoint), {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n    <link rel=\"stylesheet\" href=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "/site.css\">\n    <script src=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.baseURL)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "/site.js\"></script>\n  </head>\n\n  <body id=\""
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
-	  stack1 = helpers.unless.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPath), {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\"\n        class=\"";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.path), {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\">\n        \n    <header>\n      ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n      <p class=\"description\">"
-	    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-	    + "</p>\n\n      ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.site)),stack1 == null || stack1 === false ? stack1 : stack1.author), {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n\n    </header>\n\n    <main class=\"h-entry\">\n      <section class=\"breadcrumb\">\n        ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.fullPaths), {hash:{},inverse:self.noop,fn:self.program(21, program21, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n      </section>\n      <section class=\"text e-content\">\n        ";
-	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.html)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n      </section>\n      <section class=\"data\">\n        ";
-	  stack1 = ((stack1 = ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.data)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1);
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n      </section>\n      <section class=\"children\">\n        <ul>\n          ";
-	  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.children), {hash:{},inverse:self.noop,fn:self.programWithDepth(24, program24, data, depth0),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n        </ul>\n      </section>\n      ";
-	  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.page)),stack1 == null || stack1 === false ? stack1 : stack1.date), {hash:{},inverse:self.noop,fn:self.program(33, program33, data),data:data});
-	  if(stack1 || stack1 === 0) { buffer += stack1; }
-	  buffer += "\n    </main>\n\n    <footer></footer>\n\n  </body>\n\n</html>\n";
-	  return buffer;
-	  });
 
 /***/ },
 /* 38 */
@@ -16249,8 +16251,8 @@
 
 	"use strict";
 
-	var ReactInstanceHandles = __webpack_require__(27);
-	var ReactTextComponent = __webpack_require__(33);
+	var ReactInstanceHandles = __webpack_require__(28);
+	var ReactTextComponent = __webpack_require__(34);
 
 	var invariant = __webpack_require__(45);
 
@@ -16617,13 +16619,13 @@
 
 	var CallbackQueue = __webpack_require__(106);
 	var PooledClass = __webpack_require__(46);
-	var ReactCurrentOwner = __webpack_require__(22);
-	var ReactPerf = __webpack_require__(30);
+	var ReactCurrentOwner = __webpack_require__(23);
+	var ReactPerf = __webpack_require__(31);
 	var Transaction = __webpack_require__(107);
 
 	var invariant = __webpack_require__(45);
 	var mixInto = __webpack_require__(59);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	var dirtyComponents = [];
 
@@ -17002,9 +17004,9 @@
 
 	"use strict";
 
-	var ReactDescriptor = __webpack_require__(23);
+	var ReactDescriptor = __webpack_require__(24);
 	var ReactPropTypeLocations = __webpack_require__(56);
-	var ReactCurrentOwner = __webpack_require__(22);
+	var ReactCurrentOwner = __webpack_require__(23);
 
 	var monitorCodeUse = __webpack_require__(60);
 
@@ -18071,7 +18073,7 @@
 	"use strict";
 
 	var ReactEmptyComponent = __webpack_require__(53);
-	var ReactMount = __webpack_require__(28);
+	var ReactMount = __webpack_require__(29);
 
 	var invariant = __webpack_require__(45);
 
@@ -18539,7 +18541,7 @@
 
 	var EventConstants = __webpack_require__(44);
 	var EventPropagators = __webpack_require__(118);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 	var SyntheticInputEvent = __webpack_require__(119);
 
 	var keyOf = __webpack_require__(67);
@@ -18767,7 +18769,7 @@
 	var EventConstants = __webpack_require__(44);
 	var EventPluginHub = __webpack_require__(113);
 	var EventPropagators = __webpack_require__(118);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 	var ReactUpdates = __webpack_require__(49);
 	var SyntheticEvent = __webpack_require__(120);
 
@@ -19196,7 +19198,7 @@
 
 	var EventConstants = __webpack_require__(44);
 	var EventPropagators = __webpack_require__(118);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 	var ReactInputSelection = __webpack_require__(122);
 	var SyntheticCompositionEvent = __webpack_require__(123);
 
@@ -19519,7 +19521,7 @@
 	var EventPropagators = __webpack_require__(118);
 	var SyntheticMouseEvent = __webpack_require__(125);
 
-	var ReactMount = __webpack_require__(28);
+	var ReactMount = __webpack_require__(29);
 	var keyOf = __webpack_require__(67);
 
 	var topLevelTypes = EventConstants.topLevelTypes;
@@ -19668,7 +19670,7 @@
 	"use strict";
 
 	var DOMProperty = __webpack_require__(41);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var MUST_USE_ATTRIBUTE = DOMProperty.injection.MUST_USE_ATTRIBUTE;
 	var MUST_USE_PROPERTY = DOMProperty.injection.MUST_USE_PROPERTY;
@@ -19933,8 +19935,8 @@
 
 	var ReactDOMIDOperations = __webpack_require__(126);
 	var ReactMarkupChecksum = __webpack_require__(99);
-	var ReactMount = __webpack_require__(28);
-	var ReactPerf = __webpack_require__(30);
+	var ReactMount = __webpack_require__(29);
+	var ReactPerf = __webpack_require__(31);
 	var ReactReconcileTransaction = __webpack_require__(127);
 
 	var getReactRootElementInContainer = __webpack_require__(95);
@@ -20144,8 +20146,8 @@
 
 	var AutoFocusMixin = __webpack_require__(129);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
 	var keyMirror = __webpack_require__(50);
 
@@ -20220,8 +20222,8 @@
 	var EventConstants = __webpack_require__(44);
 	var LocalEventTrapMixin = __webpack_require__(130);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
 	// Store a reference to the <form> `ReactDOMComponent`.
 	var form = ReactDOM.form;
@@ -20280,8 +20282,8 @@
 	var EventConstants = __webpack_require__(44);
 	var LocalEventTrapMixin = __webpack_require__(130);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
 	// Store a reference to the <img> `ReactDOMComponent`.
 	var img = ReactDOM.img;
@@ -20336,12 +20338,12 @@
 	"use strict";
 
 	var AutoFocusMixin = __webpack_require__(129);
-	var DOMPropertyOperations = __webpack_require__(16);
+	var DOMPropertyOperations = __webpack_require__(17);
 	var LinkedValueUtils = __webpack_require__(131);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
-	var ReactMount = __webpack_require__(28);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
+	var ReactMount = __webpack_require__(29);
 
 	var invariant = __webpack_require__(45);
 	var merge = __webpack_require__(51);
@@ -20525,10 +20527,10 @@
 	"use strict";
 
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	// Store a reference to the <option> `ReactDOMComponent`.
 	var option = ReactDOM.option;
@@ -20589,8 +20591,8 @@
 	var AutoFocusMixin = __webpack_require__(129);
 	var LinkedValueUtils = __webpack_require__(131);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
 	var merge = __webpack_require__(51);
 
@@ -20774,16 +20776,16 @@
 	"use strict";
 
 	var AutoFocusMixin = __webpack_require__(129);
-	var DOMPropertyOperations = __webpack_require__(16);
+	var DOMPropertyOperations = __webpack_require__(17);
 	var LinkedValueUtils = __webpack_require__(131);
 	var ReactBrowserComponentMixin = __webpack_require__(65);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 
 	var invariant = __webpack_require__(45);
 	var merge = __webpack_require__(51);
 
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	// Store a reference to the <textarea> `ReactDOMComponent`.
 	var textarea = ReactDOM.textarea;
@@ -20924,10 +20926,10 @@
 	"use strict";
 
 	var EventListener = __webpack_require__(132);
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 	var PooledClass = __webpack_require__(46);
-	var ReactInstanceHandles = __webpack_require__(27);
-	var ReactMount = __webpack_require__(28);
+	var ReactInstanceHandles = __webpack_require__(28);
+	var ReactMount = __webpack_require__(29);
 	var ReactUpdates = __webpack_require__(49);
 
 	var getEventTarget = __webpack_require__(133);
@@ -21119,12 +21121,12 @@
 
 	var DOMProperty = __webpack_require__(41);
 	var EventPluginHub = __webpack_require__(113);
-	var ReactComponent = __webpack_require__(19);
-	var ReactCompositeComponent = __webpack_require__(20);
-	var ReactDOM = __webpack_require__(24);
+	var ReactComponent = __webpack_require__(20);
+	var ReactCompositeComponent = __webpack_require__(21);
+	var ReactDOM = __webpack_require__(25);
 	var ReactEmptyComponent = __webpack_require__(53);
 	var ReactBrowserEventEmitter = __webpack_require__(66);
-	var ReactPerf = __webpack_require__(30);
+	var ReactPerf = __webpack_require__(31);
 	var ReactRootIndex = __webpack_require__(93);
 	var ReactUpdates = __webpack_require__(49);
 
@@ -21417,7 +21419,7 @@
 	"use strict";
 
 	var EventConstants = __webpack_require__(44);
-	var EventPluginUtils = __webpack_require__(17);
+	var EventPluginUtils = __webpack_require__(18);
 	var EventPropagators = __webpack_require__(118);
 	var SyntheticClipboardEvent = __webpack_require__(137);
 	var SyntheticEvent = __webpack_require__(120);
@@ -21947,7 +21949,7 @@
 	"use strict";
 
 	// Defeat circular references by requiring this directly.
-	var ReactCompositeComponent = __webpack_require__(20);
+	var ReactCompositeComponent = __webpack_require__(21);
 
 	var invariant = __webpack_require__(45);
 
@@ -22018,8 +22020,8 @@
 
 	var DOMProperty = __webpack_require__(41);
 	var ReactDefaultPerfAnalysis = __webpack_require__(144);
-	var ReactMount = __webpack_require__(28);
-	var ReactPerf = __webpack_require__(30);
+	var ReactMount = __webpack_require__(29);
+	var ReactPerf = __webpack_require__(31);
 
 	var performanceNow = __webpack_require__(145);
 
@@ -22470,7 +22472,7 @@
 	"use strict";
 
 	var traverseAllChildren = __webpack_require__(47);
-	var warning = __webpack_require__(35);
+	var warning = __webpack_require__(36);
 
 	/**
 	 * @param {function} traverseContext Context passed through traversal.
@@ -23895,7 +23897,7 @@
 	"use strict";
 
 	var EventPluginRegistry = __webpack_require__(114);
-	var EventPluginUtils = __webpack_require__(17);
+	var EventPluginUtils = __webpack_require__(18);
 
 	var accumulate = __webpack_require__(153);
 	var forEachAccumulated = __webpack_require__(154);
@@ -24585,7 +24587,7 @@
 
 	"use strict";
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var useHasFeature;
 	if (ExecutionEnvironment.canUseDOM) {
@@ -25298,7 +25300,7 @@
 
 	"use strict";
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var contentKey = null;
 
@@ -25445,9 +25447,9 @@
 
 	var CSSPropertyOperations = __webpack_require__(64);
 	var DOMChildrenOperations = __webpack_require__(158);
-	var DOMPropertyOperations = __webpack_require__(16);
-	var ReactMount = __webpack_require__(28);
-	var ReactPerf = __webpack_require__(30);
+	var DOMPropertyOperations = __webpack_require__(17);
+	var ReactMount = __webpack_require__(29);
+	var ReactPerf = __webpack_require__(31);
 
 	var invariant = __webpack_require__(45);
 	var setInnerHTML = __webpack_require__(128);
@@ -25824,7 +25826,7 @@
 
 	"use strict";
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	/**
 	 * Set the innerHTML property of a node, ensuring that whitespace is preserved
@@ -26013,7 +26015,7 @@
 
 	"use strict";
 
-	var ReactPropTypes = __webpack_require__(31);
+	var ReactPropTypes = __webpack_require__(32);
 
 	var invariant = __webpack_require__(45);
 
@@ -27492,14 +27494,14 @@
 
 	"use strict";
 	/*globals Handlebars: true */
-	var base = __webpack_require__(177);
+	var base = __webpack_require__(175);
 
 	// Each of these augment the Handlebars object. No need to setup here.
 	// (This is done to easily share code between commonjs and browse envs)
-	var SafeString = __webpack_require__(178)["default"];
-	var Exception = __webpack_require__(179)["default"];
-	var Utils = __webpack_require__(180);
-	var runtime = __webpack_require__(181);
+	var SafeString = __webpack_require__(176)["default"];
+	var Exception = __webpack_require__(177)["default"];
+	var Utils = __webpack_require__(178);
+	var runtime = __webpack_require__(179);
 
 	// For compatibility and usage outside of module systems, make the Handlebars object a namespace
 	var create = function() {
@@ -27694,9 +27696,9 @@
 
 	"use strict";
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
-	var getNodeForCharacterOffset = __webpack_require__(175);
+	var getNodeForCharacterOffset = __webpack_require__(180);
 	var getTextContentAccessor = __webpack_require__(124);
 
 	/**
@@ -28012,7 +28014,7 @@
 
 	"use strict";
 
-	var Danger = __webpack_require__(176);
+	var Danger = __webpack_require__(181);
 	var ReactMultiChildUpdateTypes = __webpack_require__(96);
 
 	var getTextContentAccessor = __webpack_require__(124);
@@ -28319,7 +28321,7 @@
 
 	"use strict";
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var performance;
 
@@ -32524,289 +32526,9 @@
 /* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * Copyright 2013-2014 Facebook, Inc.
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 * http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 *
-	 * @providesModule getNodeForCharacterOffset
-	 */
-
 	"use strict";
-
-	/**
-	 * Given any node return the first leaf node without children.
-	 *
-	 * @param {DOMElement|DOMTextNode} node
-	 * @return {DOMElement|DOMTextNode}
-	 */
-	function getLeafNode(node) {
-	  while (node && node.firstChild) {
-	    node = node.firstChild;
-	  }
-	  return node;
-	}
-
-	/**
-	 * Get the next sibling within a container. This will walk up the
-	 * DOM if a node's siblings have been exhausted.
-	 *
-	 * @param {DOMElement|DOMTextNode} node
-	 * @return {?DOMElement|DOMTextNode}
-	 */
-	function getSiblingNode(node) {
-	  while (node) {
-	    if (node.nextSibling) {
-	      return node.nextSibling;
-	    }
-	    node = node.parentNode;
-	  }
-	}
-
-	/**
-	 * Get object describing the nodes which contain characters at offset.
-	 *
-	 * @param {DOMElement|DOMTextNode} root
-	 * @param {number} offset
-	 * @return {?object}
-	 */
-	function getNodeForCharacterOffset(root, offset) {
-	  var node = getLeafNode(root);
-	  var nodeStart = 0;
-	  var nodeEnd = 0;
-
-	  while (node) {
-	    if (node.nodeType == 3) {
-	      nodeEnd = nodeStart + node.textContent.length;
-
-	      if (nodeStart <= offset && nodeEnd >= offset) {
-	        return {
-	          node: node,
-	          offset: offset - nodeStart
-	        };
-	      }
-
-	      nodeStart = nodeEnd;
-	    }
-
-	    node = getLeafNode(getSiblingNode(node));
-	  }
-	}
-
-	module.exports = getNodeForCharacterOffset;
-
-
-/***/ },
-/* 176 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2013-2014 Facebook, Inc.
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 * http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 *
-	 * @providesModule Danger
-	 * @typechecks static-only
-	 */
-
-	/*jslint evil: true, sub: true */
-
-	"use strict";
-
-	var ExecutionEnvironment = __webpack_require__(36);
-
-	var createNodesFromMarkup = __webpack_require__(183);
-	var emptyFunction = __webpack_require__(98);
-	var getMarkupWrap = __webpack_require__(184);
-	var invariant = __webpack_require__(45);
-
-	var OPEN_TAG_NAME_EXP = /^(<[^ \/>]+)/;
-	var RESULT_INDEX_ATTR = 'data-danger-index';
-
-	/**
-	 * Extracts the `nodeName` from a string of markup.
-	 *
-	 * NOTE: Extracting the `nodeName` does not require a regular expression match
-	 * because we make assumptions about React-generated markup (i.e. there are no
-	 * spaces surrounding the opening tag and there is at least one attribute).
-	 *
-	 * @param {string} markup String of markup.
-	 * @return {string} Node name of the supplied markup.
-	 * @see http://jsperf.com/extract-nodename
-	 */
-	function getNodeName(markup) {
-	  return markup.substring(1, markup.indexOf(' '));
-	}
-
-	var Danger = {
-
-	  /**
-	   * Renders markup into an array of nodes. The markup is expected to render
-	   * into a list of root nodes. Also, the length of `resultList` and
-	   * `markupList` should be the same.
-	   *
-	   * @param {array<string>} markupList List of markup strings to render.
-	   * @return {array<DOMElement>} List of rendered nodes.
-	   * @internal
-	   */
-	  dangerouslyRenderMarkup: function(markupList) {
-	    ("production" !== process.env.NODE_ENV ? invariant(
-	      ExecutionEnvironment.canUseDOM,
-	      'dangerouslyRenderMarkup(...): Cannot render markup in a Worker ' +
-	      'thread. This is likely a bug in the framework. Please report ' +
-	      'immediately.'
-	    ) : invariant(ExecutionEnvironment.canUseDOM));
-	    var nodeName;
-	    var markupByNodeName = {};
-	    // Group markup by `nodeName` if a wrap is necessary, else by '*'.
-	    for (var i = 0; i < markupList.length; i++) {
-	      ("production" !== process.env.NODE_ENV ? invariant(
-	        markupList[i],
-	        'dangerouslyRenderMarkup(...): Missing markup.'
-	      ) : invariant(markupList[i]));
-	      nodeName = getNodeName(markupList[i]);
-	      nodeName = getMarkupWrap(nodeName) ? nodeName : '*';
-	      markupByNodeName[nodeName] = markupByNodeName[nodeName] || [];
-	      markupByNodeName[nodeName][i] = markupList[i];
-	    }
-	    var resultList = [];
-	    var resultListAssignmentCount = 0;
-	    for (nodeName in markupByNodeName) {
-	      if (!markupByNodeName.hasOwnProperty(nodeName)) {
-	        continue;
-	      }
-	      var markupListByNodeName = markupByNodeName[nodeName];
-
-	      // This for-in loop skips the holes of the sparse array. The order of
-	      // iteration should follow the order of assignment, which happens to match
-	      // numerical index order, but we don't rely on that.
-	      for (var resultIndex in markupListByNodeName) {
-	        if (markupListByNodeName.hasOwnProperty(resultIndex)) {
-	          var markup = markupListByNodeName[resultIndex];
-
-	          // Push the requested markup with an additional RESULT_INDEX_ATTR
-	          // attribute.  If the markup does not start with a < character, it
-	          // will be discarded below (with an appropriate console.error).
-	          markupListByNodeName[resultIndex] = markup.replace(
-	            OPEN_TAG_NAME_EXP,
-	            // This index will be parsed back out below.
-	            '$1 ' + RESULT_INDEX_ATTR + '="' + resultIndex + '" '
-	          );
-	        }
-	      }
-
-	      // Render each group of markup with similar wrapping `nodeName`.
-	      var renderNodes = createNodesFromMarkup(
-	        markupListByNodeName.join(''),
-	        emptyFunction // Do nothing special with <script> tags.
-	      );
-
-	      for (i = 0; i < renderNodes.length; ++i) {
-	        var renderNode = renderNodes[i];
-	        if (renderNode.hasAttribute &&
-	            renderNode.hasAttribute(RESULT_INDEX_ATTR)) {
-
-	          resultIndex = +renderNode.getAttribute(RESULT_INDEX_ATTR);
-	          renderNode.removeAttribute(RESULT_INDEX_ATTR);
-
-	          ("production" !== process.env.NODE_ENV ? invariant(
-	            !resultList.hasOwnProperty(resultIndex),
-	            'Danger: Assigning to an already-occupied result index.'
-	          ) : invariant(!resultList.hasOwnProperty(resultIndex)));
-
-	          resultList[resultIndex] = renderNode;
-
-	          // This should match resultList.length and markupList.length when
-	          // we're done.
-	          resultListAssignmentCount += 1;
-
-	        } else if ("production" !== process.env.NODE_ENV) {
-	          console.error(
-	            "Danger: Discarding unexpected node:",
-	            renderNode
-	          );
-	        }
-	      }
-	    }
-
-	    // Although resultList was populated out of order, it should now be a dense
-	    // array.
-	    ("production" !== process.env.NODE_ENV ? invariant(
-	      resultListAssignmentCount === resultList.length,
-	      'Danger: Did not assign to every index of resultList.'
-	    ) : invariant(resultListAssignmentCount === resultList.length));
-
-	    ("production" !== process.env.NODE_ENV ? invariant(
-	      resultList.length === markupList.length,
-	      'Danger: Expected markup to render %s nodes, but rendered %s.',
-	      markupList.length,
-	      resultList.length
-	    ) : invariant(resultList.length === markupList.length));
-
-	    return resultList;
-	  },
-
-	  /**
-	   * Replaces a node with a string of markup at its current position within its
-	   * parent. The markup must render into a single root node.
-	   *
-	   * @param {DOMElement} oldChild Child node to replace.
-	   * @param {string} markup Markup to render in place of the child node.
-	   * @internal
-	   */
-	  dangerouslyReplaceNodeWithMarkup: function(oldChild, markup) {
-	    ("production" !== process.env.NODE_ENV ? invariant(
-	      ExecutionEnvironment.canUseDOM,
-	      'dangerouslyReplaceNodeWithMarkup(...): Cannot render markup in a ' +
-	      'worker thread. This is likely a bug in the framework. Please report ' +
-	      'immediately.'
-	    ) : invariant(ExecutionEnvironment.canUseDOM));
-	    ("production" !== process.env.NODE_ENV ? invariant(markup, 'dangerouslyReplaceNodeWithMarkup(...): Missing markup.') : invariant(markup));
-	    ("production" !== process.env.NODE_ENV ? invariant(
-	      oldChild.tagName.toLowerCase() !== 'html',
-	      'dangerouslyReplaceNodeWithMarkup(...): Cannot replace markup of the ' +
-	      '<html> node. This is because browser quirks make this unreliable ' +
-	      'and/or slow. If you want to render to the root you must use ' +
-	      'server rendering. See renderComponentToString().'
-	    ) : invariant(oldChild.tagName.toLowerCase() !== 'html'));
-
-	    var newChild = createNodesFromMarkup(markup, emptyFunction)[0];
-	    oldChild.parentNode.replaceChild(newChild, oldChild);
-	  }
-
-	};
-
-	module.exports = Danger;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
-
-/***/ },
-/* 177 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var Utils = __webpack_require__(180);
-	var Exception = __webpack_require__(179)["default"];
+	var Utils = __webpack_require__(178);
+	var Exception = __webpack_require__(177)["default"];
 
 	var VERSION = "1.3.0";
 	exports.VERSION = VERSION;var COMPILER_REVISION = 4;
@@ -32986,7 +32708,7 @@
 	exports.createFrame = createFrame;
 
 /***/ },
-/* 178 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -33002,7 +32724,7 @@
 	exports["default"] = SafeString;
 
 /***/ },
-/* 179 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -33035,12 +32757,12 @@
 	exports["default"] = Exception;
 
 /***/ },
-/* 180 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	/*jshint -W004 */
-	var SafeString = __webpack_require__(178)["default"];
+	var SafeString = __webpack_require__(176)["default"];
 
 	var escape = {
 	  "&": "&amp;",
@@ -33116,14 +32838,14 @@
 	exports.isEmpty = isEmpty;
 
 /***/ },
-/* 181 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Utils = __webpack_require__(180);
-	var Exception = __webpack_require__(179)["default"];
-	var COMPILER_REVISION = __webpack_require__(177).COMPILER_REVISION;
-	var REVISION_CHANGES = __webpack_require__(177).REVISION_CHANGES;
+	var Utils = __webpack_require__(178);
+	var Exception = __webpack_require__(177)["default"];
+	var COMPILER_REVISION = __webpack_require__(175).COMPILER_REVISION;
+	var REVISION_CHANGES = __webpack_require__(175).REVISION_CHANGES;
 
 	function checkRevision(compilerInfo) {
 	  var compilerRevision = compilerInfo && compilerInfo[0] || 1,
@@ -33258,6 +32980,286 @@
 	exports.noop = noop;
 
 /***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2014 Facebook, Inc.
+	 *
+	 * Licensed under the Apache License, Version 2.0 (the "License");
+	 * you may not use this file except in compliance with the License.
+	 * You may obtain a copy of the License at
+	 *
+	 * http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS,
+	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 * See the License for the specific language governing permissions and
+	 * limitations under the License.
+	 *
+	 * @providesModule getNodeForCharacterOffset
+	 */
+
+	"use strict";
+
+	/**
+	 * Given any node return the first leaf node without children.
+	 *
+	 * @param {DOMElement|DOMTextNode} node
+	 * @return {DOMElement|DOMTextNode}
+	 */
+	function getLeafNode(node) {
+	  while (node && node.firstChild) {
+	    node = node.firstChild;
+	  }
+	  return node;
+	}
+
+	/**
+	 * Get the next sibling within a container. This will walk up the
+	 * DOM if a node's siblings have been exhausted.
+	 *
+	 * @param {DOMElement|DOMTextNode} node
+	 * @return {?DOMElement|DOMTextNode}
+	 */
+	function getSiblingNode(node) {
+	  while (node) {
+	    if (node.nextSibling) {
+	      return node.nextSibling;
+	    }
+	    node = node.parentNode;
+	  }
+	}
+
+	/**
+	 * Get object describing the nodes which contain characters at offset.
+	 *
+	 * @param {DOMElement|DOMTextNode} root
+	 * @param {number} offset
+	 * @return {?object}
+	 */
+	function getNodeForCharacterOffset(root, offset) {
+	  var node = getLeafNode(root);
+	  var nodeStart = 0;
+	  var nodeEnd = 0;
+
+	  while (node) {
+	    if (node.nodeType == 3) {
+	      nodeEnd = nodeStart + node.textContent.length;
+
+	      if (nodeStart <= offset && nodeEnd >= offset) {
+	        return {
+	          node: node,
+	          offset: offset - nodeStart
+	        };
+	      }
+
+	      nodeStart = nodeEnd;
+	    }
+
+	    node = getLeafNode(getSiblingNode(node));
+	  }
+	}
+
+	module.exports = getNodeForCharacterOffset;
+
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-2014 Facebook, Inc.
+	 *
+	 * Licensed under the Apache License, Version 2.0 (the "License");
+	 * you may not use this file except in compliance with the License.
+	 * You may obtain a copy of the License at
+	 *
+	 * http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS,
+	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 * See the License for the specific language governing permissions and
+	 * limitations under the License.
+	 *
+	 * @providesModule Danger
+	 * @typechecks static-only
+	 */
+
+	/*jslint evil: true, sub: true */
+
+	"use strict";
+
+	var ExecutionEnvironment = __webpack_require__(37);
+
+	var createNodesFromMarkup = __webpack_require__(183);
+	var emptyFunction = __webpack_require__(98);
+	var getMarkupWrap = __webpack_require__(184);
+	var invariant = __webpack_require__(45);
+
+	var OPEN_TAG_NAME_EXP = /^(<[^ \/>]+)/;
+	var RESULT_INDEX_ATTR = 'data-danger-index';
+
+	/**
+	 * Extracts the `nodeName` from a string of markup.
+	 *
+	 * NOTE: Extracting the `nodeName` does not require a regular expression match
+	 * because we make assumptions about React-generated markup (i.e. there are no
+	 * spaces surrounding the opening tag and there is at least one attribute).
+	 *
+	 * @param {string} markup String of markup.
+	 * @return {string} Node name of the supplied markup.
+	 * @see http://jsperf.com/extract-nodename
+	 */
+	function getNodeName(markup) {
+	  return markup.substring(1, markup.indexOf(' '));
+	}
+
+	var Danger = {
+
+	  /**
+	   * Renders markup into an array of nodes. The markup is expected to render
+	   * into a list of root nodes. Also, the length of `resultList` and
+	   * `markupList` should be the same.
+	   *
+	   * @param {array<string>} markupList List of markup strings to render.
+	   * @return {array<DOMElement>} List of rendered nodes.
+	   * @internal
+	   */
+	  dangerouslyRenderMarkup: function(markupList) {
+	    ("production" !== process.env.NODE_ENV ? invariant(
+	      ExecutionEnvironment.canUseDOM,
+	      'dangerouslyRenderMarkup(...): Cannot render markup in a Worker ' +
+	      'thread. This is likely a bug in the framework. Please report ' +
+	      'immediately.'
+	    ) : invariant(ExecutionEnvironment.canUseDOM));
+	    var nodeName;
+	    var markupByNodeName = {};
+	    // Group markup by `nodeName` if a wrap is necessary, else by '*'.
+	    for (var i = 0; i < markupList.length; i++) {
+	      ("production" !== process.env.NODE_ENV ? invariant(
+	        markupList[i],
+	        'dangerouslyRenderMarkup(...): Missing markup.'
+	      ) : invariant(markupList[i]));
+	      nodeName = getNodeName(markupList[i]);
+	      nodeName = getMarkupWrap(nodeName) ? nodeName : '*';
+	      markupByNodeName[nodeName] = markupByNodeName[nodeName] || [];
+	      markupByNodeName[nodeName][i] = markupList[i];
+	    }
+	    var resultList = [];
+	    var resultListAssignmentCount = 0;
+	    for (nodeName in markupByNodeName) {
+	      if (!markupByNodeName.hasOwnProperty(nodeName)) {
+	        continue;
+	      }
+	      var markupListByNodeName = markupByNodeName[nodeName];
+
+	      // This for-in loop skips the holes of the sparse array. The order of
+	      // iteration should follow the order of assignment, which happens to match
+	      // numerical index order, but we don't rely on that.
+	      for (var resultIndex in markupListByNodeName) {
+	        if (markupListByNodeName.hasOwnProperty(resultIndex)) {
+	          var markup = markupListByNodeName[resultIndex];
+
+	          // Push the requested markup with an additional RESULT_INDEX_ATTR
+	          // attribute.  If the markup does not start with a < character, it
+	          // will be discarded below (with an appropriate console.error).
+	          markupListByNodeName[resultIndex] = markup.replace(
+	            OPEN_TAG_NAME_EXP,
+	            // This index will be parsed back out below.
+	            '$1 ' + RESULT_INDEX_ATTR + '="' + resultIndex + '" '
+	          );
+	        }
+	      }
+
+	      // Render each group of markup with similar wrapping `nodeName`.
+	      var renderNodes = createNodesFromMarkup(
+	        markupListByNodeName.join(''),
+	        emptyFunction // Do nothing special with <script> tags.
+	      );
+
+	      for (i = 0; i < renderNodes.length; ++i) {
+	        var renderNode = renderNodes[i];
+	        if (renderNode.hasAttribute &&
+	            renderNode.hasAttribute(RESULT_INDEX_ATTR)) {
+
+	          resultIndex = +renderNode.getAttribute(RESULT_INDEX_ATTR);
+	          renderNode.removeAttribute(RESULT_INDEX_ATTR);
+
+	          ("production" !== process.env.NODE_ENV ? invariant(
+	            !resultList.hasOwnProperty(resultIndex),
+	            'Danger: Assigning to an already-occupied result index.'
+	          ) : invariant(!resultList.hasOwnProperty(resultIndex)));
+
+	          resultList[resultIndex] = renderNode;
+
+	          // This should match resultList.length and markupList.length when
+	          // we're done.
+	          resultListAssignmentCount += 1;
+
+	        } else if ("production" !== process.env.NODE_ENV) {
+	          console.error(
+	            "Danger: Discarding unexpected node:",
+	            renderNode
+	          );
+	        }
+	      }
+	    }
+
+	    // Although resultList was populated out of order, it should now be a dense
+	    // array.
+	    ("production" !== process.env.NODE_ENV ? invariant(
+	      resultListAssignmentCount === resultList.length,
+	      'Danger: Did not assign to every index of resultList.'
+	    ) : invariant(resultListAssignmentCount === resultList.length));
+
+	    ("production" !== process.env.NODE_ENV ? invariant(
+	      resultList.length === markupList.length,
+	      'Danger: Expected markup to render %s nodes, but rendered %s.',
+	      markupList.length,
+	      resultList.length
+	    ) : invariant(resultList.length === markupList.length));
+
+	    return resultList;
+	  },
+
+	  /**
+	   * Replaces a node with a string of markup at its current position within its
+	   * parent. The markup must render into a single root node.
+	   *
+	   * @param {DOMElement} oldChild Child node to replace.
+	   * @param {string} markup Markup to render in place of the child node.
+	   * @internal
+	   */
+	  dangerouslyReplaceNodeWithMarkup: function(oldChild, markup) {
+	    ("production" !== process.env.NODE_ENV ? invariant(
+	      ExecutionEnvironment.canUseDOM,
+	      'dangerouslyReplaceNodeWithMarkup(...): Cannot render markup in a ' +
+	      'worker thread. This is likely a bug in the framework. Please report ' +
+	      'immediately.'
+	    ) : invariant(ExecutionEnvironment.canUseDOM));
+	    ("production" !== process.env.NODE_ENV ? invariant(markup, 'dangerouslyReplaceNodeWithMarkup(...): Missing markup.') : invariant(markup));
+	    ("production" !== process.env.NODE_ENV ? invariant(
+	      oldChild.tagName.toLowerCase() !== 'html',
+	      'dangerouslyReplaceNodeWithMarkup(...): Cannot replace markup of the ' +
+	      '<html> node. This is because browser quirks make this unreliable ' +
+	      'and/or slow. If you want to render to the root you must use ' +
+	      'server rendering. See renderComponentToString().'
+	    ) : invariant(oldChild.tagName.toLowerCase() !== 'html'));
+
+	    var newChild = createNodesFromMarkup(markup, emptyFunction)[0];
+	    oldChild.parentNode.replaceChild(newChild, oldChild);
+	  }
+
+	};
+
+	module.exports = Danger;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
+
+/***/ },
 /* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -33269,8 +33271,8 @@
 	 */
 
 	var base64 = __webpack_require__(189)
-	var ieee754 = __webpack_require__(187)
-	var isArray = __webpack_require__(188)
+	var ieee754 = __webpack_require__(186)
+	var isArray = __webpack_require__(187)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = Buffer
@@ -34339,7 +34341,7 @@
 
 	/*jslint evil: true, sub: true */
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var createArrayFrom = __webpack_require__(185);
 	var getMarkupWrap = __webpack_require__(184);
@@ -34436,7 +34438,7 @@
 	 * @providesModule getMarkupWrap
 	 */
 
-	var ExecutionEnvironment = __webpack_require__(36);
+	var ExecutionEnvironment = __webpack_require__(37);
 
 	var invariant = __webpack_require__(45);
 
@@ -34564,7 +34566,7 @@
 	 * @typechecks
 	 */
 
-	var toArray = __webpack_require__(186);
+	var toArray = __webpack_require__(188);
 
 	/**
 	 * Perform a heuristic test to determine if an object is "array-like".
@@ -34640,88 +34642,6 @@
 
 /***/ },
 /* 186 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2014 Facebook, Inc.
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 * http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 *
-	 * @providesModule toArray
-	 * @typechecks
-	 */
-
-	var invariant = __webpack_require__(45);
-
-	/**
-	 * Convert array-like objects to arrays.
-	 *
-	 * This API assumes the caller knows the contents of the data type. For less
-	 * well defined inputs use createArrayFrom.
-	 *
-	 * @param {object|function|filelist} obj
-	 * @return {array}
-	 */
-	function toArray(obj) {
-	  var length = obj.length;
-
-	  // Some browse builtin objects can report typeof 'function' (e.g. NodeList in
-	  // old versions of Safari).
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    !Array.isArray(obj) &&
-	    (typeof obj === 'object' || typeof obj === 'function'),
-	    'toArray: Array-like object expected'
-	  ) : invariant(!Array.isArray(obj) &&
-	  (typeof obj === 'object' || typeof obj === 'function')));
-
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    typeof length === 'number',
-	    'toArray: Object needs a length property'
-	  ) : invariant(typeof length === 'number'));
-
-	  ("production" !== process.env.NODE_ENV ? invariant(
-	    length === 0 ||
-	    (length - 1) in obj,
-	    'toArray: Object should have keys for indices'
-	  ) : invariant(length === 0 ||
-	  (length - 1) in obj));
-
-	  // Old IE doesn't give collections access to hasOwnProperty. Assume inputs
-	  // without method will throw during the slice call and skip straight to the
-	  // fallback.
-	  if (obj.hasOwnProperty) {
-	    try {
-	      return Array.prototype.slice.call(obj);
-	    } catch (e) {
-	      // IE < 9 does not support Array#slice on collections objects
-	    }
-	  }
-
-	  // Fall back to copying key by key. This assumes all keys have a value,
-	  // so will not preserve sparsely populated inputs.
-	  var ret = Array(length);
-	  for (var ii = 0; ii < length; ii++) {
-	    ret[ii] = obj[ii];
-	  }
-	  return ret;
-	}
-
-	module.exports = toArray;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
-
-/***/ },
-/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -34811,7 +34731,7 @@
 
 
 /***/ },
-/* 188 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -34848,6 +34768,88 @@
 	  return !! val && '[object Array]' == str.call(val);
 	};
 
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2014 Facebook, Inc.
+	 *
+	 * Licensed under the Apache License, Version 2.0 (the "License");
+	 * you may not use this file except in compliance with the License.
+	 * You may obtain a copy of the License at
+	 *
+	 * http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS,
+	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 * See the License for the specific language governing permissions and
+	 * limitations under the License.
+	 *
+	 * @providesModule toArray
+	 * @typechecks
+	 */
+
+	var invariant = __webpack_require__(45);
+
+	/**
+	 * Convert array-like objects to arrays.
+	 *
+	 * This API assumes the caller knows the contents of the data type. For less
+	 * well defined inputs use createArrayFrom.
+	 *
+	 * @param {object|function|filelist} obj
+	 * @return {array}
+	 */
+	function toArray(obj) {
+	  var length = obj.length;
+
+	  // Some browse builtin objects can report typeof 'function' (e.g. NodeList in
+	  // old versions of Safari).
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    !Array.isArray(obj) &&
+	    (typeof obj === 'object' || typeof obj === 'function'),
+	    'toArray: Array-like object expected'
+	  ) : invariant(!Array.isArray(obj) &&
+	  (typeof obj === 'object' || typeof obj === 'function')));
+
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    typeof length === 'number',
+	    'toArray: Object needs a length property'
+	  ) : invariant(typeof length === 'number'));
+
+	  ("production" !== process.env.NODE_ENV ? invariant(
+	    length === 0 ||
+	    (length - 1) in obj,
+	    'toArray: Object should have keys for indices'
+	  ) : invariant(length === 0 ||
+	  (length - 1) in obj));
+
+	  // Old IE doesn't give collections access to hasOwnProperty. Assume inputs
+	  // without method will throw during the slice call and skip straight to the
+	  // fallback.
+	  if (obj.hasOwnProperty) {
+	    try {
+	      return Array.prototype.slice.call(obj);
+	    } catch (e) {
+	      // IE < 9 does not support Array#slice on collections objects
+	    }
+	  }
+
+	  // Fall back to copying key by key. This assumes all keys have a value,
+	  // so will not preserve sparsely populated inputs.
+	  var ret = Array(length);
+	  for (var ii = 0; ii < length; ii++) {
+	    ret[ii] = obj[ii];
+	  }
+	  return ret;
+	}
+
+	module.exports = toArray;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
 /* 189 */
