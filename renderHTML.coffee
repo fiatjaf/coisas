@@ -34,6 +34,7 @@ makePage = (doc) ->
   return page
 
 addSiteAttrs = (site) ->
+  # author name, picture and external profiles
   if site.author
     author = {}
     if typeof site.author is 'string'
@@ -63,6 +64,10 @@ addSiteAttrs = (site) ->
             url: url
           }
   site.author = author
+
+  # webmention endpoint
+  site.webmention_endpoint = site.webmention or site.webmentions or site.webmention_endpoint
+
   return site
 
 addChildrenAttrs = (page) ->
