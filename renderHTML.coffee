@@ -13,7 +13,8 @@ marked.setOptions
 makePage = (doc) ->
   parsed = fm doc.raw
   page = parsed.attributes
-  page.path = doc.path.split('/') if doc.path
+  page.path = if doc.path then doc.path.split('/') else []
+  page.slug = if page.path.length then page.path[page.path.length-1] else '⌂'
   page.fullPath = doc.path
   page.fullPaths = (->
     fullPaths = []
@@ -22,7 +23,7 @@ makePage = (doc) ->
       for p in [pos..0]
         fullpath.unshift doc.path.split('/')[p]
       return fullpath.join '/'
-    for fragment, i in doc.path.split('/')
+    for fragment, i in page.path
       fullPaths.push({
         fragment: fragment
         full: makeFullPath i

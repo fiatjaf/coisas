@@ -33,35 +33,43 @@
     </header>
 
     <main class="h-entry">
+      <h2 hidden class="p-name">{{#if page.title}}{{ page.title }}{{else}}{{ page.slug }}{{/if}}</h2>
       <section class="breadcrumb">
         {{#if page.fullPaths}}
         <ul>
           {{#each page.fullPaths}}
-            <li><a href="{{ ../site.baseURL }}/{{ this.full }}">{{ this.fragment }}</a></li>
+            <li>
+              <a href="{{ ../site.baseURL }}/{{ this.full }}" class="{{#if @last}}u-url{{/if}}">
+                {{ this.fragment }}
+              </a>
+            </li>
           {{/each}}
         </ul>
         {{/if}}
       </section>
-      <section class="text e-content">
+      <section class="text e-content p-summary">
         {{{ page.html }}}
       </section>
-      <section class="data">
+      <section class="data e-content">
         {{{ page.data }}}
       </section>
-      <section class="children">
+      <section class="children h-feed">
         <ul>
           {{#each page.children}}
-            <li>
-              <a href="{{ ../site.baseURL }}/{{#each path }}{{ this }}/{{/each}}{{ slug }}">
-                {{#if title}}{{title}}{{/if}}{{#unless title}}{{slug}}{{/unless}}
+            <li class="h-entry">
+              <a href="{{ ../site.baseURL }}/{{#each path }}{{ this }}/{{/each}}{{ slug }}"
+                 class="u-url p-name">
+                {{#if title}}{{title}}{{else}}{{slug}}{{/if}}
               </a>
-              {{#if date}} - <small><time>{{ date }}</time></small>{{/if}}
+              {{#if date}}
+                - <small><time class="dt-published" datetime="{{date}}">{{ date }}</time></small>
+              {{/if}}
             </li>
           {{/each}}
         </ul>
       </section>
       {{#if page.date}}
-      <time class="dt-published dt-updated" datetime="{{ page.date }}">
+      <time class="dt-published" datetime="{{ page.date }}">
         {{ page.date }}
       </time>
       {{/if}}
