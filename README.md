@@ -7,7 +7,11 @@ A pure-javascript CMS for multipurpose websites in GitHub Pages.
 
 ## What is this?
 
-Maybe a Jekyll that runs in your browser and fetches data, lets you edit it and then deploys everything to GitHub through HTTP.
+Maybe a good description is: something like Jekyll that runs in your browser and fetches data, lets you edit it and then deploys everything to GitHub through HTTP.
+
+## Is this the best thing in town?
+
+Well, it works, sometimes, but has some issues. With big sites in Firefox it will have more problems due to "max recursion" issues, but not in Chrome. Don't trust it will deploy correctly (maintain a copy of the post you wrote with you until it is deployed), but after deployment everything is in GitHub so it is good. If some of our various minor issues are disturbing you, please open an Issue or send a PR, even if it is for some small (or useless) improvement.
 
 ## How to start:
 
@@ -17,10 +21,8 @@ If you wanna use your root GitHub name, rename the repo to `yourname.github.io` 
 
 Remember to change the `baseURL` at the root document before deploying for the first time.
 
-## Examples:
+## Example:
 
-  * http://fiatjaf.github.io/ and http://fiatjaf.github.io/edit.html
-  * http://pollyannas.github.io/ and http://pollyannas.github.io/edit.html
   * http://geraldoquagliato.github.io/site and http://geraldoquagliato.github.io/site/edit.html
 
 ## The internals:
