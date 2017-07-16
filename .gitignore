@@ -1,0 +1,7 @@
+node_modules
+*.swo
+*.swp
+npm-debug.log
+browserify-cache.json
+bundle.*
+package-lock.json

@@ -1,0 +1,20 @@
+html, body { min-height: 100vh; }
+
+body { background-color: #bcf7d3; }
+
+main {
+  padding-top: 30px;
+}
+
+.title { color: inherit; }
+.subtitle { color: inherit; }
+.content { color: inherit; }
+.table { color: inherit; background-color: inherit; }
+.tag { margin: 0 3px; }
+.card { margin: 12px 12px 12px 0; }
+.tabs { height: 3em; margin-top: -1em; }
+
+.notie-container {
+  top: auto !important;
+  bottom: 0;
+}

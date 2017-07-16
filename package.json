@@ -1,0 +1,50 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "watch": "find -name \"*.js\" ! -name \"bundle.js\" ! -path \"*node_modules*\" | entr browserifyinc -vd app.js -o bundle.js",
+    "build": "browserify app.js -o bundle.js",
+    "build-prod": "npm run build"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "bubleify",
+        {
+          "transforms": {
+            "dangerousTaggedTemplateString": true
+          },
+          "objectAssign": "xtend",
+          "sourceMap": true
+        }
+      ]
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nx-js/observer-util": "^3.0.0",
+    "draft-js": "^0.10.1",
+    "gray-matter": "^3.0.2",
+    "page": "^1.7.1",
+    "prosemirror-example-setup": "^0.22.0",
+    "prosemirror-markdown": "^0.22.0",
+    "prosemirror-menu": "^0.22.0",
+    "prosemirror-state": "^0.22.0",
+    "prosemirror-view": "^0.22.0",
+    "qs": "^6.5.0",
+    "react": "^15.6.1",
+    "react-codemirror": "^1.0.0",
+    "react-dom": "^15.6.1",
+    "react-hyperscript": "^3.0.0",
+    "react-json": "github:fiatjaf/react-json#980ae69ab4cd22bacfb40022f7ccd33019bc3c4e"
+  },
+  "devDependencies": {
+    "browserify": "^14.3.0",
+    "browserify-incremental": "^3.1.1",
+    "buble": "^0.15.2",
+    "bubleify": "^0.7.0"
+  }
+}
