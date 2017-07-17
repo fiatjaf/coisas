@@ -13,7 +13,10 @@ module.exports = observer(() => {
   return h('.columns.is-mobile', [
     h('.column.is-3', [ h(Menu) ]),
     h('.column.is-8', [ h(Edit) ]),
-    h('.column.is-1', [ h(Save) ])
+    h('.column.is-1', [
+      h(Images),
+      h(Save)
+    ])
   ])
 })
 
@@ -22,7 +25,7 @@ const Menu = observer(() =>
     h('ul.menu-list', state.tree.filter(item => item.type !== 'tree').map(file =>
       h('li', {key: file.path}, [
         h('a', {
-          href: `#!/${state.user}/${state.repo}/${file.path}`,
+          href: `#!/${state.owner}/${state.repo}/${file.path}`,
           onClick: () => state.file.selected = file.path,
           className: state.file.selected === file.path ? 'is-active' : ''
         }, file.path)
@@ -41,7 +44,7 @@ const Edit = observer(() => {
     case 'jpeg':
     case 'png':
     case 'gif':
-      h('img', {src: `https://raw.githubusercontent.com/${state.user}/${state.repo}/master/${state.file.selected}`})
+      h('img', {src: `https://raw.githubusercontent.com/${state.owner}/${state.repo}/master/${state.file.selected}`})
       break
     case 'docx':
     case 'xlsx':
@@ -96,14 +99,18 @@ const EditCode = observer(() => {
   ])
 })
 
+const Images = observer(() => {
+  return h('div')
+})
+
 const Save = observer(() => {
   return h('div', [
     h('div', [
       state.file.edited.content || Object.keys(state.file.edited.metadata).length
-      ? h('button.button', {
+      ? h('button.button.is-primary', {
         onClick: () => {
           log.info(`Saving ${state.file.selected}.`)
-          gh.put(`repos/${state.user}/${state.repo}/contents/${state.file.selected}`, {
+          gh.put(`repos/${state.owner}/${state.repo}/contents/${state.file.selected}`, {
             message: `updated ${state.file.selected}.`,
             sha: state.tree.filter(f => f.path === state.file.selected)[0].sha,
             content: window.btoa(unescape(encodeURIComponent(state.file.ext() === 'md'

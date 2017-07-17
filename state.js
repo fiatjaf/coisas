@@ -7,6 +7,8 @@ var state = observable({
     component: 'div',
     ctx: {}
   },
+  owner: '',
+  repo: '',
   tree: [],
   file: {
     loading: null,
@@ -33,13 +35,19 @@ page('/', ctx => {
 
 page('/:user/:repo/*', ctx => {
   state.route = {component: components['repo'], ctx}
-  state.user = ctx.params.user
+  state.owner = ctx.params.user
   state.repo = ctx.params.repo
 
-  gh.get(`repos/${state.user}/${state.repo}/git/refs/heads/master`)
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      currentRepo: `${state.owner}/${state.repo}`
+    })
+  }
+
+  gh.get(`repos/${state.owner}/${state.repo}/git/refs/heads/master`)
   .then(ref =>
     gh.get(
-     `repos/${state.user}/${state.repo}/git/trees/${ref.object.sha}`,
+     `repos/${state.owner}/${state.repo}/git/trees/${ref.object.sha}`,
      {recursive: 5}
     )
   )
@@ -65,7 +73,7 @@ observe(() => {
   state.file.edited.content = null
   state.file.edited.metadata = {}
 
-  gh.get(`repos/${state.user}/${state.repo}/contents/${willLoad}`,
+  gh.get(`repos/${state.owner}/${state.repo}/contents/${willLoad}`,
      {ref: 'master', headers: {'Accept': 'application/vnd.github.v3.raw'}})
   .then(res => {
     state.file.loaded = willLoad

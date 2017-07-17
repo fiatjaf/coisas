@@ -14,7 +14,7 @@ module.exports = observer(() => {
           // h('a.nav-item', {href: `/${route}/`}, route)
         ])
       ]),
-      h('main.columns.is-mobile', [
+      h('main.columns', [
         h('.column.is-10.is-offset-1', [
           h(state.route.component)
         ])
