@@ -6,6 +6,11 @@ main {
   padding-top: 30px;
 }
 
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto !important;
+}
+
 .title { color: inherit; }
 .subtitle { color: inherit; }
 .content { color: inherit; }
@@ -17,4 +22,17 @@ main {
 .notie-container {
   top: auto !important;
   bottom: 0;
+}
+
+.content pre {
+  margin-bottom: 0 !important;
+}
+
+.jsonEditor .jsonName label {
+  padding-left: 12px;
+}
+.jsonEditor .jsonName,
+.jsonEditor .jsonValue {
+  background: white;
+  padding: 5px;
 }

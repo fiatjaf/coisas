@@ -31,7 +31,10 @@ function gh (method, path, data = {}) {
     .then(() =>
       fetch(`https://api.github.com/${path}`, {method, headers, body})
     )
-    .then(r => headers.Accept.match(/json/) ? r.json() : r.text())
+    .then(r => {
+      if (r.status >= 300) throw r
+      return headers.Accept.match(/json/) ? r.json() : r.text()
+    })
 }
 
 gh.get = gh.bind(gh, 'get')

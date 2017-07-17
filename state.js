@@ -12,7 +12,17 @@ var state = observable({
     loading: null,
     loaded: false,
     selected: null,
-    content: null
+    content: null,
+    edited: {
+      content: '',
+      metadata: {}
+    },
+
+    ext () {
+      return state.file.selected
+        ? state.file.selected.split('.').slice(-1)[0]
+        : ''
+    }
   }
 })
 module.exports = state
@@ -36,17 +46,24 @@ page('/:user/:repo/*', ctx => {
   .then(tree => {
     state.tree = tree.tree
     state.file.selected = ctx.params[0]
+    state.file.loading = null
   })
 })
 
 observe(() => {
   let willLoad = state.file.selected
 
-  if (!willLoad || state.file.loading === willLoad) {
+  if (!willLoad ||
+      state.file.loading === willLoad) return
+
+  if (state.file.ext().match(/jpe?g|png|gif|svg/)) {
+    state.file.loaded = willLoad
     return
   }
+
   state.file.loading = willLoad
-  state.file.editedContent = null
+  state.file.edited.content = null
+  state.file.edited.metadata = {}
 
   gh.get(`repos/${state.user}/${state.repo}/contents/${willLoad}`,
      {ref: 'master', headers: {'Accept': 'application/vnd.github.v3.raw'}})
