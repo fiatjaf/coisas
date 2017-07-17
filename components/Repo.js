@@ -106,9 +106,8 @@ const Save = observer(() => {
           gh.put(`repos/${state.user}/${state.repo}/contents/${state.file.selected}`, {
             message: `updated ${state.file.selected}.`,
             sha: state.tree.filter(f => f.path === state.file.selected)[0].sha,
-            content: state.file.ext() === 'md'
+            content: window.btoa(unescape(encodeURIComponent(state.file.ext() === 'md'
               ? `---
-
 ${Object.keys(state.file.edited.metadata).map(k => `
 ${k}: ${state.file.edited.metadata[k]}`
 )}
@@ -117,7 +116,7 @@ ${k}: ${state.file.edited.metadata[k]}`
 
 ${state.file.edited.content}
 `
-              : state.file.edited.content
+              : state.file.edited.content)))
           })
           .then(() => log.success('Saved.'))
           .catch(log.error)

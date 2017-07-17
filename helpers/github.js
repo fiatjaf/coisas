@@ -5,6 +5,8 @@ module.exports = gh
 
 function gh (method, path, data = {}) {
   var waitToken = new Promise((resolve, reject) => {
+    let token = localStorage.getItem('gh_token')
+    if (token) return resolve(token)
     reject()
   })
 
