@@ -1,15 +1,15 @@
 const h = require('react-hyperscript')
 const CodeMirror = require('react-codemirror')
 const Json = require('react-json')
-const matter = require('gray-matter')
+const TreeView = require('react-treeview')
+const {pure} = require('react-derivable')
 
 const ProseMirror = require('./ProseMirror')
-const {observer} = require('../helpers/nx-react')
 const state = require('../state')
 const log = require('../log')
 const gh = require('../helpers/github')
 
-module.exports = observer(() => {
+module.exports = pure(() => {
   return h('.columns.is-mobile', [
     h('.column.is-3', [ h(Menu) ]),
     h('.column.is-8', [ h(Edit) ]),
@@ -20,23 +20,38 @@ module.exports = observer(() => {
   ])
 })
 
-const Menu = observer(() =>
+const Menu = pure(() =>
   h('.menu', [
-    h('ul.menu-list', state.tree.filter(item => item.type !== 'tree').map(file =>
-      h('li', {key: file.path}, [
-        h('a', {
-          href: `#!/${state.owner}/${state.repo}/${file.path}`,
-          onClick: () => state.file.selected = file.path,
-          className: state.file.selected === file.path ? 'is-active' : ''
-        }, file.path)
-      ])
+    h('ul.menu-list', state.tree.get().filter(f => f.path.split('/').length === 1).map(f =>
+      h(Folder, {f})
     ))
   ])
 )
 
-const Edit = observer(() => {
+const Folder = pure(({f}) => {
+  if (f.type === 'blob') {
+    return h('li', {
+      key: f.path,
+      className: state.file.selected.get() === f.path ? 'is-active' : ''
+    }, f.path)
+  }
+
+  let dir = f
+  return (
+    h(TreeView, {
+      nodeLabel: dir.path,
+      collapsed: false // dir.collapsed,
+      // onClick: e => { state.bypath.get()[dir.path].collapsed = !dir.collapsed }
+    }, state.tree.get()
+      .filter(f => f.path.slice(0, dir.path.length) === dir.path)
+      .map(f => h(Folder, {key: f.path, f}))
+    )
+  )
+})
+
+const Edit = pure(() => {
   var editor
-  switch (state.file.ext()) {
+  switch (state.file.ext.get()) {
     case 'md':
       editor = h(EditMarkdown)
       break
@@ -44,7 +59,7 @@ const Edit = observer(() => {
     case 'jpeg':
     case 'png':
     case 'gif':
-      h('img', {src: `https://raw.githubusercontent.com/${state.owner}/${state.repo}/master/${state.file.selected}`})
+      h('img', {src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${state.file.selected.get()}`})
       break
     case 'docx':
     case 'xlsx':
@@ -58,35 +73,31 @@ const Edit = observer(() => {
   }
 
   return h('.content', [
-    h('h3.title.is-3', state.file.selected),
-    state.file.loaded === state.file.selected
+    h('h3.title.is-3', state.file.selected.get()),
+    state.file.finishedLoading.get()
     ? editor
     : h('div', 'loading file contents from GitHub')
   ])
 })
 
-const EditMarkdown = observer(() => {
-  let {content, data} = matter(state.file.content)
-
+const EditMarkdown = pure(() => {
   return h('div', [
     h(Json, {
-      value: data,
+      value: state.file.shown.metadata.get(),
       onChange: metadata => {
-        state.file.edited.metadata = metadata
-        state.file.edited.content = state.file.edited.content || content
+        state.file.edited.metadata.set(metadata)
       }
     }),
     h(ProseMirror, {
-      value: state.file.editedContent || content,
+      value: state.file.shown.content.get(),
       onChange: content => {
-        state.file.edited.content = content
-        state.file.edited.metadata = data
+        state.file.edited.content.set(content)
       }
     })
   ])
 })
 
-const EditCode = observer(() => {
+const EditCode = pure(() => {
   return h('div', [
     h(CodeMirror, {
       value: state.file.editedContent || state.file.content,
@@ -99,31 +110,31 @@ const EditCode = observer(() => {
   ])
 })
 
-const Images = observer(() => {
+const Images = pure(() => {
   return h('div')
 })
 
-const Save = observer(() => {
+const Save = pure(() => {
   return h('div', [
     h('div', [
-      state.file.edited.content || Object.keys(state.file.edited.metadata).length
+      state.file.shown.content.get() || Object.keys(state.file.shown.metadata.get()).length
       ? h('button.button.is-primary', {
         onClick: () => {
-          log.info(`Saving ${state.file.selected}.`)
-          gh.put(`repos/${state.owner}/${state.repo}/contents/${state.file.selected}`, {
-            message: `updated ${state.file.selected}.`,
-            sha: state.tree.filter(f => f.path === state.file.selected)[0].sha,
-            content: window.btoa(unescape(encodeURIComponent(state.file.ext() === 'md'
+          log.info(`Saving ${state.file.selected.get()}.`)
+          gh.put(`repos/${state.slug.get()}/contents/${state.file.selected.get()}`, {
+            message: `updated ${state.file.selected.get()}.`,
+            sha: state.bypath.get()[state.file.selected].sha,
+            content: window.btoa(unescape(encodeURIComponent(state.file.ext.get() === 'md'
               ? `---
-${Object.keys(state.file.edited.metadata).map(k => `
-${k}: ${state.file.edited.metadata[k]}`
+${Object.keys(state.file.shown.metadata.get()).map(k => `
+${k}: ${state.file.shown.metadata.get()[k]}`
 )}
 
 ---
 
-${state.file.edited.content}
+${state.file.shown.content.get()}
 `
-              : state.file.edited.content)))
+              : state.file.shown.content.get())))
           })
           .then(() => log.success('Saved.'))
           .catch(log.error)

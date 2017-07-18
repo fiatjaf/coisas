@@ -1,9 +1,9 @@
 const h = require('react-hyperscript')
+const {pure} = require('react-derivable')
 
-const {observer} = require('./helpers/nx-react')
 const state = require('./state')
 
-module.exports = observer(() => {
+module.exports = pure(() => {
   return (
     h('div', [
       h('nav.nav', [
@@ -16,9 +16,11 @@ module.exports = observer(() => {
       ]),
       h('main.columns', [
         h('.column.is-10.is-offset-1', [
-          h(state.route.component)
+          h(components[state.route.get().componentName])
         ])
       ])
     ])
   )
 })
+
+const components = require('./components')

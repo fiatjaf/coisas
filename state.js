@@ -1,87 +1,129 @@
 const gh = require('./helpers/github')
 const page = require('page')
-const {observable, observe} = require('@nx-js/observer-util')
+const {atom, derive, transaction} = require('derivable')
+const matter = require('gray-matter')
 
-var state = observable({
-  route: {
+var state = {
+  route: atom({
     component: 'div',
     ctx: {}
-  },
-  owner: '',
-  repo: '',
-  tree: [],
+  }),
+  tree: atom([]),
+
+  owner: derive(() =>
+    state.route.get().ctx.params.owner
+  ),
+  repo: derive(() =>
+    state.route.get().ctx.params.repo
+  ),
+  slug: derive(() =>
+    state.owner.get() + '/' + state.repo.get()
+  ),
+
+  bysha: derive(() => {
+    var bysha = {}
+    for (let i = 0; i < state.tree.get().length; i++) {
+      let f = state.tree.get()[i]
+      bysha[f.sha] = f
+    }
+    return bysha
+  }),
+
+  bypath: derive(() => {
+    var bypath = {}
+    for (let i = 0; i < state.tree.get().length; i++) {
+      let f = state.tree.get()[i]
+      bypath[f.path] = f
+    }
+    return bypath
+  }),
+
   file: {
-    loading: null,
-    loaded: false,
-    selected: null,
-    content: null,
+    loading: atom(null),
+    loaded: atom(false),
+    selected: atom(null),
+    data: atom(null),
+
+    saved: derive(() => {
+      let {data, content} = matter(state.file.data.get())
+      return {metadata: data, content}
+    }),
+
     edited: {
-      content: '',
-      metadata: {}
+      content: atom(null),
+      metadata: atom(null)
     },
 
-    ext () {
-      return state.file.selected
-        ? state.file.selected.split('.').slice(-1)[0]
-        : ''
-    }
+    shown: {
+      content: derive(() => typeof state.file.edited.content.get() === 'string'
+        ? state.file.edited.content.get()
+        : state.file.saved.get().content),
+      metadata: derive(() => state.file.edited.metadata.get() || state.file.saved.get().metadata)
+    },
+
+    ext: derive(() => state.file.selected.get()
+      ? state.file.selected.get().split('.').slice(-1)[0]
+      : ''),
+    finishedLoading: derive(() => state.file.loaded.get() === state.file.selected.get())
   }
-})
+}
 module.exports = state
 
 page('/', ctx => {
-  state.route = {component: components['index'], ctx}
+  state.route.set({componentName: 'index', ctx})
 })
 
-page('/:user/:repo/*', ctx => {
-  state.route = {component: components['repo'], ctx}
-  state.owner = ctx.params.user
-  state.repo = ctx.params.repo
+page('/:owner/:repo/*', ctx => {
+  state.route.set({componentName: 'repo', ctx})
 
   if (navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
-      currentRepo: `${state.owner}/${state.repo}`
+      currentRepo: state.slug.get()
     })
   }
 
-  gh.get(`repos/${state.owner}/${state.repo}/git/refs/heads/master`)
+  gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
   .then(ref =>
     gh.get(
-     `repos/${state.owner}/${state.repo}/git/trees/${ref.object.sha}`,
+     `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
      {recursive: 5}
     )
   )
   .then(tree => {
-    state.tree = tree.tree
-    state.file.selected = ctx.params[0]
-    state.file.loading = null
+    transaction(() => {
+      state.file.selected.set(ctx.params[0])
+      state.file.loading.set(null)
+      state.tree.set(tree.tree)
+    })
   })
 })
 
-observe(() => {
-  let willLoad = state.file.selected
+state.file.selected.react(() => {
+  let willLoad = state.file.selected.get()
 
   if (!willLoad ||
-      state.file.loading === willLoad) return
+      state.file.loading.get() === willLoad) return
 
-  if (state.file.ext().match(/jpe?g|png|gif|svg/)) {
-    state.file.loaded = willLoad
+  if (state.file.ext.get().match(/jpe?g|png|gif|svg/)) {
+    state.file.loaded.set(willLoad)
     return
   }
 
-  state.file.loading = willLoad
-  state.file.edited.content = null
-  state.file.edited.metadata = {}
+  transaction(() => {
+    state.file.loading.set(willLoad)
+    state.file.edited.content.set(null)
+    state.file.edited.metadata.set({})
+  })
 
-  gh.get(`repos/${state.owner}/${state.repo}/contents/${willLoad}`,
+  gh.get(`repos/${state.slug.get()}/contents/${willLoad}`,
      {ref: 'master', headers: {'Accept': 'application/vnd.github.v3.raw'}})
   .then(res => {
-    state.file.loaded = willLoad
-    state.file.content = res
+    transaction(() => {
+      state.file.loaded.set(willLoad)
+      state.file.data.set(res)
+    })
   })
 })
-
-const components = require('./components')
 
 page({hashbang: true})
 

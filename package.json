@@ -25,7 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nx-js/observer-util": "^3.0.0",
+    "derivable": "^1.0.0-beta.12",
     "draft-js": "^0.10.1",
     "gray-matter": "^3.0.2",
     "page": "^1.7.1",
@@ -37,9 +37,11 @@
     "qs": "^6.5.0",
     "react": "^15.6.1",
     "react-codemirror": "^1.0.0",
+    "react-derivable": "^0.2.0",
     "react-dom": "^15.6.1",
     "react-hyperscript": "^3.0.0",
-    "react-json": "github:fiatjaf/react-json#980ae69ab4cd22bacfb40022f7ccd33019bc3c4e"
+    "react-json": "github:fiatjaf/react-json#980ae69ab4cd22bacfb40022f7ccd33019bc3c4e",
+    "react-treeview": "^0.4.7"
   },
   "devDependencies": {
     "browserify": "^14.3.0",
