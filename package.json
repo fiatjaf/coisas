@@ -25,7 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "derivable": "^1.0.0-beta.12",
+    "derivable": "^2.0.0-beta.0",
     "draft-js": "^0.10.1",
     "gray-matter": "^3.0.2",
     "page": "^1.7.1",

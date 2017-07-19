@@ -14,11 +14,7 @@ module.exports = pure(() => {
           // h('a.nav-item', {href: `/${route}/`}, route)
         ])
       ]),
-      h('main.columns', [
-        h('.column.is-10.is-offset-1', [
-          h(components[state.route.get().componentName])
-        ])
-      ])
+      h(components[state.route.get().componentName])
     ])
   )
 })

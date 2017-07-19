@@ -1,6 +1,6 @@
 const gh = require('./helpers/github')
 const page = require('page')
-const {atom, derive, transaction} = require('derivable')
+const {atom, derive, transact} = require('derivable')
 const matter = require('gray-matter')
 
 var state = {
@@ -45,8 +45,9 @@ var state = {
     data: atom(null),
 
     saved: derive(() => {
-      let {data, content} = matter(state.file.data.get())
-      return {metadata: data, content}
+      if (!state.file.data.get()) return {}
+      let {data: metadata, content} = matter(state.file.data.get())
+      return {metadata, content}
     }),
 
     edited: {
@@ -58,7 +59,8 @@ var state = {
       content: derive(() => typeof state.file.edited.content.get() === 'string'
         ? state.file.edited.content.get()
         : state.file.saved.get().content),
-      metadata: derive(() => state.file.edited.metadata.get() || state.file.saved.get().metadata)
+      metadata: derive(() =>
+        state.file.edited.metadata.get() || state.file.saved.get().metadata || {})
     },
 
     ext: derive(() => state.file.selected.get()
@@ -90,40 +92,58 @@ page('/:owner/:repo/*', ctx => {
     )
   )
   .then(tree => {
-    transaction(() => {
+    transact(() => {
       state.file.selected.set(ctx.params[0])
       state.file.loading.set(null)
+
+      for (let i = 0; i < tree.tree.length; i++) {
+        let f = tree.tree[i]
+        f.collapsed = true
+        f.active = false
+      }
+
       state.tree.set(tree.tree)
     })
   })
 })
 
 state.file.selected.react(() => {
-  let willLoad = state.file.selected.get()
+  let justSelected = state.file.selected.get()
 
-  if (!willLoad ||
-      state.file.loading.get() === willLoad) return
+  if (!justSelected ||
+      state.file.loading.get() === justSelected) return
 
   if (state.file.ext.get().match(/jpe?g|png|gif|svg/)) {
-    state.file.loaded.set(willLoad)
+    state.file.loaded.set(justSelected)
     return
   }
 
-  transaction(() => {
-    state.file.loading.set(willLoad)
+  transact(() => {
+    state.file.loading.set(justSelected)
     state.file.edited.content.set(null)
     state.file.edited.metadata.set({})
+
+    var updatedTree = []
+    for (let i = 0; i < state.tree.get().length; i++) {
+      let f = state.tree.get()[i]
+      if (f.path.slice(0, justSelected.length) === justSelected) {
+        f.collapsed = false
+      }
+      f.active = false
+      updatedTree.push(f)
+    }
+    state.bypath.get()[justSelected].active = true
+    state.tree.set(updatedTree)
   })
 
-  gh.get(`repos/${state.slug.get()}/contents/${willLoad}`,
+  gh.get(`repos/${state.slug.get()}/contents/${justSelected}`,
      {ref: 'master', headers: {'Accept': 'application/vnd.github.v3.raw'}})
   .then(res => {
-    transaction(() => {
-      state.file.loaded.set(willLoad)
+    transact(() => {
+      state.file.loaded.set(justSelected)
       state.file.data.set(res)
     })
   })
 })
 
 page({hashbang: true})
-

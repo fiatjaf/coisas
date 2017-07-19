@@ -11,7 +11,7 @@ const gh = require('../helpers/github')
 
 module.exports = pure(() => {
   return h('.columns.is-mobile', [
-    h('.column.is-3', [ h(Menu) ]),
+    h('.column.is-3', [ h(Menu, {name: 'menu'}) ]),
     h('.column.is-8', [ h(Edit) ]),
     h('.column.is-1', [
       h(Images),
@@ -22,7 +22,7 @@ module.exports = pure(() => {
 
 const Menu = pure(() =>
   h('.menu', [
-    h('ul.menu-list', state.tree.get().filter(f => f.path.split('/').length === 1).map(f =>
+    h('ul.menu-list', state.tree.get().map(f =>
       h(Folder, {f})
     ))
   ])
@@ -31,21 +31,30 @@ const Menu = pure(() =>
 const Folder = pure(({f}) => {
   if (f.type === 'blob') {
     return h('li', {
-      key: f.path,
-      className: state.file.selected.get() === f.path ? 'is-active' : ''
-    }, f.path)
+      key: f.path
+    }, [
+      h('a', {
+        href: `#!/${state.slug.get()}/${f.path}`,
+        onClick: () => state.file.selected.set(f.path)
+      }, f.path)
+    ])
   }
 
   let dir = f
   return (
     h(TreeView, {
       nodeLabel: dir.path,
-      collapsed: false // dir.collapsed,
-      // onClick: e => { state.bypath.get()[dir.path].collapsed = !dir.collapsed }
-    }, state.tree.get()
-      .filter(f => f.path.slice(0, dir.path.length) === dir.path)
-      .map(f => h(Folder, {key: f.path, f}))
-    )
+      collapsed: dir.collapsed,
+      onClick: () => {
+        state.bypath.get()[dir.path].collapsed = !dir.collapsed
+        state.tree.set(state.tree.get())
+      }
+    }, [
+      h('ul.menu-list', state.tree.get()
+        .filter(f => f.path.slice(0, dir.path.length + 1) === dir.path + '/')
+        .map(f => h(Folder, {key: f.path, f}))
+      )
+    ])
   )
 })
 
