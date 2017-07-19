@@ -1,4 +1,5 @@
 module.exports = {
   'index': require('./Index'),
-  'repo': require('./Repo')
+  'repo': require('./Repo'),
+  'div': 'div'
 }

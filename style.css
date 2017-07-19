@@ -6,6 +6,14 @@ main {
   padding-top: 30px;
 }
 
+#Images { margin-top: 12px; }
+
+#Save button { width: 100%; }
+
+.preview { margin: 14px; }
+.preview > * { width: 100%; }
+.preview > *:not(img) { min-height: 500px; }
+
 .CodeMirror {
   border: 1px solid #eee;
   height: auto !important;
