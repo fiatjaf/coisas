@@ -10,15 +10,9 @@ var state = {
   }),
   tree: atom([]),
 
-  owner: derive(() =>
-    state.route.get().ctx.params.owner
-  ),
-  repo: derive(() =>
-    state.route.get().ctx.params.repo
-  ),
-  slug: derive(() =>
-    state.owner.get() + '/' + state.repo.get()
-  ),
+  owner: derive(() => state.route.get().ctx.params.owner),
+  repo: derive(() => state.route.get().ctx.params.repo),
+  slug: derive(() => state.owner.get() + '/' + state.repo.get()),
 
   bysha: derive(() => {
     var bysha = {}
@@ -102,7 +96,10 @@ page('/:owner/:repo/*', ctx => {
         f.active = false
       }
 
-      state.tree.set(tree.tree)
+      state.tree.set(
+        // sort to show directories first
+        tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
+      )
     })
   })
 })
@@ -122,19 +119,28 @@ state.file.selected.react(() => {
     state.file.loading.set(justSelected)
     state.file.edited.content.set(null)
     state.file.edited.metadata.set({})
+  })
 
+  setTimeout(() => {
     var updatedTree = []
     for (let i = 0; i < state.tree.get().length; i++) {
       let f = state.tree.get()[i]
-      if (f.path.slice(0, justSelected.length) === justSelected) {
+
+      // open all directories up to the selected file
+      if (justSelected.slice(0, f.path.length) === f.path) {
         f.collapsed = false
       }
+
+      // reset active state
       f.active = false
+
       updatedTree.push(f)
     }
+
+    // mark the currently selected as active
     state.bypath.get()[justSelected].active = true
     state.tree.set(updatedTree)
-  })
+  }, 1)
 
   gh.get(`repos/${state.slug.get()}/contents/${justSelected}`,
      {ref: 'master', headers: {'Accept': 'application/vnd.github.v3.raw'}})

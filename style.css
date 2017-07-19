@@ -28,11 +28,12 @@ main {
   margin-bottom: 0 !important;
 }
 
-.jsonEditor .jsonName label {
-  padding-left: 12px;
-}
+.jsonEditor .jsonName label { padding-left: 12px; }
 .jsonEditor .jsonName,
 .jsonEditor .jsonValue {
   background: white;
   padding: 5px;
 }
+
+.tree-view { overflow: hidden; }
+.menu-list a { padding: 0 .75em; }

@@ -22,7 +22,7 @@ module.exports = pure(() => {
 
 const Menu = pure(() =>
   h('.menu', [
-    h('ul.menu-list', state.tree.get().map(f =>
+    h('ul.menu-list', state.tree.get().filter(f => f.path.split('/').length === 1).map(f =>
       h(Folder, {f})
     ))
   ])
@@ -34,9 +34,10 @@ const Folder = pure(({f}) => {
       key: f.path
     }, [
       h('a', {
+        className: f.active ? 'is-active' : '',
         href: `#!/${state.slug.get()}/${f.path}`,
         onClick: () => state.file.selected.set(f.path)
-      }, f.path)
+      }, f.path.split('/').slice(-1)[0])
     ])
   }
 
@@ -47,7 +48,7 @@ const Folder = pure(({f}) => {
       collapsed: dir.collapsed,
       onClick: () => {
         state.bypath.get()[dir.path].collapsed = !dir.collapsed
-        state.tree.set(state.tree.get())
+        state.tree.set(state.tree.get().concat() /* copy the array */)
       }
     }, [
       h('ul.menu-list', state.tree.get()
@@ -56,7 +57,7 @@ const Folder = pure(({f}) => {
       )
     ])
   )
-})
+}).withEquality((prevF, nextF) => prevF.active !== nextF.active)
 
 const Edit = pure(() => {
   var editor
@@ -108,12 +109,18 @@ const EditMarkdown = pure(() => {
 
 const EditCode = pure(() => {
   return h('div', [
+    state.file.ext.get() === 'html' && h(Json, {
+      value: state.file.shown.metadata.get(),
+      onChange: metadata => {
+        state.file.edited.metadata.set(metadata)
+      }
+    }),
     h(CodeMirror, {
-      value: state.file.editedContent || state.file.content,
-      onChange: v => state.file.editedContent,
+      value: state.file.shown.content.get(),
+      onChange: v => state.file.edited.content.set(),
       options: {
         viewportMargin: Infinity,
-        mode: state.file.ext()
+        mode: state.file.ext.get()
       }
     })
   ])
@@ -133,7 +140,7 @@ const Save = pure(() => {
           gh.put(`repos/${state.slug.get()}/contents/${state.file.selected.get()}`, {
             message: `updated ${state.file.selected.get()}.`,
             sha: state.bypath.get()[state.file.selected].sha,
-            content: window.btoa(unescape(encodeURIComponent(state.file.ext.get() === 'md'
+            content: window.btoa(unescape(encodeURIComponent(state.file.ext.get().match(/md|html/)
               ? `---
 ${Object.keys(state.file.shown.metadata.get()).map(k => `
 ${k}: ${state.file.shown.metadata.get()[k]}`
