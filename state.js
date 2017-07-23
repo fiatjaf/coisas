@@ -131,27 +131,24 @@ var state = {
         body.message = `updated ${state.current.path.get()}.`
       }
 
-      if (state.current.frontmatter.get()) {
+      if (state.current.upload.base64.get()) {
+        body.content = state.current.upload.base64.get()
+        if (state.existing.get()) {
+          body.message = `replaced ${state.current.path.get()} with upload.`
+        } else {
+          body.message = `uploaded ${state.current.path.get()}`
+        }
+      } else if (state.current.frontmatter.get()) {
         body.content = base64.encode(`---
-${
 
-Object.keys(state.current.shown.metadata.get()).map(k =>
+${Object.keys(state.current.shown.metadata.get()).map(k =>
   `${k}: ${state.current.shown.metadata.get()[k]}`
-).join('\n')
-
-}
+).join('\n')}
 
 ---
 
 ${state.current.shown.content.get()}
 `)
-      } else if (state.current.upload.base64.get()) {
-        body.content = state.current.upload.base64.get()
-        if (body.sha) {
-          body.message = `replaced ${state.current.path.get()} with upload.`
-        } else {
-          body.message = `uploaded ${state.current.path.get()}`
-        }
       } else {
         body.content = base64.encode(state.current.shown.content.get())
       }

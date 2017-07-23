@@ -116,15 +116,17 @@ const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
 })
 
 const Delete = pure(function Delete () {
-  if (!state.existing.get()) return h('div')
-
   if (!state.current.deleting.get()) {
     return h('#Delete', [
-      h('button.button.is-warning', {
-        onClick: () => {
-          state.current.deleting.set(true)
-        }
-      }, 'Delete this?')
+      h('.level', [
+        h('.level-left', [
+          h('button.button.is-warning', {
+            onClick: () => {
+              state.current.deleting.set(true)
+            }
+          }, 'Delete this?')
+        ])
+      ])
     ])
   }
 
@@ -156,6 +158,7 @@ const Delete = pure(function Delete () {
 
 const Upload = pure(function Upload () {
   return h('#Upload', [
+    h(Title),
     h('.upload', [
       h('label', [
         'Upload a file:',
@@ -164,6 +167,7 @@ const Upload = pure(function Upload () {
           onChange: e => {
             let file = e.target.files[0]
             state.current.upload.file.set(file)
+            state.current.givenName.set(file.name)
             var reader = new window.FileReader()
             reader.onload = event => {
               let binary = event.target.result
@@ -207,14 +211,17 @@ const Title = pure(function Title () {
   } else {
     return h('input.input.is-large', {
       value: state.current.name.get(),
-      onChange: v => state.current.givenName.set(v)
+      onChange: e => state.current.givenName.set(e.target.value)
     })
   }
 })
 
 const Page = pure(function Page () {
-  var editor
+  if (state.current.loading.get()) {
+    return h('div', '...')
+  }
 
+  var editor
   switch (state.current.mime.get()) {
     case 'text/x-markdown':
       editor = h(EditMarkdown)
@@ -238,11 +245,30 @@ const Page = pure(function Page () {
     }
   })
 
-  var components = state.current.loading.get()
-    ? [ h('div', '...') ]
-    : editor
-      ? [ editor, h(Delete) ]
-      : [ preview, h(Delete) ]
+  var components = editor
+    ? [ editor ]
+    : [ preview ]
+
+  let uploadMode = state.existing.get() ? REPLACE : UPLOAD
+  components.push(
+    h('div', [
+      h('button.button.is-dark', {
+        onClick: () => {
+          if (state.current.edited.content.get()) {
+            log.confirm('You will lose all the edited contents, is that fine?', () => {
+              state.mode.set(uploadMode)
+            })
+          } else {
+            state.mode.set(uploadMode)
+          }
+        }
+      }, state.existing.get() ? 'Replace this with an uploaded file?' : 'Upload a file?')
+    ])
+  )
+
+  if (state.existing.get()) {
+    components.push(h(Delete))
+  }
 
   return h('#Page', [
     h(Title),
@@ -332,7 +358,8 @@ const Save = pure(function Save () {
         gh.put(url, body)
           .then(() => {
             if (state.mode.get() === ADD || state.mode.get() === UPLOAD) {
-              return loadTree()
+              return Promise.resolve()
+                .then(loadTree)
                 .then(() => loadFile(state.current.path.get()))
                 .then(resetTreeForCurrent)
             }
