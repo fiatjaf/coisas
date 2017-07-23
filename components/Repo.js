@@ -329,7 +329,7 @@ const Images = pure(function Images () {
         .map(f =>
           h('img', {
             key: f.path,
-            src: f.path,
+            src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${f.path}`,
             title: f.path
           })
       )),
@@ -337,7 +337,7 @@ const Images = pure(function Images () {
         .map(f =>
           h('img', {
             key: f.path,
-            src: f.path,
+            src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${f.path}`,
             title: f.path
           })
       ))

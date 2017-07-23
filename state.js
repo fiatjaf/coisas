@@ -139,6 +139,9 @@ var state = {
           body.message = `uploaded ${state.current.path.get()}`
         }
       } else if (state.current.frontmatter.get()) {
+        let rawgithuburl = RegExp(
+            '\\]\\(https:\\/\\/raw.githubusercontent.com\\/' + state.slug.get() + '\\/master', 'g')
+
         body.content = base64.encode(`---
 
 ${Object.keys(state.current.shown.metadata.get()).map(k =>
@@ -147,8 +150,7 @@ ${Object.keys(state.current.shown.metadata.get()).map(k =>
 
 ---
 
-${state.current.shown.content.get()}
-`)
+${state.current.shown.content.get().replace(rawgithuburl, '](')}`)
       } else {
         body.content = base64.encode(state.current.shown.content.get())
       }
