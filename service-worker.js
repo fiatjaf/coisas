@@ -6,7 +6,10 @@ const always = [
   'https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.1/notie.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.0/notie.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/codemirror.min.css',
-  'https://cdn.rawgit.com/chenglou/react-treeview/6e9eacf4/react-treeview.css'
+  'https://cdn.rawgit.com/chenglou/react-treeview/6e9eacf4/react-treeview.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/css/css.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/htmlmixed/htmlmixed.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/javascript/javascript.js'
 ]
 
 const currentCache = 'v0'

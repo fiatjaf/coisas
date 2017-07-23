@@ -2,8 +2,20 @@ const gh = require('./helpers/github')
 const page = require('page')
 const {atom, derive, transact} = require('derivable')
 const matter = require('gray-matter')
+const mimeTypes = require('render-media/lib/mime.json')
+const based = require('based-blob')
 
 const base64 = require('./helpers/base64')
+const log = require('./log')
+
+// modes
+const ADD = '<creating a new text file>'
+const REPLACE = '<replacing an existing file with an uploaded file>'
+const UPLOAD = '<uploading a new file>'
+const DELETE = '<deleting an existing file>'
+const EDIT = '<updating a text file>'
+
+/* STATE */
 
 var state = {
   route: atom({
@@ -16,16 +28,6 @@ var state = {
   slug: derive(() => state.owner.get() + '/' + state.repo.get()),
 
   tree: atom([]),
-
-  // bysha: derive(() => {
-  //   var bysha = {}
-  //   for (let i = 0; i < state.tree.get().length; i++) {
-  //     let f = state.tree.get()[i]
-  //     bysha[f.sha] = f
-  //   }
-  //   return bysha
-  // }),
-
   bypath: derive(() => {
     var bypath = {}
     for (let i = 0; i < state.tree.get().length; i++) {
@@ -34,79 +36,176 @@ var state = {
     }
     return bypath
   }),
+  images: derive(() => state.tree.get().filter(f => f.path.match(/(jpe?g|gif|png|svg)$/))),
 
-  mode: derive(() => {
-    let current = state.bypath.get()[state.file.selected.get()]
-    if (!current) return null
+  mode: atom(ADD),
 
-    if (current.type === 'blob') {
-      return 'edit'
-    } else {
-      return 'add'
-    }
-  }),
+  current: {
+    directory: atom(''),
+    gh_contents: atom(null),
+    givenName: atom(''),
 
-  file: {
-    loading: atom(null),
-    loaded: atom(false),
-    selected: atom(''),
-    data: atom(null),
+    path: derive(() =>
+      state.current.gh_contents.get()
+        ? state.current.gh_contents.get().path
+        : state.current.directory.get() + '/' + state.current.givenName.get()
+    ),
+    name: derive(() => state.current.path.get().split('/').slice(-1)[0]),
+    ext: derive(() => state.current.name.get().split('.').slice(-1)[0]),
+    mime: derive(() => mimeTypes['.' + state.current.ext.get()]),
+    frontmatter: derive(() =>
+      state.current.mime.get() === 'text/x-markdown' ||
+      state.current.mime.get() === 'text/html'
+    ),
 
-    saved: derive(() => {
-      if (!state.file.data.get()) return {}
-      if (state.file.selected.get().match(/(md|html)$/)) {
-        let {data: metadata, content} = matter(base64.decode(state.file.data.get()))
-        return {metadata, content}
-      } else {
-        try {
-          return {content: base64.decode(state.file.data.get())}
-        } catch (e) {
-          return {content: null}
-        }
+    loaded: atom(null),
+    loading: derive(() => state.current.loaded.get() === state.current.path.get()),
+
+    data: derive(() => {
+      let r = state.current.gh_contents.get()
+      if (!r || !r.content) return ''
+
+      try {
+        return base64.decode(r.content)
+      } catch (e) {
+        console.warn(e)
+        return null
       }
     }),
+    blob: derive(() => {
+      let r = state.current.gh_contents.get()
+      if (!r || !r.content) return ''
 
+      try {
+        return based.toBlob(r.content)
+      } catch (e) {
+        console.warn(e)
+        return null
+      }
+    }),
+    upload: {
+      file: atom(null),
+      base64: atom(null)
+    },
+
+    saved: derive(() => {
+      let data = state.current.data.get()
+      if (!data) return {}
+      if (state.current.frontmatter.get()) {
+        let {data: metadata, content} = matter(data)
+        return {metadata, content}
+      } else {
+        return {content: data}
+      }
+    }),
     edited: {
       content: atom(null),
       metadata: atom(null)
     },
-
     shown: {
-      content: derive(() => typeof state.file.edited.content.get() === 'string'
-        ? state.file.edited.content.get()
-        : state.file.saved.get().content),
+      content: derive(() =>
+        typeof state.current.edited.content.get() === 'string'
+          ? state.current.edited.content.get()
+          : state.current.saved.get().content
+      ),
       metadata: derive(() =>
-        state.file.edited.metadata.get() || state.file.saved.get().metadata || {})
+        state.current.edited.metadata.get() || state.current.saved.get().metadata || {})
     },
+    toSave: derive(() => {
+      var body = {
+        message: `created ${state.current.path.get()}.`
+      }
 
-    ext: derive(() => state.file.selected.get()
-      ? state.file.selected.get().split('.').slice(-1)[0]
-      : ''),
-    finishedLoading: derive(() => state.file.loaded.get() === state.file.selected.get())
-  },
+      if (state.current.gh_contents.get()) {
+        body.sha = state.current.gh_contents.get().sha
+        body.message = `updated ${state.current.path.get()}.`
+      }
 
-  upload: {
-    file: atom(null),
-    base64: atom(null),
+      if (state.current.frontmatter.get()) {
+        body.content = `---
+${Object.keys(state.current.shown.metadata.get()).map(k => `
+${k}: ${state.current.shown.metadata.get()[k]}`
+)}
 
-    name: derive(() => state.upload.file.get().name)
+---
+
+${state.current.shown.content.get()}
+`
+      } else if (state.current.upload.base64.get()) {
+        body.content = state.current.upload.base64.get()
+        if (body.sha) {
+          body.message = `replaced ${state.current.path.get()} with upload.`
+        } else {
+          body.message = `uploaded ${state.current.path.get()}`
+        }
+      } else {
+        body.content = base64.encode(state.current.shown.content.get())
+      }
+
+      return [`repos/${state.slug.get()}/contents/${state.current.path.get()}`, body]
+    })
   }
 }
 module.exports = state
 
-page('/', ctx => {
-  state.route.set({componentName: 'index', ctx})
-})
 
-page('/:owner/:repo/*', ctx => {
-  state.route.set({componentName: 'repo', ctx})
+/* REACTIONS */
 
-  if (navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      currentRepo: state.slug.get()
-    })
+state.current.gh_contents.react(() => {
+  if (!state.tree.get().length) return
+
+  let res = state.current.gh_contents.get()
+  if (!res) return
+
+  let path = res.path
+  let file = state.bypath.get()[path]
+
+  var updatedTree = []
+  for (let i = 0; i < state.tree.get().length; i++) {
+    let f = state.tree.get()[i]
+
+    // open all directories up to the selected file
+    if (path.slice(0, f.path.length) === f.path) {
+      f.collapsed = false
+    }
+
+    // reset active state
+    f.active = false
+
+    updatedTree.push(f)
   }
 
+  // mark the currently selected as active
+  file.active = true
+  state.tree.set(updatedTree)
+})
+
+
+/* ACTIONS */
+
+module.exports.clearCurrent = clearCurrent
+function clearCurrent () {
+  state.current.directory.set('')
+  state.current.gh_contents.set(null)
+  state.current.givenName.set('')
+  state.current.loaded.set(null)
+  state.current.upload.file.set(null)
+  state.current.upload.base64.set(null)
+  state.current.edited.content.set(null)
+  state.current.edited.metadata.set(null)
+}
+
+module.exports.loadFile = loadFile
+function loadFile (path) {
+  log.info(`Loading ${path} from GitHub.`)
+  gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
+    .then(res => state.current.gh_contents.set(res))
+    .then(() => log.info(`Loaded ${path}.`))
+    .catch(log.error)
+}
+
+module.exports.loadTree = loadTree
+function loadTree () {
   gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
   .then(ref =>
     gh.get(
@@ -115,69 +214,41 @@ page('/:owner/:repo/*', ctx => {
     )
   )
   .then(tree => {
-    transact(() => {
-      state.file.selected.set(ctx.params[0])
-      state.file.loading.set(null)
-
-      for (let i = 0; i < tree.tree.length; i++) {
-        let f = tree.tree[i]
-        f.collapsed = true
-        f.active = false
-      }
-
-      state.tree.set(
-        // sort to show directories first
-        tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
-      )
-    })
-  })
-})
-
-page({hashbang: true})
-
-state.file.selected.react(() => {
-  let justSelected = state.file.selected.get()
-  let file = state.bypath.get()[justSelected]
-
-  if (!justSelected || state.file.loading.get() === justSelected || !file) return
-
-  transact(() => {
-    state.file.loading.set(justSelected)
-    state.upload.file.set(null)
-    state.upload.base64.set(null)
-    state.file.data.set(null)
-    state.file.edited.content.set(null)
-    state.file.edited.metadata.set(null)
-  })
-
-  setTimeout(() => {
-    var updatedTree = []
-    for (let i = 0; i < state.tree.get().length; i++) {
-      let f = state.tree.get()[i]
-
-      // open all directories up to the selected file
-      if (justSelected.slice(0, f.path.length) === f.path) {
-        f.collapsed = false
-      }
-
-      // reset active state
+    for (let i = 0; i < tree.tree.length; i++) {
+      let f = tree.tree[i]
+      f.collapsed = true
       f.active = false
-
-      updatedTree.push(f)
     }
 
-    // mark the currently selected as active
-    file.active = true
-    state.tree.set(updatedTree)
-  }, 1)
+    state.tree.set(
+      // sort to show directories first
+      tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
+    )
+  })
+  .catch(log.error)
+}
 
-  if (file.type === 'blob') {
-    gh.get(`repos/${state.slug.get()}/contents/${justSelected}`, {ref: 'master'})
-    .then(res => {
-      transact(() => {
-        state.file.loaded.set(justSelected)
-        state.file.data.set(res.content)
-      })
+
+/* ROUTES */
+
+page('/', ctx => state.route.set({componentName: 'index', ctx}))
+page('/:owner/:repo/*', ctx => {
+  transact(() => {
+    state.route.set({componentName: 'repo', ctx})
+    clearCurrent()
+    state.mode.set(EDIT)
+    loadFile(ctx.params[0])
+  })
+
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      currentRepo: state.slug.get()
     })
   }
+
+  loadTree()
 })
+page({hashbang: true})
+
+
+module.exports.modes = {ADD, REPLACE, UPLOAD, DELETE, EDIT}

@@ -37,7 +37,7 @@
     "prosemirror-view": "^0.22.0",
     "qs": "^6.5.0",
     "react": "^15.6.1",
-    "react-codemirror": "^1.0.0",
+    "react-codemirror": "github:skidding/react-codemirror#bcbb50b",
     "react-derivable": "^0.2.0",
     "react-dom": "^15.6.1",
     "react-hyperscript": "^3.0.0",

@@ -3,24 +3,24 @@ const CodeMirror = require('react-codemirror')
 const Json = require('react-json')
 const TreeView = require('react-treeview')
 const {pure} = require('react-derivable')
+const {transact} = require('derivable')
 const ReadableBlobStream = require('readable-blob-stream')
 const {append: renderMedia} = require('render-media')
-const based = require('based-blob')
-const mimeTypes = require('render-media/lib/mime.json')
 
+const {ADD, REPLACE, UPLOAD, DELETE, EDIT} = require('../state').modes
+const {loadTree, loadFile, clearCurrent} = require('../state')
 const ProseMirror = require('./ProseMirror')
-const base64 = require('../helpers/base64')
 const state = require('../state')
 const log = require('../log')
 const gh = require('../helpers/github')
 
-module.exports = pure(() => {
+module.exports = pure(function Repo () {
   return h('.columns.is-mobile', [
     h('.column.is-3', [ h(Menu, {name: 'menu'}) ]),
     h('.column.is-7', [
-      state.mode.get() === 'add'
-        ? h(Add)
-        : state.mode.get() === 'edit'
+      state.mode.get() === UPLOAD
+        ? h(Upload)
+        : state.mode.get() === EDIT
           ? h(Edit)
           : h('div')
     ]),
@@ -31,8 +31,8 @@ module.exports = pure(() => {
   ])
 })
 
-const Menu = pure(() =>
-  h('.menu', [
+const Menu = pure(function Menu () {
+  return h('.menu', [
     h('ul.menu-list', state.tree.get()
       .filter(f => f.path.split('/').length === 1)
       .map(f => h(Folder, {f}))
@@ -41,16 +41,20 @@ const Menu = pure(() =>
           h('a', {
             href: `#!/${state.slug.get()}/`,
             onClick: () => {
-              state.file.selected.set('')
+              transact(() => {
+                clearCurrent()
+                state.mode.set(ADD)
+                state.current.directory.set('')
+              })
             }
           }, '+ new file')
         ])
       )
     )
   ])
-)
+})
 
-const Folder = pure(({f}) => {
+const Folder = pure(function Folder ({f}) {
   if (f.type === 'blob') {
     return h('li', {
       key: f.path
@@ -59,7 +63,11 @@ const Folder = pure(({f}) => {
         className: f.active ? 'is-active' : '',
         href: `#!/${state.slug.get()}/${f.path}`,
         onClick: () => {
-          state.file.selected.set(f.path)
+          transact(() => {
+            clearCurrent()
+            state.mode.set(EDIT)
+            loadFile(f.path)
+          })
         }
       }, f.path.split('/').slice(-1)[0])
     ])
@@ -84,7 +92,11 @@ const Folder = pure(({f}) => {
               className: dir.active ? 'is-active' : '',
               href: `#!/${state.slug.get()}/${dir.path}/`,
               onClick: () => {
-                state.file.selected.set(f.path)
+                transact(() => {
+                  clearCurrent()
+                  state.current.directory.set(f.path)
+                  state.mode.set(ADD)
+                })
               }
             }, '+ new file')
           ])
@@ -92,11 +104,12 @@ const Folder = pure(({f}) => {
       )
     ])
   )
-}).withEquality((prevF, nextF) => prevF.active !== nextF.active)
+}).withEquality((prevF, nextF) =>
+  prevF.active !== nextF.active
+)
 
-const Add = pure(() => {
-  return h('#Add', [
-    h('h2.title.is-2', state.file.selected.get() + '/'),
+const Upload = pure(function Upload () {
+  return h('#Upload', [
     h('.upload', [
       h('label', [
         'Upload a file:',
@@ -104,22 +117,24 @@ const Add = pure(() => {
           type: 'file',
           onChange: e => {
             let file = e.target.files[0]
-            state.upload.file.set(file)
+            state.current.upload.file.set(file)
             var reader = new window.FileReader()
             reader.onload = event => {
               let binary = event.target.result
-              state.upload.base64.set(window.btoa(binary))
+              state.current.upload.base64.set(window.btoa(binary))
             }
             reader.readAsBinaryString(file)
           }
         }),
-        state.upload.file.get()
+        state.current.upload.file.get()
           ? h('div', [
             'Preview:',
             h(Preview, {
               file: {
-                name: state.upload.file.get().name,
-                createReadStream: () => new ReadableBlobStream(state.upload.file.get())
+                name: state.current.upload.file.get().name,
+                createReadStream: () =>
+                  new ReadableBlobStream(state.current.upload.file.get()
+                )
               }
             })
           ])
@@ -129,7 +144,7 @@ const Add = pure(() => {
   ])
 })
 
-const Preview = pure(({file}) => {
+const Preview = pure(function ({file}) {
   return h('.preview', {
     ref: el => {
       if (el) {
@@ -140,10 +155,9 @@ const Preview = pure(({file}) => {
   })
 })
 
-const Edit = pure(() => {
+const Edit = pure(function Edit () {
   var editor
-  let mime = mimeTypes['.' + state.file.ext.get()]
-  switch (mime) {
+  switch (state.current.mime.get()) {
     case 'text/x-markdown':
       editor = h(EditMarkdown)
       break
@@ -159,114 +173,111 @@ const Edit = pure(() => {
     default:
       editor = h(Preview, {
         file: {
-          name: state.file.selected.get().split('/').slice(-1)[0],
+          name: state.current.name.get(),
           createReadStream: () =>
-            new ReadableBlobStream(based.toBlob(state.file.data.get()))
+            new ReadableBlobStream(state.current.blob.get())
         }
       })
   }
 
   return h('#Edit.content', [
-    h('h2.title.is-2', state.file.selected.get()),
-    state.file.finishedLoading.get()
-    ? editor
-    : h('div', 'loading file contents from GitHub')
+    h('h2.title.is-2', state.current.path.get()),
+    state.current.loading.get()
+    ? h('div', '...')
+    : editor
   ])
 })
 
-const EditMarkdown = pure(() => {
+const EditMarkdown = pure(function EditMarkdown () {
   return h('div', [
     h(Json, {
-      value: state.file.shown.metadata.get(),
+      value: state.current.shown.metadata.get(),
       onChange: metadata => {
-        state.file.edited.metadata.set(metadata)
+        state.current.edited.metadata.set(metadata)
       }
     }),
     h(ProseMirror, {
-      value: state.file.shown.content.get(),
+      value: state.current.shown.content.get(),
       onChange: content => {
-        state.file.edited.content.set(content)
+        state.current.edited.content.set(content)
       }
     })
   ])
 })
 
-const EditCode = pure(() => {
-  if (state.file.shown.content.get() === null) {
+const EditCode = pure(function EditCode () {
+  if (state.current.shown.content.get() === null) {
     return h('cannot render this file here.')
   }
 
+  let value = state.current.shown.content.get()
+
   return h('div', [
-    state.file.ext.get() === 'html' && h(Json, {
-      value: state.file.shown.metadata.get(),
+    state.current.frontmatter.get() && h(Json, {
+      value: state.current.shown.metadata.get(),
       onChange: metadata => {
-        state.file.edited.metadata.set(metadata)
+        state.current.edited.metadata.set(metadata)
       }
     }),
     h(CodeMirror, {
-      value: state.file.shown.content.get(),
-      onChange: v => state.file.edited.content.set(),
+      value,
+      onChange: v => state.current.edited.content.set(v),
       options: {
         viewportMargin: Infinity,
-        mode: state.file.ext.get()
+        mode: state.current.mime.get()
       }
     })
   ])
 })
 
-const Images = pure(() => {
+const Images = pure(function Images () {
+  let images = state.images.get()
+  let mid = parseInt(images.length / 2)
+
   return h('#Images', [
     'drag an image to the editor to insert it.',
-    h('.list', state.tree.get()
-      .filter(f => f.path.match(/(jpe?g|gif|png|svg)$/))
-      .map(f =>
-        h('img', {
-          key: f.path,
-          src: f.path,
-          title: f.path
-        })
-    ))
+    h('.columns', [
+      h('.column.is-half', images.slice(0, mid)
+        .map(f =>
+          h('img', {
+            key: f.path,
+            src: f.path,
+            title: f.path
+          })
+      )),
+      h('.column.is-half', images.slice(mid)
+        .map(f =>
+          h('img', {
+            key: f.path,
+            src: f.path,
+            title: f.path
+          })
+      ))
+    ])
   ])
 })
 
-const Save = pure(() => {
+const Save = pure(function Save () {
   return h('#Save', [
     h('button.button.is-large.is-primary', {
       disabled:
-        !state.file.shown.content.get() &&
-        !Object.keys(state.file.shown.metadata.get()).length &&
-        !state.upload.base64,
-      onClick: () => Promise.resolve().then(() => {
-        log.info(`Saving ${state.file.selected.get()} to GitHub.`)
-
-        if (state.file.shown.content.get()) {
-          return gh
-            .put(`repos/${state.slug.get()}/contents/${state.file.selected.get()}`, {
-              message: `updated ${state.file.selected.get()}.`,
-              sha: state.bypath.get()[state.file.selected].sha,
-              content: base64.encode(state.file.ext.get().match(/md|html/)
-                ? `---
-${Object.keys(state.file.shown.metadata.get()).map(k => `
-${k}: ${state.file.shown.metadata.get()[k]}`
-)}
-
----
-
-${state.file.shown.content.get()}
-`
-                : state.file.shown.content.get())
-            })
-        }
-
-        if (state.upload.base64.get()) {
-          let path = state.file.selected.get() + '/' + state.upload.name.get()
-          return gh
-            .put(`repos/${state.slug.get()}/contents/${state.upload.name.get()}`, {
-              message: `uploaded ${path}.`,
-              content: state.upload.base64.get()
-            })
-        }
-      }).then(() => log.success('Saved.')).catch(log.error)
-    }, state.mode.get() === 'add' ? 'Add file' : 'Save changes')
+        !state.current.shown.content.get() &&
+        !Object.keys(state.current.shown.metadata.get()).length &&
+        !state.current.upload.base64,
+      onClick: () => {
+        log.info(`Saving ${state.current.path.get()} to GitHub.`)
+        let [url, body] = state.current.toSave.get()
+        gh.put(url, body)
+          .then(loadTree)
+          .then(() => log.success('Saved.'))
+          .catch(log.error)
+      }
+    }, state.mode.switch(
+      ADD, 'Create file',
+      REPLACE, 'Replace file',
+      UPLOAD, 'Upload',
+      DELETE, 'Delete',
+      EDIT, 'Save changes'
+    ).get())
   ])
 })
