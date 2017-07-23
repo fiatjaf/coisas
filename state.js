@@ -12,7 +12,6 @@ const log = require('./log')
 const ADD = '<creating a new text file>'
 const REPLACE = '<replacing an existing file with an uploaded file>'
 const UPLOAD = '<uploading a new file>'
-const DELETE = '<deleting an existing file>'
 const EDIT = '<updating a text file>'
 
 /* STATE */
@@ -39,6 +38,16 @@ var state = {
   images: derive(() => state.tree.get().filter(f => f.path.match(/(jpe?g|gif|png|svg)$/))),
 
   mode: atom(ADD),
+  existing: derive(() => {
+    switch (state.mode.get()) {
+      case EDIT:
+      case REPLACE:
+        return true
+      case ADD:
+      case UPLOAD:
+        return false
+    }
+  }),
 
   current: {
     directory: atom(''),
@@ -59,6 +68,7 @@ var state = {
     ),
 
     loaded: atom(null),
+    deleting: atom(false),
     loading: derive(() => state.current.loaded.get() === state.current.path.get()),
 
     data: derive(() => {
@@ -122,15 +132,19 @@ var state = {
       }
 
       if (state.current.frontmatter.get()) {
-        body.content = `---
-${Object.keys(state.current.shown.metadata.get()).map(k => `
-${k}: ${state.current.shown.metadata.get()[k]}`
-)}
+        body.content = base64.encode(`---
+${
+
+Object.keys(state.current.shown.metadata.get()).map(k =>
+  `${k}: ${state.current.shown.metadata.get()[k]}`
+).join('\n')
+
+}
 
 ---
 
 ${state.current.shown.content.get()}
-`
+`)
       } else if (state.current.upload.base64.get()) {
         body.content = state.current.upload.base64.get()
         if (body.sha) {
@@ -157,8 +171,74 @@ state.current.gh_contents.react(() => {
   let res = state.current.gh_contents.get()
   if (!res) return
 
-  let path = res.path
-  let file = state.bypath.get()[path]
+  resetTreeForCurrent()
+})
+
+
+/* ACTIONS */
+
+module.exports.clearCurrent = clearCurrent
+function clearCurrent () {
+  state.current.deleting.set(false)
+  state.current.directory.set('')
+  state.current.gh_contents.set(null)
+  state.current.givenName.set('')
+  state.current.loaded.set(null)
+  state.current.upload.file.set(null)
+  state.current.upload.base64.set(null)
+  state.current.edited.content.set(null)
+  state.current.edited.metadata.set(null)
+}
+
+module.exports.loadFile = loadFile
+function loadFile (path) {
+  log.info(`Loading ${path} from GitHub.`)
+  gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
+    .then(res => {
+      if (res.path) {
+        state.current.gh_contents.set(res)
+        log.info(`Loaded ${path}.`)
+      }
+    })
+    .catch(log.error)
+}
+
+module.exports.loadTree = loadTree
+function loadTree () {
+  gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
+  .then(ref =>
+    gh.get(
+     `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
+     {recursive: 5}
+    )
+  )
+  .then(tree => {
+    // add a fake top level dir
+    tree.tree.unshift({
+      mode: '040000',
+      path: '',
+      sha: '~',
+      type: 'tree',
+      url: '~'
+    })
+
+    for (let i = 0; i < tree.tree.length; i++) {
+      let f = tree.tree[i]
+      f.collapsed = true
+      f.active = false
+    }
+
+    state.tree.set(
+      // sort to show directories first
+      tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
+    )
+  })
+  .catch(log.error)
+}
+
+module.exports.resetTreeForCurrent = resetTreeForCurrent
+function resetTreeForCurrent () {
+  let path = state.current.path.get()
 
   var updatedTree = []
   for (let i = 0; i < state.tree.get().length; i++) {
@@ -175,57 +255,15 @@ state.current.gh_contents.react(() => {
     updatedTree.push(f)
   }
 
-  // mark the currently selected as active
-  file.active = true
+  if (state.existing.get()) {
+    // mark the currently selected file as active
+    state.bypath.get()[path].active = true
+  } else {
+    // mark the currently selected directory as active
+    state.bypath.get()[state.current.directory.get()].active = true
+  }
+
   state.tree.set(updatedTree)
-})
-
-
-/* ACTIONS */
-
-module.exports.clearCurrent = clearCurrent
-function clearCurrent () {
-  state.current.directory.set('')
-  state.current.gh_contents.set(null)
-  state.current.givenName.set('')
-  state.current.loaded.set(null)
-  state.current.upload.file.set(null)
-  state.current.upload.base64.set(null)
-  state.current.edited.content.set(null)
-  state.current.edited.metadata.set(null)
-}
-
-module.exports.loadFile = loadFile
-function loadFile (path) {
-  log.info(`Loading ${path} from GitHub.`)
-  gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
-    .then(res => state.current.gh_contents.set(res))
-    .then(() => log.info(`Loaded ${path}.`))
-    .catch(log.error)
-}
-
-module.exports.loadTree = loadTree
-function loadTree () {
-  gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
-  .then(ref =>
-    gh.get(
-     `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
-     {recursive: 5}
-    )
-  )
-  .then(tree => {
-    for (let i = 0; i < tree.tree.length; i++) {
-      let f = tree.tree[i]
-      f.collapsed = true
-      f.active = false
-    }
-
-    state.tree.set(
-      // sort to show directories first
-      tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
-    )
-  })
-  .catch(log.error)
 }
 
 
@@ -251,4 +289,4 @@ page('/:owner/:repo/*', ctx => {
 page({hashbang: true})
 
 
-module.exports.modes = {ADD, REPLACE, UPLOAD, DELETE, EDIT}
+module.exports.modes = {ADD, REPLACE, UPLOAD, EDIT}

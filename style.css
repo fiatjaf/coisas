@@ -10,6 +10,8 @@ main {
 
 #Save button { width: 100%; }
 
+#Page { margin-top: 20px; }
+
 .preview { margin: 14px; }
 .preview > * { width: 100%; }
 .preview > *:not(img) { min-height: 500px; }

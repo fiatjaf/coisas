@@ -6,9 +6,10 @@ const {pure} = require('react-derivable')
 const {transact} = require('derivable')
 const ReadableBlobStream = require('readable-blob-stream')
 const {append: renderMedia} = require('render-media')
+const haikunate = require('haikunator-porreta')
 
-const {ADD, REPLACE, UPLOAD, DELETE, EDIT} = require('../state').modes
-const {loadTree, loadFile, clearCurrent} = require('../state')
+const {ADD, REPLACE, UPLOAD, EDIT} = require('../state').modes
+const {loadTree, resetTreeForCurrent, loadFile, clearCurrent} = require('../state')
 const ProseMirror = require('./ProseMirror')
 const state = require('../state')
 const log = require('../log')
@@ -18,11 +19,12 @@ module.exports = pure(function Repo () {
   return h('.columns.is-mobile', [
     h('.column.is-3', [ h(Menu, {name: 'menu'}) ]),
     h('.column.is-7', [
-      state.mode.get() === UPLOAD
-        ? h(Upload)
-        : state.mode.get() === EDIT
-          ? h(Edit)
-          : h('div')
+      state.mode.switch(
+        ADD, h(Page),
+        REPLACE, h(Upload),
+        UPLOAD, h(Upload),
+        EDIT, h(Page)
+      ).get()
     ]),
     h('.column.is-2', [
       h(Save),
@@ -32,22 +34,18 @@ module.exports = pure(function Repo () {
 })
 
 const Menu = pure(function Menu () {
-  return h('.menu', [
+  let topdir = state.bypath.get()['']
+
+  if (!topdir) return h('div')
+
+  return h('#Menu.menu', [
     h('ul.menu-list', state.tree.get()
+      .filter(f => f.path)
       .filter(f => f.path.split('/').length === 1)
       .map(f => h(Folder, {f}))
       .concat(
         h('li', [
-          h('a', {
-            href: `#!/${state.slug.get()}/`,
-            onClick: () => {
-              transact(() => {
-                clearCurrent()
-                state.mode.set(ADD)
-                state.current.directory.set('')
-              })
-            }
-          }, '+ new file')
+          h(ButtonAdd, {dir: topdir, active: topdir.active})
         ])
       )
     )
@@ -88,25 +86,73 @@ const Folder = pure(function Folder ({f}) {
         .map(f => h(Folder, {key: f.path, f}))
         .concat(
           h('li', [
-            h('a', {
-              className: dir.active ? 'is-active' : '',
-              href: `#!/${state.slug.get()}/${dir.path}/`,
-              onClick: () => {
-                transact(() => {
-                  clearCurrent()
-                  state.current.directory.set(f.path)
-                  state.mode.set(ADD)
-                })
-              }
-            }, '+ new file')
+            h(ButtonAdd, {dir, active: dir.active})
           ])
         )
       )
     ])
   )
 }).withEquality((prevF, nextF) =>
-  prevF.active !== nextF.active
+  prevF
+  ? prevF.active !== nextF.active
+  : true
 )
+
+const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
+  return h('a', {
+    className: active ? 'is-active' : '',
+    href: `#!/${state.slug.get()}/${dir.path}`,
+    onClick: () => {
+      transact(() => {
+        clearCurrent()
+        state.current.directory.set(dir.path)
+        state.current.givenName.set(`${haikunate()}.md`)
+        state.current.edited.content.set('~ write something here.')
+        state.mode.set(ADD)
+      })
+      setTimeout(resetTreeForCurrent, 1)
+    }
+  }, '+ new file')
+})
+
+const Delete = pure(function Delete () {
+  if (!state.existing.get()) return h('div')
+
+  if (!state.current.deleting.get()) {
+    return h('#Delete', [
+      h('button.button.is-warning', {
+        onClick: () => {
+          state.current.deleting.set(true)
+        }
+      }, 'Delete this?')
+    ])
+  }
+
+  return h('#Delete', [
+    h('p', `Remove ${state.current.path.get()}?`),
+    h('.level', [
+      h('.level-left', [
+        h('button.button.is-small', {
+          onClick: () => state.current.deleting.set(false)
+        }, 'Cancel')
+      ]),
+      h('.level-right', [
+        h('button.button.is-large.is-danger', {
+          onClick: () => {
+            let [url, body] = state.current.toSave.get()
+            delete body.content
+            body.message = `deleted ${state.current.path.get()}.`
+            gh.delete(url, body)
+              .then(loadTree)
+              .then(resetTreeForCurrent)
+              .then(() => log.success('Removed.'))
+              .catch(log.error)
+          }
+        }, 'Delete')
+      ])
+    ])
+  ])
+})
 
 const Upload = pure(function Upload () {
   return h('#Upload', [
@@ -155,8 +201,20 @@ const Preview = pure(function ({file}) {
   })
 })
 
-const Edit = pure(function Edit () {
+const Title = pure(function Title () {
+  if (state.existing.get()) {
+    return h('h3.title.is-3', state.current.path.get())
+  } else {
+    return h('input.input.is-large', {
+      value: state.current.name.get(),
+      onChange: v => state.current.givenName.set(v)
+    })
+  }
+})
+
+const Page = pure(function Page () {
   var editor
+
   switch (state.current.mime.get()) {
     case 'text/x-markdown':
       editor = h(EditMarkdown)
@@ -170,26 +228,30 @@ const Edit = pure(function Edit () {
     case undefined:
       editor = h(EditCode)
       break
-    default:
-      editor = h(Preview, {
-        file: {
-          name: state.current.name.get(),
-          createReadStream: () =>
-            new ReadableBlobStream(state.current.blob.get())
-        }
-      })
   }
 
-  return h('#Edit.content', [
-    h('h2.title.is-2', state.current.path.get()),
-    state.current.loading.get()
-    ? h('div', '...')
+  let preview = h(Preview, {
+    file: {
+      name: state.current.name.get(),
+      createReadStream: () =>
+        new ReadableBlobStream(state.current.blob.get())
+    }
+  })
+
+  var components = state.current.loading.get()
+    ? [ h('div', '...') ]
     : editor
+      ? [ editor, h(Delete) ]
+      : [ preview, h(Delete) ]
+
+  return h('#Page', [
+    h(Title),
+    h('div', components)
   ])
 })
 
 const EditMarkdown = pure(function EditMarkdown () {
-  return h('div', [
+  return h('#EditMarkdown.content', [
     h(Json, {
       value: state.current.shown.metadata.get(),
       onChange: metadata => {
@@ -207,12 +269,12 @@ const EditMarkdown = pure(function EditMarkdown () {
 
 const EditCode = pure(function EditCode () {
   if (state.current.shown.content.get() === null) {
-    return h('cannot render this file here.')
+    return h('div', 'cannot render this file here.')
   }
 
   let value = state.current.shown.content.get()
 
-  return h('div', [
+  return h('#EditCode', [
     state.current.frontmatter.get() && h(Json, {
       value: state.current.shown.metadata.get(),
       onChange: metadata => {
@@ -268,7 +330,13 @@ const Save = pure(function Save () {
         log.info(`Saving ${state.current.path.get()} to GitHub.`)
         let [url, body] = state.current.toSave.get()
         gh.put(url, body)
-          .then(loadTree)
+          .then(() => {
+            if (state.mode.get() === ADD || state.mode.get() === UPLOAD) {
+              return loadTree()
+                .then(() => loadFile(state.current.path.get()))
+                .then(resetTreeForCurrent)
+            }
+          })
           .then(() => log.success('Saved.'))
           .catch(log.error)
       }
@@ -276,7 +344,6 @@ const Save = pure(function Save () {
       ADD, 'Create file',
       REPLACE, 'Replace file',
       UPLOAD, 'Upload',
-      DELETE, 'Delete',
       EDIT, 'Save changes'
     ).get())
   ])

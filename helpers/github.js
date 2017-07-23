@@ -6,7 +6,7 @@ module.exports = gh
 function gh (method, path, data = {}) {
   var waitToken = new Promise((resolve, reject) => {
     let token = localStorage.getItem('gh_token')
-    if (token) return resolve(token)
+    if (token) return resolve('token ' + token)
     reject()
   })
 
@@ -27,9 +27,13 @@ function gh (method, path, data = {}) {
 
   return waitToken
     .then(token => {
-      headers['Authorization'] = `token ${token}`
+      headers['Authorization'] = token
     })
-    .catch(() => {})
+    .catch(() => {
+      if (method === 'put' || method === 'delete' || method === 'post' || method === 'patch') {
+        throw new Error("Can't call the GitHub API without a valid token.")
+      }
+    })
     .then(() =>
       fetch(`https://api.github.com/${path}`, {method, headers, body})
     )
@@ -44,3 +48,4 @@ gh.post = gh.bind(gh, 'post')
 gh.put = gh.bind(gh, 'put')
 gh.head = gh.bind(gh, 'head')
 gh.patch = gh.bind(gh, 'patch')
+gh.delete = gh.bind(gh, 'delete')
