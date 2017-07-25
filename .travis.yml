@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - "7.7.3"
+sudo: false
+dist: trusty
+install:
+  - npm install
+script:
+  - npm run build
+before_deploy:
+  - echo coisas.alhur.es > CNAME
+  - rm -rf .gitignore components/ node_modules/ LICENSE README.md Main.js app.js helpers/ log.js state.js preferences.js Caddyfile .travis.yml package*
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master
+  target_branch: gh-pages
