@@ -40,22 +40,13 @@ const defaultPreferences = {
     localStorage.removeItem('gh_oauth_token')
     resolve()
   }),
-  defaultNewFile: (dirPath) => new Promise((resolve, reject) => {
-    load(
-      'https://cdn.rawgit.com/fiatjaf/haikunator-porreta/fb5db13f/dist/haikunator-porreta.min.js'
-    , err => {
-      if (err) return reject(err)
-
-      let haiku = window.haikunate()
-      resolve({
-        name: `${haiku}.md`,
-        content: '~ write something here.',
-        metadata: {
-          title: haiku.split('-').map(w => w.replace(/\w/, ch => ch.toUpperCase())).join(' '),
-          date: (new Date()).toISOString().split('T')[0]
-        }
-      })
-    })
+  defaultNewFile: (dirPath) => Promise.resolve({
+    name: `new-article-${parseInt(Math.random() * 100)}.md`,
+    content: '~ write something here.',
+    metadata: {
+      title: 'New Article',
+      date: (new Date()).toISOString().split('T')[0]
+    }
   }),
 
   filterTreeFiles: file => true

@@ -1,4 +1,5 @@
 window.xtend = require('xtend')
+window.load = require('fetch-js')
 require('./preferences')
 
 const React = require('react')
