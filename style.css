@@ -6,6 +6,10 @@ main {
   padding-top: 30px;
 }
 
+#Index { margin: 200px auto; }
+  #Index input,
+  #Index button { margin: 12px; display: block; width: 600px; text-align: center; }
+
 #Images { margin-top: 12px; }
 
 #Save button { width: 100%; }

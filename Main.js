@@ -14,7 +14,7 @@ module.exports = pure(() => {
         ]),
         h('.nav-center', [
           state.loggedUser.get()
-            ? h('a.nav-item', [
+            ? h('.nav-item', [
               state.loggedUser.get(),
               ', ',
               h('a', {
