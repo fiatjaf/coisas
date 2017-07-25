@@ -30,7 +30,6 @@
     "draft-js": "^0.10.1",
     "fetch-js": "^1.0.3",
     "gray-matter": "^3.0.2",
-    "micro-amd": "^1.2.3",
     "page": "^1.7.1",
     "prosemirror-example-setup": "^0.22.0",
     "prosemirror-markdown": "^0.22.0",

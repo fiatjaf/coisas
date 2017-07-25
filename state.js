@@ -13,6 +13,7 @@ const ADD = '<creating a new text file>'
 const REPLACE = '<replacing an existing file with an uploaded file>'
 const UPLOAD = '<uploading a new file>'
 const EDIT = '<updating a text file>'
+const DIRECTORY = '<a directory path, does nothing>'
 
 /* STATE */
 
@@ -44,6 +45,7 @@ var state = {
     switch (state.mode.get()) {
       case EDIT:
       case REPLACE:
+      case DIRECTORY:
         return true
       case ADD:
       case UPLOAD:
@@ -196,10 +198,16 @@ function loadFile (path) {
   log.info(`Loading ${path} from GitHub.`)
   gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
     .then(res => {
-      if (res.path) {
-        state.current.gh_contents.set(res)
-        log.info(`Loaded ${path}.`)
-      }
+      transact(() => {
+        if (res.path) {
+          state.current.gh_contents.set(res)
+          state.mode.set(EDIT)
+          log.info(`Loaded ${path}.`)
+        } else if (Array.isArray(res)) {
+          state.current.directory.set(path)
+          state.mode.set(DIRECTORY)
+        }
+      })
     })
     .catch(log.error)
 }
@@ -310,4 +318,4 @@ page('/:owner/:repo/*', ctx => {
 page({hashbang: true})
 
 
-module.exports.modes = {ADD, REPLACE, UPLOAD, EDIT}
+module.exports.modes = {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY}

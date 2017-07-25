@@ -1,7 +1,4 @@
 const load = require('fetch-js')
-const amd = require('micro-amd')()
-
-window.amd = amd
 
 /* preferences */
 const defaultPreferences = {
@@ -44,11 +41,12 @@ const defaultPreferences = {
     resolve()
   }),
   defaultNewFile: (dirPath) => new Promise((resolve, reject) => {
-    amd.require([
+    load(
       'https://cdn.rawgit.com/fiatjaf/haikunator-porreta/fb5db13f/dist/haikunator-porreta.min.js'
-    ], haikunate => {
-      let haiku = haikunate()
+    , err => {
+      if (err) return reject(err)
 
+      let haiku = window.haikunate()
       resolve({
         name: `${haiku}.md`,
         content: '~ write something here.',

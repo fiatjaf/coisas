@@ -7,7 +7,7 @@ const {transact} = require('derivable')
 const ReadableBlobStream = require('readable-blob-stream')
 const {append: renderMedia} = require('render-media')
 
-const {ADD, REPLACE, UPLOAD, EDIT} = require('../state').modes
+const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../state').modes
 const {loadTree, resetTreeForCurrent, loadFile, clearCurrent} = require('../state')
 const ProseMirror = require('./ProseMirror')
 const state = require('../state')
@@ -22,7 +22,8 @@ module.exports = pure(function Repo () {
         ADD, h(Page),
         REPLACE, h(Upload),
         UPLOAD, h(Upload),
-        EDIT, h(Page)
+        EDIT, h(Page),
+        DIRECTORY, h(Directory)
       ).get()
     ]),
     h('.column.is-2', [
@@ -60,11 +61,8 @@ const Folder = pure(function Folder ({f}) {
         className: f.active ? 'is-active' : '',
         href: `#!/${state.slug.get()}/${f.path}`,
         onClick: () => {
-          transact(() => {
-            clearCurrent()
-            state.mode.set(EDIT)
-            loadFile(f.path)
-          })
+          clearCurrent()
+          loadFile(f.path)
         }
       }, f.path.split('/').slice(-1)[0])
     ])
@@ -100,7 +98,7 @@ const Folder = pure(function Folder ({f}) {
 const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
   return h('a', {
     className: active ? 'is-active' : '',
-    href: `#!/${state.slug.get()}/${dir.path}`,
+    href: `#!/${state.slug.get()}/?new-file-at=${dir.path}`,
     onClick: () => {
       window.coisas.defaultNewFile(dir.path).then(({name, content, metadata}) => {
         transact(() => {
@@ -317,6 +315,15 @@ const EditCode = pure(function EditCode () {
         mode: state.current.mime.get()
       }
     })
+  ])
+})
+
+const Directory = pure(function Directory () {
+  return h('#Directory', [
+    h('center', [
+      h('br'),
+      h('p', 'Use the tree on the left to select a file or create a new one.')
+    ])
   ])
 })
 
