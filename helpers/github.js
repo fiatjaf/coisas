@@ -4,11 +4,7 @@ const qs = require('qs')
 module.exports = gh
 
 function gh (method, path, data = {}) {
-  var waitToken = new Promise((resolve, reject) => {
-    let token = localStorage.getItem('gh_token')
-    if (token) return resolve('token ' + token)
-    reject()
-  })
+  var waitToken = window.coisas.authorizationLoad()
 
   let headers = {
     'Accept': 'application/vnd.github.v3+json',

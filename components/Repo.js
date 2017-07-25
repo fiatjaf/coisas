@@ -6,7 +6,6 @@ const {pure} = require('react-derivable')
 const {transact} = require('derivable')
 const ReadableBlobStream = require('readable-blob-stream')
 const {append: renderMedia} = require('render-media')
-const haikunate = require('haikunator-porreta')
 
 const {ADD, REPLACE, UPLOAD, EDIT} = require('../state').modes
 const {loadTree, resetTreeForCurrent, loadFile, clearCurrent} = require('../state')
@@ -103,14 +102,17 @@ const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
     className: active ? 'is-active' : '',
     href: `#!/${state.slug.get()}/${dir.path}`,
     onClick: () => {
-      transact(() => {
-        clearCurrent()
-        state.current.directory.set(dir.path)
-        state.current.givenName.set(`${haikunate()}.md`)
-        state.current.edited.content.set('~ write something here.')
-        state.mode.set(ADD)
-      })
-      setTimeout(resetTreeForCurrent, 1)
+      window.coisas.defaultNewFile(dir.path).then(({name, content, metadata}) => {
+        transact(() => {
+          clearCurrent()
+          state.current.directory.set(dir.path)
+          state.current.givenName.set(name)
+          state.current.edited.content.set(content)
+          state.current.edited.metadata.set(metadata)
+          state.mode.set(ADD)
+        })
+        setTimeout(resetTreeForCurrent, 1)
+      }).catch(e => console.log('unable to create new file', e))
     }
   }, '+ new file')
 })

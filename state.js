@@ -17,9 +17,11 @@ const EDIT = '<updating a text file>'
 /* STATE */
 
 var state = {
+  loggedUser: atom(null),
+
   route: atom({
-    component: 'div',
-    ctx: {}
+    componentName: 'div',
+    ctx: {params: {}}
   }),
 
   owner: derive(() => state.route.get().ctx.params.owner),
@@ -221,6 +223,8 @@ function loadTree () {
       url: '~'
     })
 
+    tree.tree = tree.tree.filter(window.coisas.filterTreeFiles)
+
     for (let i = 0; i < tree.tree.length; i++) {
       let f = tree.tree[i]
       f.collapsed = true
@@ -265,25 +269,43 @@ function resetTreeForCurrent () {
   state.tree.set(updatedTree)
 }
 
+module.exports.loadUser = loadUser
+function loadUser () {
+  gh.get('user')
+    .then(res => {
+      state.loggedUser.set(res.login)
+      log.info(`Logged as ${res.login}.`)
+    })
+    .catch(e => {
+      console.log('could not load GitHub token or used an invalid token.', e)
+      state.loggedUser.set(null)
+    })
+}
+
 
 /* ROUTES */
 
 page('/', ctx => state.route.set({componentName: 'index', ctx}))
 page('/:owner/:repo/*', ctx => {
-  transact(() => {
-    state.route.set({componentName: 'repo', ctx})
-    clearCurrent()
-    state.mode.set(EDIT)
-    loadFile(ctx.params[0])
-  })
+  window.coisas.loadPreferences(ctx)
+    .then(() => {
+      transact(() => {
+        state.route.set({componentName: 'repo', ctx})
+        clearCurrent()
+        state.mode.set(EDIT)
+      })
 
-  if (navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      currentRepo: state.slug.get()
+
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          currentRepo: state.slug.get()
+        })
+      }
+
+      loadUser()
+      loadTree()
+      loadFile(ctx.params[0])
     })
-  }
-
-  loadTree()
 })
 page({hashbang: true})
 

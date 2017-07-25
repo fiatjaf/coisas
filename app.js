@@ -1,7 +1,8 @@
+window.xtend = require('xtend')
+require('./preferences')
+
 const React = require('react')
 const render = require('react-dom').render
-
-window.xtend = require('xtend')
 
 const Main = require('./Main')
 
