@@ -19,7 +19,7 @@ module.exports = pure(() => {
           state.loggedUser.get()
             ? h('.nav-item', [
               state.loggedUser.get(),
-              h('span', {style: {marginLeft: '5px'}}, ', '),
+              h('span', {style: {marginRight: '5px'}}, ', '),
               h('a', {
                 onClick: () =>
                   window.coisas.authorizationRemove()
