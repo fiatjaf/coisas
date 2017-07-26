@@ -21,6 +21,10 @@ function gh (method, path, data = {}) {
     body = JSON.stringify(data)
   }
 
+  if (method === 'put' || method === 'delete' || method === 'post' || method === 'patch') {
+    window.tc && window.tc(7)
+  }
+
   return waitToken
     .then(token => {
       headers['Authorization'] = token

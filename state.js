@@ -295,6 +295,8 @@ function loadUser () {
 
 page('/', ctx => state.route.set({componentName: 'index', ctx}))
 page('/:owner/:repo/*', ctx => {
+  window.tc && window.tc(2)
+
   window.coisas.loadPreferences(ctx)
     .then(() => {
       transact(() => {
