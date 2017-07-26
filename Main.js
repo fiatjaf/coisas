@@ -10,6 +10,9 @@ module.exports = pure(() => {
     h('div', [
       h('nav.nav', [
         h('.nav-left', [
+          h('a.nav-item', {href: '#!/'}, [
+            h('img', {src: '/icon.png'})
+          ]),
           h('a.nav-item', {href: '#!/'}, 'coisas')
         ]),
         h('.nav-center', [

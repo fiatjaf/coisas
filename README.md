@@ -1,4 +1,5 @@
-# coisas
+![](icon-s.png) coisas
+====================
 
 **coisas** is a headless CMS specifically designed to let you edit files hosted in a GitHub repository. It is similar to [Netlify CMS](https://github.com/netlify/netlify-cms) and [Prose](http://prose.io/), the difference is that, unlike the first, it doesn't try to be a multipurpose CMS, it lets you edit files, create text files, upload files, browse your files, but doesn't try to look like a fancy CMS with custom schema and objects and all that mess; and, unlike the second, it isn't tailored to Jekyll websites, so it won't insert Jekyll specific code or expect your repository to have Jekyll-specific file structure.
 
