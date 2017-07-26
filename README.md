@@ -16,6 +16,10 @@ Other features that **coisas** include are:
 
 To use **coisas**, go to https://coisas.alhur.es/ or embed it in your site, for example, in an `/admin/` section (more detailed instructions of how to do this may come, meanwhile please copy the hosted version file structure).
 
+## demo
+
+There is a demo site at https://geraldoquagliato.github.io/ which you can browse and edit (no login necessary) by visiting https://coisas.alhur.es/#!/geraldoquagliato/geraldoquagliato.github.io/. Please be decent.
+
 ## customization
 
 To customize the app behavior specifically for your repository, create a file named `coisas.js` and put it at the root of the repository. That file may contain anything, it will be loaded dinamically by **coisas** at its initialization process and run as is.
