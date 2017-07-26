@@ -332,7 +332,9 @@ const Images = pure(function Images () {
   let mid = parseInt(images.length / 2)
 
   return h('#Images', [
-    images.length && 'drag an image to the editor to insert it.',
+    images.length
+    ? 'drag an image to the editor to insert it.'
+    : '',
     h('.columns', [
       h('.column.is-half', images.slice(0, mid)
         .map(f =>
