@@ -138,8 +138,12 @@ var state = {
       let data = state.current.data.get()
       if (!data) return {}
       if (state.current.frontmatter.get()) {
-        let {data: metadata, content} = matter(data)
-        return {metadata, content}
+        try {
+          let {data: metadata, content} = matter(data)
+          return {metadata, content}
+        } catch (e) {
+          return {metadata: {}, content: data}
+        }
       } else {
         return {content: data}
       }
@@ -180,7 +184,7 @@ var state = {
 
         if (metadata && Object.keys(metadata).length) {
           let meta = Object.keys(state.current.shown.metadata.get()).map(k =>
-            `${k}: ${state.current.shown.metadata.get()[k]}`
+            `${k}: ${JSON.stringify(state.current.shown.metadata.get()[k])}`
           ).join('\n')
 
           full += '---\n' + meta + '\n---\n\n'
