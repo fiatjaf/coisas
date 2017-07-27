@@ -1,6 +1,6 @@
 const gh = require('./helpers/github')
 const page = require('page')
-const {atom, derive, transact} = require('derivable')
+const {atom, derive, transact, proxy} = require('derivable')
 const matter = require('gray-matter')
 const mimeTypes = require('render-media/lib/mime.json')
 const based = require('based-blob')
@@ -28,6 +28,8 @@ var state = {
   owner: derive(() => state.route.get().ctx.params.owner),
   repo: derive(() => state.route.get().ctx.params.repo),
   slug: derive(() => state.owner.get() + '/' + state.repo.get()),
+
+  editedValues: {},
 
   tree: atom([]),
   bypath: derive(() => {
@@ -102,7 +104,37 @@ var state = {
       base64: atom(null)
     },
 
-    saved: derive(() => {
+    edited: {
+      content: proxy({
+        get: () => {
+          let cur = state.current.path.get()
+          let th = state.editedValues[cur] || {}
+          return th.content || null
+        },
+        set: (val) => {
+          let cur = state.current.path.get()
+          let th = state.editedValues[cur] || {}
+          th.content = val
+          state.editedValues[cur] = th
+        }
+      }),
+      metadata: proxy({
+        get: () => {
+          let cur = state.current.path.get()
+          let th = state.editedValues[cur] || {}
+          return th.metadata || null
+        },
+        set: (val) => {
+          let cur = state.current.path.get()
+          let th = state.editedValues[cur] || {}
+          th.metadata = th.metadata || {}
+          th.metadata = val
+          state.editedValues[cur] = th
+        }
+      })
+    },
+
+    stored: derive(() => {
       let data = state.current.data.get()
       if (!data) return {}
       if (state.current.frontmatter.get()) {
@@ -112,18 +144,14 @@ var state = {
         return {content: data}
       }
     }),
-    edited: {
-      content: atom(null),
-      metadata: atom(null)
-    },
     shown: {
       content: derive(() =>
         typeof state.current.edited.content.get() === 'string'
           ? state.current.edited.content.get()
-          : state.current.saved.get().content
+          : state.current.stored.get().content
       ),
       metadata: derive(() =>
-        state.current.edited.metadata.get() || state.current.saved.get().metadata || {})
+        state.current.edited.metadata.get() || state.current.stored.get().metadata || {})
     },
     toSave: derive(() => {
       var body = {
@@ -189,8 +217,6 @@ function clearCurrent () {
   state.current.loaded.set(null)
   state.current.upload.file.set(null)
   state.current.upload.base64.set(null)
-  state.current.edited.content.set(null)
-  state.current.edited.metadata.set(null)
 }
 
 module.exports.loadFile = loadFile
