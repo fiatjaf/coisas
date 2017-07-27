@@ -90,13 +90,17 @@ var state = {
     edited: {
       content: proxy({
         get: () => {
-          let cur = state.current.path.get()
+          state.current.path.get() // side-effects to the rescue
+
+          let cur = location.hash
           let th = state.editedValues.get()[cur] || {}
           return th.content || null
         },
         set: (val) => {
+          state.current.path.get() // side-effects to the rescue
+
           let ed = {...{}, ...state.editedValues.get()}
-          let cur = state.current.path.get()
+          let cur = location.hash
           let th = ed[cur] || {}
           th.content = val
           ed[cur] = th
@@ -105,13 +109,17 @@ var state = {
       }),
       metadata: proxy({
         get: () => {
-          let cur = state.current.path.get()
+          state.current.path.get() // side-effects to the rescue
+
+          let cur = location.hash
           let th = state.editedValues.get()[cur] || {}
           return th.metadata || null
         },
         set: (val) => {
+          state.current.path.get() // side-effects to the rescue
+
           let ed = {...{}, ...state.editedValues.get()}
-          let cur = state.current.path.get()
+          let cur = location.hash
           let th = ed[cur] || {}
           th.metadata = th.metadata || {}
           th.metadata = val
