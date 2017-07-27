@@ -415,7 +415,7 @@ const Save = pure(function Save () {
                 renderWithFrontmatter(
                   state.current.shown.content.get(),
                   state.current.shown.metadata.get(),
-                  state.current.slug.get()
+                  state.slug.get()
                 )
               )
               : base64.encode(state.current.shown.content.get())
