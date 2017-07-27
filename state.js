@@ -174,15 +174,20 @@ var state = {
         let rawgithuburl = RegExp(
             '\\]\\(https:\\/\\/raw.githubusercontent.com\\/' + state.slug.get() + '\\/master', 'g')
 
-        body.content = base64.encode(`---
+        let metadata = state.current.shown.metadata.get()
 
-${Object.keys(state.current.shown.metadata.get()).map(k =>
-  `${k}: ${state.current.shown.metadata.get()[k]}`
-).join('\n')}
+        var full = ''
 
----
+        if (metadata && Object.keys(metadata).length) {
+          let meta = Object.keys(state.current.shown.metadata.get()).map(k =>
+            `${k}: ${state.current.shown.metadata.get()[k]}`
+          ).join('\n')
 
-${state.current.shown.content.get().replace(rawgithuburl, '](')}`)
+          full += '---\n' + meta + '\n---\n\n'
+        }
+
+        full += state.current.shown.content.get().replace(rawgithuburl, '](')
+        body.content = base64.encode(full)
       } else {
         body.content = base64.encode(state.current.shown.content.get())
       }
