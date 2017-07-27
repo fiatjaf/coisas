@@ -6,7 +6,7 @@ dist: trusty
 install:
   - npm install
 script:
-  - npm run build
+  - npm run build-prod
 before_deploy:
   - echo coisas.alhur.es > CNAME
   - rm -rf .gitignore components/ node_modules/ LICENSE README.md Main.js app.js helpers/ log.js state.js preferences.js Caddyfile .travis.yml package*
