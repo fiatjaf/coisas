@@ -391,12 +391,17 @@ const Images = pure(function Images () {
 })
 
 const Save = pure(function Save () {
+  var disabled = true
+  if (state.current.edited.content.get() &&
+    state.current.edited.content.get() !== state.current.stored.get().content) {
+    disabled = false
+  }
+  if (Object.keys(state.current.edited.metadata.get() || {}).length) disabled = false
+  if (state.current.upload.base64.get()) disabled = false
+
   return h('#Save', [
     h('button.button.is-large.is-primary', {
-      disabled:
-        !state.current.shown.content.get() &&
-        !Object.keys(state.current.shown.metadata.get()).length &&
-        !state.current.upload.base64,
+      disabled,
       onClick: () => {
         log.info(`Saving ${state.current.path.get()} to GitHub.`)
         gh.saveFile({
