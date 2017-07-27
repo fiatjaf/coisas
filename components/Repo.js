@@ -149,13 +149,14 @@ const Delete = pure(function Delete () {
       h('.level-right', [
         h('button.button.is-large.is-danger', {
           onClick: () => {
-            let [url, body] = state.current.toSave.get()
-            delete body.content
-            body.message = `deleted ${state.current.path.get()}.`
-            gh.delete(url, body)
+            log.info(`Deleting ${state.current.path.get()}.`)
+            gh.delete(`repos/${state.slug.get()}/contents/${state.current.path.get()}`, {
+              sha: state.current.gh_contents.get().sha,
+              message: `deleted ${state.current.path.get()}.`
+            })
               .then(loadTree)
               .then(resetTreeForCurrent)
-              .then(() => log.success('Removed.'))
+              .then(() => log.success('Deleted.'))
               .catch(log.error)
           }
         }, 'Delete')
