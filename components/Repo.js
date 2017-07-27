@@ -201,7 +201,7 @@ const Title = pure(function Title () {
 
 const Page = pure(function Page () {
   if (state.current.loading.get()) {
-    return h('div', '...')
+    return h('div', 'loading')
   }
 
   var editor
@@ -260,6 +260,10 @@ const Page = pure(function Page () {
 })
 
 const EditMarkdown = pure(function EditMarkdown () {
+  if (state.current.loading.get()) {
+    return h('div')
+  }
+
   return h('#EditMarkdown.content', [
     h(Json, {
       value: state.current.shown.metadata.get(),
@@ -279,6 +283,10 @@ const EditMarkdown = pure(function EditMarkdown () {
 const EditCode = pure(function EditCode () {
   if (state.current.shown.content.get() === null) {
     return h('div', 'cannot render this file here.')
+  }
+
+  if (state.current.loading.get()) {
+    return h('div')
   }
 
   let value = state.current.shown.content.get()

@@ -22,7 +22,7 @@ var state = {
   repo: derive(() => state.route.get().ctx.params.repo),
   slug: derive(() => state.owner.get() + '/' + state.repo.get()),
 
-  editedValues: {},
+  editedValues: atom({}),
 
   tree: atom([]),
   bypath: derive(() => {
@@ -66,9 +66,10 @@ var state = {
       state.current.mime.get() === 'text/html'
     ),
 
-    loaded: atom(null),
     deleting: atom(false),
-    loading: derive(() => state.current.loaded.get() === state.current.path.get()),
+    loading: derive(() =>
+      typeof state.current.shown.content.get() !== 'string'
+    ),
 
     data: derive(() => {
       let r = state.current.gh_contents.get()
@@ -90,28 +91,32 @@ var state = {
       content: proxy({
         get: () => {
           let cur = state.current.path.get()
-          let th = state.editedValues[cur] || {}
+          let th = state.editedValues.get()[cur] || {}
           return th.content || null
         },
         set: (val) => {
+          let ed = {...{}, ...state.editedValues.get()}
           let cur = state.current.path.get()
-          let th = state.editedValues[cur] || {}
+          let th = ed[cur] || {}
           th.content = val
-          state.editedValues[cur] = th
+          ed[cur] = th
+          state.editedValues.set(ed)
         }
       }),
       metadata: proxy({
         get: () => {
           let cur = state.current.path.get()
-          let th = state.editedValues[cur] || {}
+          let th = state.editedValues.get()[cur] || {}
           return th.metadata || null
         },
         set: (val) => {
+          let ed = {...{}, ...state.editedValues.get()}
           let cur = state.current.path.get()
-          let th = state.editedValues[cur] || {}
+          let th = ed[cur] || {}
           th.metadata = th.metadata || {}
           th.metadata = val
-          state.editedValues[cur] = th
+          ed[cur] = th
+          state.editedValues.set(ed)
         }
       })
     },
@@ -169,7 +174,6 @@ function clearCurrent () {
   state.current.directory.set('')
   state.current.gh_contents.set(null)
   state.current.givenName.set('')
-  state.current.loaded.set(null)
   state.current.upload.file.set(null)
   state.current.upload.base64.set(null)
 }

@@ -5,13 +5,14 @@ const {schema, defaultMarkdownParser, defaultMarkdownSerializer} = require('pros
 const {exampleSetup} = require('prosemirror-example-setup')
 const h = require('react-hyperscript')
 
-module.exports = class extends React.Component {
+module.exports = class ProseMirror extends React.Component {
   componentDidMount () {
+    this.state = EditorState.create({
+      doc: defaultMarkdownParser.parse(this.props.value),
+      plugins: exampleSetup({schema})
+    })
     this.view = new EditorView(this.node, {
-      state: EditorState.create({
-        doc: defaultMarkdownParser.parse(this.props.value),
-        plugins: exampleSetup({schema})
-      }),
+      state: this.state,
       dispatchTransaction: (txn) => {
         let nextState = this.view.state.apply(txn)
         this.view.updateState(nextState)
@@ -23,8 +24,15 @@ module.exports = class extends React.Component {
     })
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (this.props.value !== nextProps.value) {
+      this.componentWillUnmount()
+      this.componentDidMount()
+    }
+  }
+
   componentWillUnmount () {
-    this.view.destroy()
+    if (this.view) this.view.destroy()
   }
 
   render () {
