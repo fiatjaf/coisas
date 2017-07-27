@@ -187,7 +187,7 @@ function clearCurrent () {
 module.exports.loadFile = loadFile
 function loadFile (path) {
   log.info(`Loading ${path} from GitHub.`)
-  gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
+  return gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
     .then(res => {
       transact(() => {
         if (res.path) {
@@ -205,7 +205,7 @@ function loadFile (path) {
 
 module.exports.loadTree = loadTree
 function loadTree () {
-  gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
+  return gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
   .then(ref =>
     gh.get(
      `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
@@ -270,7 +270,7 @@ function resetTreeForCurrent () {
 
 module.exports.loadUser = loadUser
 function loadUser () {
-  gh.get('user')
+  return gh.get('user')
     .then(res => {
       state.loggedUser.set(res.login)
       log.info(`Logged as ${res.login}.`)
@@ -304,8 +304,10 @@ page('/:owner/:repo/*', ctx => {
       }
 
       loadUser()
-      loadTree()
-      loadFile(ctx.params[0])
+      Promise.all([
+        loadFile(ctx.params[0]),
+        loadTree()
+      ]).then(resetTreeForCurrent)
     })
 })
 page({hashbang: true})
