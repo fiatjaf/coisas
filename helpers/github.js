@@ -49,3 +49,27 @@ gh.put = gh.bind(gh, 'put')
 gh.head = gh.bind(gh, 'head')
 gh.patch = gh.bind(gh, 'patch')
 gh.delete = gh.bind(gh, 'delete')
+
+const {ADD, REPLACE, UPLOAD, EDIT} = require('../constants').modes
+
+module.exports.saveFile = ({mode, path, sha, content, repoSlug}) => {
+  var message
+  switch (mode) {
+    case EDIT:
+      message = `updated ${path}.`
+      break
+    case ADD:
+      message = `created ${path}.`
+      break
+    case REPLACE:
+      message = `replaced ${path} with upload.`
+      break
+    case UPLOAD:
+      message = `uploaded ${path}`
+      break
+  }
+
+  let body = { message, sha, content }
+
+  return gh.put(`repos/${repoSlug}/contents/${path}`, body)
+}

@@ -4,12 +4,14 @@ const Json = require('react-json')
 const TreeView = require('react-treeview')
 const {pure} = require('react-derivable')
 const {transact} = require('derivable')
-const ReadableBlobStream = require('readable-blob-stream')
-const {append: renderMedia} = require('render-media')
 
-const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../state').modes
+const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../constants').modes
 const {loadTree, resetTreeForCurrent, loadFile, clearCurrent} = require('../state')
+const renderWithFrontmatter = require('../helpers/render-with-frontmatter')
 const ProseMirror = require('./ProseMirror')
+const FileUpload = require('./FileUpload')
+const Preview = require('./Preview')
+const base64 = require('../helpers/base64')
 const state = require('../state')
 const log = require('../log')
 const gh = require('../helpers/github')
@@ -161,48 +163,23 @@ const Upload = pure(function Upload () {
     h(Title),
     h('.upload', [
       h('label', [
-        'Upload a file:',
-        h('input.input', {
-          type: 'file',
-          onChange: e => {
-            let file = e.target.files[0]
-            state.current.upload.file.set(file)
-            state.current.givenName.set(file.name)
-            var reader = new window.FileReader()
-            reader.onload = event => {
-              let binary = event.target.result
-              state.current.upload.base64.set(window.btoa(binary))
-            }
-            reader.readAsBinaryString(file)
-          }
-        }),
         state.current.upload.file.get()
           ? h('div', [
-            'Preview:',
             h(Preview, {
-              file: {
-                name: state.current.upload.file.get().name,
-                createReadStream: () =>
-                  new ReadableBlobStream(state.current.upload.file.get()
-                )
-              }
+              name: state.current.upload.file.get().name,
+              blob: state.current.upload.file.get()
             })
           ])
-          : null
+          : h(FileUpload, {
+            onFile: f => {
+              state.current.upload.file.set(f)
+              state.current.givenName.set(f.name)
+            },
+            onBase64: b64 => state.current.upload.base64.set(b64)
+          })
       ])
     ])
   ])
-})
-
-const Preview = pure(function ({file}) {
-  return h('.preview', {
-    ref: el => {
-      if (el) {
-        el.innerHTML = ''
-        renderMedia(file, el, console.log.bind(console, 'render-media'))
-      }
-    }
-  })
 })
 
 const Title = pure(function Title () {
@@ -237,13 +214,13 @@ const Page = pure(function Page () {
       break
   }
 
-  let preview = h(Preview, {
-    file: {
+  var preview
+  try {
+    preview = h(Preview, {
       name: state.current.name.get(),
-      createReadStream: () =>
-        new ReadableBlobStream(state.current.blob.get())
-    }
-  })
+      base64: state.current.gh_contents.get().content
+    })
+  } catch (e) {}
 
   var components = editor
     ? [ editor ]
@@ -352,7 +329,49 @@ const Images = pure(function Images () {
             title: f.path
           })
       ))
-    ])
+    ]),
+    state.mediaUpload.file.get()
+      ? h(Preview, {
+        name: state.mediaUpload.file.get().name,
+        blob: state.mediaUpload.file.get()
+      }, [
+        h('.level', [
+          h('.level-left', [
+            h('button.button.is-small.is-light', {
+              onClick: () => {
+                state.mediaUpload.file.set(null)
+                state.mediaUpload.base64.set(null)
+              }
+            }, 'cancel')
+          ]),
+          h('.level-right', [
+            h('button.button.is-small.is-info', {
+              onClick: () => {
+                let file = state.mediaUpload.file.get()
+                log.info(`Uploading ${file.name} to ${window.coisas.defaultMediaUploadPath}/.`)
+
+                gh.saveFile({
+                  repoSlug: state.slug.get(),
+                  mode: UPLOAD,
+                  path: `${window.coisas.defaultMediaUploadPath}/${file.name}`,
+                  content: state.mediaUpload.base64.get()
+                })
+                .then(() => {
+                  loadTree()
+                  state.mediaUpload.file.set(null)
+                  state.mediaUpload.base64.set(null)
+                  log.success('Uploaded.')
+                })
+                .catch(log.error)
+              }
+            }, 'upload')
+          ])
+        ])
+      ])
+      : h(FileUpload, {
+        onFile: f => state.mediaUpload.file.set(f),
+        onBase64: b64 => state.mediaUpload.base64.set(b64)
+      })
   ])
 })
 
@@ -365,8 +384,25 @@ const Save = pure(function Save () {
         !state.current.upload.base64,
       onClick: () => {
         log.info(`Saving ${state.current.path.get()} to GitHub.`)
-        let [url, body] = state.current.toSave.get()
-        gh.put(url, body)
+        gh.saveFile({
+          repoSlug: state.slug.get(),
+          mode: state.mode.get(),
+          path: state.current.path.get(),
+          sha: state.current.gh_contents.get()
+            ? state.current.gh_contents.get().sha
+            : undefined,
+          content: state.current.upload.base64.get()
+            ? state.current.upload.base64.get()
+            : state.current.frontmatter.get()
+              ? base64.encode(
+                renderWithFrontmatter(
+                  state.current.shown.content.get(),
+                  state.current.shown.metadata.get(),
+                  state.current.slug.get()
+                )
+              )
+              : base64.encode(state.current.shown.content.get())
+        })
           .then(() => {
             if (state.mode.get() === ADD || state.mode.get() === UPLOAD) {
               return Promise.resolve()

@@ -88,7 +88,9 @@ const defaultPreferences = {
   // on this function.
   // see https://developer.github.com/v3/git/trees/#get-a-tree-recursively
   // to know what the 'tree' is exactly.
-  filterTreeFiles: file => true
+  filterTreeFiles: file => true,
+
+  defaultMediaUploadPath: 'media'
 }
 
 // module loading side-effects are great.

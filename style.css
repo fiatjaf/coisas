@@ -16,9 +16,16 @@ main {
 
 #Page { margin-top: 20px; }
 
-.preview { margin: 14px; }
+.preview { margin: 7px; border: dotted 6px #999; }
 .preview > * { width: 100%; }
-.preview > *:not(img) { min-height: 500px; }
+.preview .file *:not(img) { min-height: 500px; }
+
+.dropzone { margin: 7px; border: dotted 6px #999 !important; }
+.dropzone > .placeholder {
+  margin: 69px 20px;
+  color: #999;
+  text-align: center;
+}
 
 .CodeMirror {
   border: 1px solid #eee;

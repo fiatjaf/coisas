@@ -3,17 +3,10 @@ const page = require('page')
 const {atom, derive, transact, proxy} = require('derivable')
 const matter = require('gray-matter')
 const mimeTypes = require('render-media/lib/mime.json')
-const based = require('based-blob')
 
+const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('./constants').modes
 const base64 = require('./helpers/base64')
 const log = require('./log')
-
-// modes
-const ADD = '<creating a new text file>'
-const REPLACE = '<replacing an existing file with an uploaded file>'
-const UPLOAD = '<uploading a new file>'
-const EDIT = '<updating a text file>'
-const DIRECTORY = '<a directory path, does nothing>'
 
 /* STATE */
 
@@ -88,17 +81,6 @@ var state = {
         return null
       }
     }),
-    blob: derive(() => {
-      let r = state.current.gh_contents.get()
-      if (!r || !r.content) return ''
-
-      try {
-        return based.toBlob(r.content)
-      } catch (e) {
-        console.warn(e)
-        return null
-      }
-    }),
     upload: {
       file: atom(null),
       base64: atom(null)
@@ -156,48 +138,12 @@ var state = {
       ),
       metadata: derive(() =>
         state.current.edited.metadata.get() || state.current.stored.get().metadata || {})
-    },
-    toSave: derive(() => {
-      var body = {
-        message: `created ${state.current.path.get()}.`
-      }
+    }
+  },
 
-      if (state.current.gh_contents.get()) {
-        body.sha = state.current.gh_contents.get().sha
-        body.message = `updated ${state.current.path.get()}.`
-      }
-
-      if (state.current.upload.base64.get()) {
-        body.content = state.current.upload.base64.get()
-        if (state.existing.get()) {
-          body.message = `replaced ${state.current.path.get()} with upload.`
-        } else {
-          body.message = `uploaded ${state.current.path.get()}`
-        }
-      } else if (state.current.frontmatter.get()) {
-        let rawgithuburl = RegExp(
-            '\\]\\(https:\\/\\/raw.githubusercontent.com\\/' + state.slug.get() + '\\/master', 'g')
-
-        let metadata = state.current.shown.metadata.get()
-
-        var full = ''
-
-        if (metadata && Object.keys(metadata).length) {
-          let meta = Object.keys(state.current.shown.metadata.get()).map(k =>
-            `${k}: ${JSON.stringify(state.current.shown.metadata.get()[k])}`
-          ).join('\n')
-
-          full += '---\n' + meta + '\n---\n\n'
-        }
-
-        full += state.current.shown.content.get().replace(rawgithuburl, '](')
-        body.content = base64.encode(full)
-      } else {
-        body.content = base64.encode(state.current.shown.content.get())
-      }
-
-      return [`repos/${state.slug.get()}/contents/${state.current.path.get()}`, body]
-    })
+  mediaUpload: {
+    file: atom(null),
+    base64: atom(null)
   }
 }
 module.exports = state
@@ -353,6 +299,3 @@ page('/:owner/:repo/*', ctx => {
     })
 })
 page({hashbang: true})
-
-
-module.exports.modes = {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY}
