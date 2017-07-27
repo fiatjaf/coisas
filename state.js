@@ -67,9 +67,7 @@ var state = {
     ),
 
     deleting: atom(false),
-    loading: derive(() =>
-      typeof state.current.shown.content.get() !== 'string'
-    ),
+    loading: derive(() => !state.current.gh_contents.get()),
 
     data: derive(() => {
       let r = state.current.gh_contents.get()
