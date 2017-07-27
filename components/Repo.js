@@ -323,27 +323,24 @@ const Images = pure(function Images () {
   let images = state.images.get()
   let mid = parseInt(images.length / 2)
 
+  const renderImage = f =>
+    h('img', {
+      key: f.path,
+      src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${f.path}`,
+      title: f.path,
+      onDoubleClick: () => {
+        clearCurrent()
+        loadFile(f.path)
+      }
+    })
+
   return h('#Images', [
     images.length
     ? 'drag an image to the editor to insert it.'
     : '',
     h('.columns', [
-      h('.column.is-half', images.slice(0, mid)
-        .map(f =>
-          h('img', {
-            key: f.path,
-            src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${f.path}`,
-            title: f.path
-          })
-      )),
-      h('.column.is-half', images.slice(mid)
-        .map(f =>
-          h('img', {
-            key: f.path,
-            src: `https://raw.githubusercontent.com/${state.slug.get()}/master/${f.path}`,
-            title: f.path
-          })
-      ))
+      h('.column.is-half', images.slice(0, mid).map(renderImage)),
+      h('.column.is-half', images.slice(mid).map(renderImage))
     ]),
     state.mediaUpload.file.get()
       ? h(Preview, {
