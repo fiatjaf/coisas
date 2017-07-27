@@ -4,11 +4,19 @@ const {EditorState} = require('prosemirror-state')
 const {schema, defaultMarkdownParser, defaultMarkdownSerializer} = require('prosemirror-markdown')
 const {exampleSetup} = require('prosemirror-example-setup')
 const h = require('react-hyperscript')
+const debounce = require('debounce')
 
 module.exports = class ProseMirror extends React.Component {
   componentDidMount () {
+    this.start(this.props.defaultValue)
+    this.dchanged = debounce(this.changed, 600)
+  }
+
+  start (value = '') {
+    this.value = value
+
     this.state = EditorState.create({
-      doc: defaultMarkdownParser.parse(this.props.value),
+      doc: defaultMarkdownParser.parse(value),
       plugins: exampleSetup({schema})
     })
     this.view = new EditorView(this.node, {
@@ -16,18 +24,27 @@ module.exports = class ProseMirror extends React.Component {
       dispatchTransaction: (txn) => {
         let nextState = this.view.state.apply(txn)
         this.view.updateState(nextState)
-        if (txn.docChanged) {
-          let content = defaultMarkdownSerializer.serialize(this.view.state.doc)
-          this.props.onChange(content)
-        }
+        this.dchanged(txn)
       }
     })
   }
 
+  changed (txn) {
+    if (txn.docChanged) {
+      let content = defaultMarkdownSerializer.serialize(this.view.state.doc)
+      this.value = content
+      this.props.onChange(content)
+    }
+  }
+
   componentWillReceiveProps (nextProps) {
-    if (this.props.value !== nextProps.value) {
+    if (this.value !== nextProps.defaultValue) {
       this.componentWillUnmount()
-      this.componentDidMount()
+      if (nextProps.defaultValue) {
+        this.start(nextProps.defaultValue)
+      } else {
+        this.value = nextProps.defaultValue
+      }
     }
   }
 

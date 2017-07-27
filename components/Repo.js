@@ -254,7 +254,7 @@ const EditMarkdown = pure(function EditMarkdown () {
       }
     }),
     h(ProseMirror, {
-      value: state.current.shown.content.get(),
+      defaultValue: state.current.shown.content.get(),
       onChange: content => {
         state.current.edited.content.set(content)
       }

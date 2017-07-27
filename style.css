@@ -16,7 +16,11 @@ main {
 
 #Page { margin-top: 20px; }
 
-.preview { margin: 7px; border: dotted 6px #999; }
+.preview {
+  display: inline-block;
+  margin: 7px;
+  border: dotted 6px #999;
+}
 .preview > * { width: 100%; }
 .preview .file *:not(img) { min-height: 500px; }
 

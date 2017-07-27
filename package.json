@@ -26,6 +26,7 @@
   "license": "ISC",
   "dependencies": {
     "based-blob": "^1.0.1",
+    "debounce": "^1.0.2",
     "derivable": "^2.0.0-beta.0",
     "draft-js": "^0.10.1",
     "fetch-js": "^1.0.3",
