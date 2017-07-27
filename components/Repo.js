@@ -107,10 +107,16 @@ const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
           clearCurrent()
           state.current.directory.set(dir.path)
           state.current.givenName.set(name)
-          state.current.edited.content.set(content)
-          state.current.edited.metadata.set(metadata)
           state.mode.set(ADD)
         })
+
+        // these must be set after the previous transaction because
+        // the proxy needs state.current.path to be updated
+        transact(() => {
+          state.current.edited.content.set(content)
+          state.current.edited.metadata.set(metadata)
+        })
+
         setTimeout(resetTreeForCurrent, 1)
       }).catch(e => console.log('unable to create new file', e))
     }
