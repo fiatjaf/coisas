@@ -3,10 +3,9 @@ const CodeMirror = require('react-codemirror')
 const Json = require('react-json')
 const TreeView = require('react-treeview')
 const {pure} = require('react-derivable')
-const {transact} = require('derivable')
 
 const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../constants').modes
-const {loadTree, resetTreeForCurrent, loadFile, clearCurrent} = require('../state')
+const {loadTree, resetTreeForCurrent, loadFile, newFile, clearCurrent} = require('../state')
 const renderWithFrontmatter = require('../helpers/render-with-frontmatter')
 const ProseMirror = require('./ProseMirror')
 const FileUpload = require('./FileUpload')
@@ -101,25 +100,7 @@ const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
   return h('a', {
     className: active ? 'is-active' : '',
     href: `#!/${state.slug.get()}/?new-file-at=${dir.path}`,
-    onClick: () => {
-      window.coisas.defaultNewFile(dir.path).then(({name, content, metadata}) => {
-        transact(() => {
-          clearCurrent()
-          state.current.directory.set(dir.path)
-          state.current.givenName.set(name)
-          state.mode.set(ADD)
-        })
-
-        setTimeout(() => transact(() => {
-          if (state.current.edited.content.get() === null) {
-            state.current.edited.content.set(content)
-            state.current.edited.metadata.set(metadata)
-          }
-        }), 1)
-
-        setTimeout(resetTreeForCurrent, 1)
-      }).catch(e => console.log('unable to create new file', e))
-    }
+    onClick: () => newFile(dir.path).then(resetTreeForCurrent)
   }, '+ new file')
 })
 
@@ -331,6 +312,7 @@ const Images = pure(function Images () {
       onDoubleClick: () => {
         clearCurrent()
         loadFile(f.path)
+        location.hash = `#!/${state.slug.get()}/${f.path}`
       }
     })
 

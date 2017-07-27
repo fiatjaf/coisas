@@ -67,7 +67,9 @@ var state = {
     ),
 
     deleting: atom(false),
-    loading: derive(() => !state.current.gh_contents.get()),
+    loading: derive(() =>
+      state.existing.get() && !state.current.gh_contents.get()
+    ),
 
     data: derive(() => {
       let r = state.current.gh_contents.get()
@@ -203,6 +205,26 @@ function loadFile (path) {
     .catch(log.error)
 }
 
+module.exports.newFile = newFile
+function newFile (dirpath) {
+  return window.coisas.defaultNewFile(dirpath)
+    .then(({name, content, metadata}) => {
+      transact(() => {
+        clearCurrent()
+        state.current.directory.set(dirpath)
+        state.current.givenName.set(name)
+        state.mode.set(ADD)
+      })
+
+      setTimeout(() => transact(() => {
+        if (state.current.edited.content.get() === null) {
+          state.current.edited.content.set(content)
+          state.current.edited.metadata.set(metadata)
+        }
+      }), 1)
+    })
+}
+
 module.exports.loadTree = loadTree
 function loadTree () {
   return gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
@@ -290,12 +312,7 @@ page('/:owner/:repo/*', ctx => {
 
   window.coisas.loadPreferences(ctx)
     .then(() => {
-      transact(() => {
-        state.route.set({componentName: 'repo', ctx})
-        clearCurrent()
-        state.mode.set(EDIT)
-      })
-
+      state.route.set({componentName: 'repo', ctx})
 
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
@@ -303,11 +320,18 @@ page('/:owner/:repo/*', ctx => {
         })
       }
 
+      let [k, dirpath] = ctx.querystring.split('=')
+      let filePromise = k === 'new-file-at'
+        ? newFile(dirpath)
+        : loadFile(ctx.params[0])
+
       loadUser()
       Promise.all([
-        loadFile(ctx.params[0]),
+        filePromise,
         loadTree()
-      ]).then(resetTreeForCurrent)
+      ]).then(() => {
+        resetTreeForCurrent()
+      })
     })
 })
 page({hashbang: true})
