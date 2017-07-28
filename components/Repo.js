@@ -215,25 +215,24 @@ const Page = pure(function Page () {
     : [ preview ]
 
   let uploadMode = state.existing.get() ? REPLACE : UPLOAD
-  components.push(
-    h('div', [
+  var buttons = []
+  buttons.push(
+    h('.level-left', [
       h('button.button.is-dark', {
         onClick: () => {
-          if (state.current.edited.content.get()) {
-            log.confirm('You will lose all the edited contents, is that fine?', () => {
-              state.mode.set(uploadMode)
-            })
-          } else {
-            state.mode.set(uploadMode)
-          }
+          state.mode.set(uploadMode)
         }
       }, state.existing.get() ? 'Replace this with an uploaded file?' : 'Upload a file?')
     ])
   )
 
   if (state.existing.get()) {
-    components.push(h(Delete))
+    buttons.push(
+      h('.level-right', [ h(Delete) ])
+    )
   }
+
+  components.push(h('.level', buttons))
 
   return h('#Page', [
     h(Title),
