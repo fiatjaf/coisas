@@ -120,7 +120,7 @@ const Delete = pure(function Delete () {
   }
 
   return h('#Delete', [
-    h('p', `Remove ${state.current.path.get()}?`),
+    h('p', `Delete ${state.current.path.get()}?`),
     h('.level', [
       h('.level-left', [
         h('button.button.is-small', {
@@ -130,14 +130,31 @@ const Delete = pure(function Delete () {
       h('.level-right', [
         h('button.button.is-large.is-danger', {
           onClick: () => {
-            log.info(`Deleting ${state.current.path.get()}.`)
-            gh.delete(`repos/${state.slug.get()}/contents/${state.current.path.get()}`, {
+            let path = state.current.path.get()
+
+            let currentTree = state.tree.get()
+              .filter(f => f.type === 'blob')
+              .sort((a, b) => a.path < b.path ? -1 : 1)
+            let currentFile = state.bypath.get()[path]
+            let currentIndex = currentTree.indexOf(currentFile)
+            let nextIndex = currentIndex === 0 ? 1 : currentIndex - 1
+            let nextPath = currentTree[nextIndex].path
+
+            log.info(`Deleting ${path}.`)
+            gh.delete(`repos/${state.slug.get()}/contents/${path}`, {
               sha: state.current.gh_contents.get().sha,
-              message: `deleted ${state.current.path.get()}.`
+              message: `deleted ${path}.`
             })
-              .then(loadTree)
+              .then(() => {
+                log.success('Deleted.')
+                clearCurrent()
+                location.hash = `#!/${state.slug.get()}/${nextPath}`
+                return Promise.all([
+                  loadFile(nextPath),
+                  loadTree()
+                ])
+              })
               .then(resetTreeForCurrent)
-              .then(() => log.success('Deleted.'))
               .catch(log.error)
           }
         }, 'Delete')

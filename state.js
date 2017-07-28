@@ -256,7 +256,11 @@ function loadTree () {
 
     state.tree.set(
       // sort to show directories first
-      tree.tree.sort((a, b) => a.type === 'blob' ? 1 : -1)
+      tree.tree.sort((a, b) => {
+        if (a.type === 'blob' && b.type === 'tree') return 1
+        else if (a.type === 'tree' && b.type === 'blob') return -1
+        else return a.path < b.path ? -1 : 1
+      })
     )
   })
   .catch(log.error)
