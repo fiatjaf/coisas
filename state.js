@@ -56,7 +56,9 @@ var state = {
     path: derive(() =>
       state.current.gh_contents.get()
         ? state.current.gh_contents.get().path
-        : state.current.directory.get() + '/' + state.current.givenName.get()
+        : [state.current.directory.get(), state.current.givenName.get()]
+            .filter(x => x)
+            .join('/')
     ),
     name: derive(() => state.current.path.get().split('/').slice(-1)[0]),
     ext: derive(() => state.current.name.get().split('.').slice(-1)[0]),
