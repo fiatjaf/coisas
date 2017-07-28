@@ -90,7 +90,12 @@ const defaultPreferences = {
   // to know what the 'tree' is exactly.
   filterTreeFiles: file => true,
 
-  defaultMediaUploadPath: 'media'
+  // the path to a directory into which all files uploaded through the sidebar
+  // upload widget will be placed.
+  defaultMediaUploadPath: 'media',
+
+  // if set, a link to the live site will appear in navbar.
+  liveSiteURL: null
 }
 
 // module loading side-effects are great.

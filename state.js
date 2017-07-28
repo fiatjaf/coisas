@@ -20,7 +20,11 @@ var state = {
 
   owner: derive(() => state.route.get().ctx.params.owner),
   repo: derive(() => state.route.get().ctx.params.repo),
-  slug: derive(() => state.owner.get() + '/' + state.repo.get()),
+  slug: derive(() =>
+    state.repo.get()
+      ? state.owner.get() + '/' + state.repo.get()
+      : null
+  ),
 
   editedValues: atom({}),
 
