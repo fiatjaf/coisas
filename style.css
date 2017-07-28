@@ -10,9 +10,23 @@ main {
   #Index input,
   #Index button { margin: 12px; display: block; width: 600px; text-align: center; }
 
-#Images { margin-top: 12px; }
+#Images {
+  margin-top: 12px;
+  position: sticky;
+  top: 10px;
+}
 
-#Save button { width: 100%; }
+#Save {
+  margin: 10px;
+  position: sticky;
+  top: 10px;
+}
+  #Save button {
+    width: 100%;
+    height: auto;
+    min-height: 123px;
+    white-space: pre-wrap;
+  }
 
 #Page { margin-top: 20px; }
 

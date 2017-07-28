@@ -17,7 +17,10 @@ const gh = require('../helpers/github')
 
 module.exports = pure(function Repo () {
   return h('.columns.is-mobile', [
-    h('.column.is-3', [ h(Menu, {name: 'menu'}) ]),
+    h('.column.is-3', [
+      h(Menu, {name: 'menu'}),
+      h(Save)
+    ]),
     h('.column.is-7', [
       state.mode.switch(
         ADD, h(Page),
@@ -28,7 +31,6 @@ module.exports = pure(function Repo () {
       ).get()
     ]),
     h('.column.is-2', [
-      h(Save),
       h(Images)
     ])
   ])
@@ -289,7 +291,7 @@ const EditCode = pure(function EditCode () {
 
   let value = state.current.shown.content.get()
 
-  return h('#EditCode', [
+  return h('#EditCode.content', [
     state.current.frontmatter.get() && h(Json, {
       value: state.current.shown.metadata.get(),
       onChange: metadata => {
@@ -334,7 +336,7 @@ const Images = pure(function Images () {
 
   return h('#Images', [
     images.length
-    ? 'drag an image to the editor to insert it.'
+    ? 'drag an image from here to the editor to insert it.'
     : '',
     h('.columns', [
       h('.column.is-half', images.slice(0, mid).map(renderImage)),
