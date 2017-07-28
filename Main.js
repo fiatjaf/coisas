@@ -11,7 +11,7 @@ module.exports = pure(() => {
       h('nav.nav', [
         h('.nav-left', [
           h('a.nav-item', {href: '#!/'}, [
-            h('img', {src: '/icon.png'})
+            h('img', {src: 'https://raw.githubusercontent.com/fiatjaf/coisas/master/icon.png'})
           ]),
           h('a.nav-item', {href: '#!/'}, 'coisas')
         ]),
