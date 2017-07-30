@@ -12,8 +12,6 @@ Other features that **coisas** include are:
   * image gallery with all images from your repository, so you can drag from there and drop them inside the editor;
   * simple visualization of many file formats (only text files are editable, however).
 
-### Please do not expect this to be free of bugs or to have all the features you need. It's a work in progress. Everything is broken still.
-
 ## usage
 
 To use **coisas**, go to https://coisas.alhur.es/ or embed it in your site, for example, in an `/admin/` section (more detailed instructions of how to do this may come, meanwhile please copy the hosted version file structure).
