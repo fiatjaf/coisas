@@ -1,9 +1,9 @@
-const gh = require('./helpers/github')
 const page = require('page')
 const {atom, derive, transact, proxy} = require('derivable')
 const matter = require('gray-matter')
 const mimeTypes = require('render-media/lib/mime.json')
 
+const gh = require('./helpers/github')
 const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('./constants').modes
 const base64 = require('./helpers/base64')
 const log = require('./log')
@@ -71,8 +71,18 @@ var state = {
       state.current.mime.get() === 'text/x-markdown' ||
       state.current.mime.get() === 'text/html'
     ),
+    editable: derive(() => ({
+      'text/x-markdown': true,
+      'text/html': true,
+      'text/plain': true,
+      'text/css': true,
+      'text/yaml': true,
+      'application/json': true,
+      'application/javascript': true
+    })[state.current.mime.get()]),
 
     deleting: atom(false),
+    previewing: atom(false),
     loading: derive(() =>
       state.existing.get() && !state.current.gh_contents.get()
     ),
@@ -185,6 +195,7 @@ state.current.gh_contents.react(() => {
 module.exports.clearCurrent = clearCurrent
 function clearCurrent () {
   state.current.deleting.set(false)
+  state.current.previewing.set(false)
   state.current.directory.set('')
   state.current.gh_contents.set(null)
   state.current.givenName.set('')

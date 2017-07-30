@@ -28,6 +28,10 @@ To customize the app behavior specifically for your repository, create a file na
 
 From that file you must modify the global object `window.coisas`, whose defaults are given at [preferences.js](preferences.js), along with comments that say which of its properties do what. If you need more customization options I'm happy to include them, please open an issue.
 
+### live previews
+
+Through the customization file, you may define a couple of functions that will enable live previews in the edit session of **coisas** (a couple of buttons will be shown allowing the editor to switch between the _edit_ view and the _preview_ view). See [preferences.js](preferences.js) for more information of how to do that.
+
 ## meta
 
 [![](https://ght.trackingco.de/fiatjaf/coisas)](https://ght.trackingco.de/)

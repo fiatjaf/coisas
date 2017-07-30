@@ -95,7 +95,42 @@ const defaultPreferences = {
   defaultMediaUploadPath: 'media',
 
   // if set, a link to the live site will appear in navbar.
-  liveSiteURL: null
+  liveSiteURL: null,
+
+  // for each file opened in the editor you can return true or false here
+  // to determine if the Edit/Preview buttons will be displayed or not.
+  canPreview: (
+    path /* this is the relative path of the file in the repo, like '_posts/hi.md' */,
+    ext /* the file extension, like 'md' */,
+    isnew /* true if the file is not on the repo, but just being created now */
+  ) => false,
+
+  // this function takes a raw HTMLElement and a context object with basically all
+  // the data the editor has and must render something to that element (for example,
+  // using `element.innerHTML = 'something'`).
+  // you probably cannot replicate your entire static website generator in this
+  // single Javascript function, and you'll also will be in trouble if you need
+  // to access the contents of all the other pages in the site (for example, if
+  // you were trying to generate a preview of an index page that shows excerpts),
+  // but for blog posts and basic content pages you can do a fine job here. also,
+  // for complicated pages you can probably use fake content where it is missing.
+  generatePreview: (element, {
+    path /* the relative path of the file being rendered, like '_posts/hi.md' */,
+    name /* the filename, like 'hi.md' */,
+    ext /* the file extension, like 'md' */,
+    mime /* the mimetype, based on the extension, like 'text/x-markdown' */,
+    content /* the raw, written content (without frontmatter) */,
+    metadata /* an object with the metadata, if any, taken from the frontmatter */,
+    repo /* the current GitHub repository slug, like 'fiatjaf/coisas' */,
+    tree /* a list of the files in the site, as returned by
+            https://developer.github.com/v3/git/trees/#get-a-tree-recursively */,
+    edited /* an object with all the current edited, probably still unsaved,
+              file contents and metadata, keyed by their path. if a file has
+              been opened and edited in this current session of _coisas_, it will
+              be here, otherwise it won't.
+              like {_posts/what.md: {content: "nada", metadata: {title: "What?"}}}
+            */
+  }) => {}
 }
 
 // module loading side-effects are great.

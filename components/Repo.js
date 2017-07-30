@@ -22,13 +22,15 @@ module.exports = pure(function Repo () {
       h(Save)
     ]),
     h('.column.is-7', [
-      state.mode.switch(
-        ADD, h(Page),
-        REPLACE, h(Upload),
-        UPLOAD, h(Upload),
-        EDIT, h(Page),
-        DIRECTORY, h(Directory)
-      ).get()
+      state.current.loading.get()
+        ? h('div')
+        : state.mode.switch(
+          ADD, h(Page),
+          REPLACE, h(Upload),
+          UPLOAD, h(Upload),
+          EDIT, h(Page),
+          DIRECTORY, h(Directory)
+        ).get()
     ]),
     h('.column.is-2', [
       h(Images)
@@ -190,68 +192,132 @@ const Upload = pure(function Upload () {
 })
 
 const Title = pure(function Title () {
+  let previewButtons =
+    (state.mode.get() === EDIT || state.mode.get() === ADD) &&
+    window.coisas.canPreview(
+      state.current.path.get(),
+      state.current.ext.get(),
+      !state.existing.get()
+    )
+      ? state.current.editable.get() &&
+        h('.level-right', [
+          h('.field.has-addons', [
+            h('p.control', [
+              h('button.button.is-info.is-small.is-inverted', {
+                className: state.current.previewing.get() ? 'is-outlined' : ''
+              }, [
+                h('span.icon.is-small', [ h('i.fa.fa-pencil-square') ]),
+                h('span', {
+                  onClick: () => state.current.previewing.set(false)
+                }, 'Edit')
+              ])
+            ]),
+            h('p.control', [
+              h('button.button.is-success.is-small.is-inverted', {
+                className: state.current.previewing.get() ? '' : 'is-outlined'
+              }, [
+                h('span.icon.is-small', [ h('i.fa.fa-eye') ]),
+                h('span', {
+                  onClick: () => state.current.previewing.set(true)
+                }, 'Preview')
+              ])
+            ])
+          ])
+        ])
+      : null
+
   if (state.existing.get()) {
-    return h('h3.title.is-3', state.current.path.get())
+    return h('.level', [
+      h('.level-left', [ h('h3.title.is-3', state.current.path.get()) ]),
+      previewButtons
+    ])
   } else {
-    return h('input.input.is-large', {
-      value: state.current.name.get(),
-      onChange: e => state.current.givenName.set(e.target.value)
-    })
+    return h('.level', [
+      h('input.input.is-large', {
+        value: state.current.name.get(),
+        onChange: e => state.current.givenName.set(e.target.value)
+      }),
+      previewButtons
+    ])
   }
 })
 
+const PagePreview = pure(function PagePreview () {
+  return h('#PagePreview', {
+    ref: el => {
+      if (el) {
+        window.coisas.generatePreview(el, {
+          path: state.current.path.get(),
+          name: state.current.name.get(),
+          ext: state.current.ext.get(),
+          mime: state.current.mime.get(),
+          content: state.current.shown.content.get(),
+          metadata: state.current.shown.metadata.get(),
+          slug: state.slug.get(),
+          tree: state.tree.get(),
+          edited: state.editedValues.get()
+        })
+      }
+    }
+  })
+})
+
 const Page = pure(function Page () {
-  if (state.current.loading.get()) {
-    return h('div', 'loading')
-  }
+  if (state.current.previewing.get()) {
+    components = [ h(PagePreview) ]
+  } else {
+    var editor
+    switch (state.current.mime.get()) {
+      case 'text/x-markdown':
+        editor = h(EditMarkdown)
+        break
+      case 'text/html':
+      case 'text/plain':
+      case 'text/css':
+      case 'text/yaml':
+      case 'application/json':
+      case 'application/javascript':
+      case undefined:
+        editor = h(EditCode)
+        break
+    }
 
-  var editor
-  switch (state.current.mime.get()) {
-    case 'text/x-markdown':
-      editor = h(EditMarkdown)
-      break
-    case 'text/html':
-    case 'text/plain':
-    case 'text/css':
-    case 'text/yaml':
-    case 'application/json':
-    case 'application/javascript':
-    case undefined:
-      editor = h(EditCode)
-      break
-  }
+    var preview
+    try {
+      preview = h(Preview, {
+        name: state.current.name.get(),
+        base64: state.current.gh_contents.get().content
+      })
+    } catch (e) {}
 
-  var preview
-  try {
-    preview = h(Preview, {
-      name: state.current.name.get(),
-      base64: state.current.gh_contents.get().content
-    })
-  } catch (e) {}
+    var components = editor
+      ? [ editor ]
+      : [ preview ]
 
-  var components = editor
-    ? [ editor ]
-    : [ preview ]
-
-  let uploadMode = state.existing.get() ? REPLACE : UPLOAD
-  var buttons = []
-  buttons.push(
-    h('.level-left', [
-      h('button.button.is-dark', {
-        onClick: () => {
-          state.mode.set(uploadMode)
-        }
-      }, state.existing.get() ? 'Replace this with an uploaded file?' : 'Upload a file?')
-    ])
-  )
-
-  if (state.existing.get()) {
+    let uploadMode = state.existing.get() ? REPLACE : UPLOAD
+    var buttons = []
     buttons.push(
-      h('.level-right', [ h(Delete) ])
+      h('.level-left', [
+        h('button.button.is-dark', {
+          onClick: () => {
+            state.mode.set(uploadMode)
+          }
+        },
+        state.existing.get()
+          ? 'Replace with an uploaded file'
+          : 'Upload a file'
+        )
+      ])
     )
-  }
 
-  components.push(h('.level', buttons))
+    if (state.existing.get()) {
+      buttons.push(
+        h('.level-right', [ h(Delete) ])
+      )
+    }
+
+    components.push(h('.level', buttons))
+  }
 
   return h('#Page', [
     h(Title),
