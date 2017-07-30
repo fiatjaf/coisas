@@ -27,3 +27,7 @@ There is a demo site at https://geraldoquagliato.github.io/ which you can browse
 To customize the app behavior specifically for your repository, create a file named `coisas.js` and put it at the root of the repository. That file may contain anything, it will be loaded dinamically by **coisas** at its initialization process and run as is.
 
 From that file you must modify the global object `window.coisas`, whose defaults are given at [preferences.js](preferences.js), along with comments that say which of its properties do what. If you need more customization options I'm happy to include them, please open an issue.
+
+## meta
+
+[![](https://ght.trackingco.de/fiatjaf/coisas)](https://ght.trackingco.de/)
