@@ -26,9 +26,15 @@ To customize the app behavior specifically for your repository, create a file na
 
 From that file you must modify the global object `window.coisas`, whose defaults are specified in [preferences.js](preferences.js) (along with comments to explain each property). If you need more customization options I'm happy to include them, please open an issue.
 
-### live previews
+### previews
 
-Through the customization file, you may define a couple of functions that will enable live previews in the edit session of **coisas** (a couple of buttons will be shown allowing the editor to switch between the _edit_ view and the _preview_ view). See [preferences.js](preferences.js) for more information about how to do that.
+Through the customization file, you may define a couple of functions that will enable previews in the edit session of **coisas** (a couple of buttons will be shown allowing the editor to switch between the _edit_ view and the _preview_ view). See [preferences.js](preferences.js) for more information about how to do that.
+
+## development
+
+To run **coisas** locally, you can `git clone` the repo, then `cd` to it and `npm install`, then `npm run build`. If you want to rebuild automatically every time you change a file, you'll need [entr](http://entrproject.org/), so you can `npm run watch`.
+
+Besides all that, a static server is needed. There are thousands out there for you to choose. My current preference is [Caddy](https://caddyserver.com/), because it will run your site on HTTPS automatically if you have a canonical hostname (just modify [Caddyfile](Caddyfile) with yours). Running **coisas** on HTTPS is required for the [service-worker.js](service-worker.js) to be installed, but that is not necessary (although without it the editor image previews may fail).
 
 ## meta
 
