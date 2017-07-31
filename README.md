@@ -32,4 +32,12 @@ Through the customization file, you may define a couple of functions that will e
 
 ## meta
 
+##### Source tree for this repository
+
+(The majority of action happens at [components/Repo.js](components/Repo.js) and [state.js](state.js), although Prosemirror takes a lot of space in the tree due to its hypermodularization)
+
+![](http://node-dependencies-view.glitch.me/fiatjaf/coisas)
+
+##### Visit analytics for this repository
+
 [![](https://ght.trackingco.de/fiatjaf/coisas)](https://ght.trackingco.de/)
