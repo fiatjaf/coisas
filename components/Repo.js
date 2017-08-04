@@ -76,7 +76,7 @@ const Folder = pure(function Folder ({f}) {
   let dir = f
   return (
     h(TreeView, {
-      nodeLabel: dir.path,
+      nodeLabel: dir.path.split('/').slice(-1)[0],
       collapsed: dir.collapsed,
       onClick: () => {
         state.bypath.get()[dir.path].collapsed = !dir.collapsed
@@ -84,7 +84,10 @@ const Folder = pure(function Folder ({f}) {
       }
     }, [
       h('ul.menu-list', state.tree.get()
-        .filter(f => f.path.slice(0, dir.path.length + 1) === dir.path + '/')
+        .filter(f =>
+          f.path.slice(0, dir.path.length + 1) === dir.path + '/' &&
+          f.path.split('/').length - 1 === dir.path.split('/').length
+        )
         .map(f => h(Folder, {key: f.path, f}))
         .concat(
           h('li', [
