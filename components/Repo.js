@@ -192,54 +192,73 @@ const Upload = pure(function Upload () {
 })
 
 const Title = pure(function Title () {
-  let previewButtons =
+  var buttons = []
+
+  if (state.current.editable.get()) {
+    buttons.push(
+      h('p.control', [
+        h('button.button.is-primary.is-small.is-inverted', {
+          className: state.fullscreen.get() ? '' : 'is-outlined'
+        }, [
+          h('span.icon.is-small', [ h('i.fa.fa-expand') ]),
+          h('span', {
+            onClick: () => state.fullscreen.set(!state.fullscreen.get())
+          }, state.fullscreen.get() ? 'Expanded' : 'Expand')
+        ])
+      ])
+    )
+  }
+
+  if (
+    state.current.editable.get() &&
     (state.mode.get() === EDIT || state.mode.get() === ADD) &&
     window.coisas.canPreview(
       state.current.path.get(),
       state.current.ext.get(),
       !state.existing.get()
     )
-      ? state.current.editable.get() &&
-        h('.level-right', [
-          h('.field.has-addons', [
-            h('p.control', [
-              h('button.button.is-info.is-small.is-inverted', {
-                className: state.current.previewing.get() ? 'is-outlined' : ''
-              }, [
-                h('span.icon.is-small', [ h('i.fa.fa-pencil-square') ]),
-                h('span', {
-                  onClick: () => state.current.previewing.set(false)
-                }, 'Edit')
-              ])
-            ]),
-            h('p.control', [
-              h('button.button.is-success.is-small.is-inverted', {
-                className: state.current.previewing.get() ? '' : 'is-outlined'
-              }, [
-                h('span.icon.is-small', [ h('i.fa.fa-eye') ]),
-                h('span', {
-                  onClick: () => state.current.previewing.set(true)
-                }, 'Preview')
-              ])
-            ])
-          ])
+  ) {
+    buttons.push(
+      h('p.control', [
+        h('button.button.is-info.is-small.is-inverted', {
+          className: state.current.previewing.get() ? 'is-outlined' : ''
+        }, [
+          h('span.icon.is-small', [ h('i.fa.fa-pencil-square') ]),
+          h('span', {
+            onClick: () => state.current.previewing.set(false)
+          }, 'Edit')
         ])
-      : null
-
-  if (state.existing.get()) {
-    return h('.level', [
-      h('.level-left', [ h('h3.title.is-3', state.current.path.get()) ]),
-      previewButtons
-    ])
-  } else {
-    return h('.level', [
-      h('input.input.is-large', {
-        value: state.current.name.get(),
-        onChange: e => state.current.givenName.set(e.target.value)
-      }),
-      previewButtons
-    ])
+      ])
+    )
+    buttons.push(
+      h('p.control', [
+        h('button.button.is-success.is-small.is-inverted', {
+          className: state.current.previewing.get() ? '' : 'is-outlined'
+        }, [
+          h('span.icon.is-small', [ h('i.fa.fa-eye') ]),
+          h('span', {
+            onClick: () => state.current.previewing.set(true)
+          }, 'Preview')
+        ])
+      ])
+    )
   }
+
+  var title = state.existing.get()
+    ? h('h3.title.is-3', state.current.path.get())
+    : h('input.input.is-large', {
+      value: state.current.name.get(),
+      onChange: e => state.current.givenName.set(e.target.value)
+    })
+
+  return h('.level', [
+    h('.level-left', [ title ]),
+    h('.level-right', [
+      h('.level-item', [
+        h('.field.has-addons', [ buttons ])
+      ])
+    ])
+  ])
 })
 
 const PagePreview = pure(function PagePreview () {
@@ -319,7 +338,9 @@ const Page = pure(function Page () {
     components.push(h('.level', buttons))
   }
 
-  return h('#Page', [
+  return h('#Page', {
+    className: state.fullscreen.get() ? 'fullscreen' : ''
+  }, [
     h(Title),
     h('div', components)
   ])

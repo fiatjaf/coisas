@@ -51,6 +51,7 @@ var state = {
         return false
     }
   }),
+  fullscreen: atom(false),
 
   current: {
     directory: atom(''),

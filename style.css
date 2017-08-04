@@ -29,6 +29,20 @@ main {
   }
 
 #Page { margin-top: 20px; }
+  #Page.fullscreen {
+    position: absolute;
+    z-index: 44;
+    background: #a3d4ff;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    overflow: auto;
+    margin: 0;
+    padding: 30px;
+  }
 
 .preview {
   display: inline-block;
