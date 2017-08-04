@@ -65,8 +65,12 @@ var state = {
             .join('/')
     ),
     name: derive(() => state.current.path.get().split('/').slice(-1)[0]),
-    ext: derive(() => state.current.name.get().split('.').slice(-1)[0]),
-    mime: derive(() => mimeTypes['.' + state.current.ext.get()]),
+    ext: derive(() =>
+      state.current.name.get().split('.')[1]
+        ? '.' + state.current.name.get().split('.')[1]
+        : ''
+    ),
+    mime: derive(() => mimeTypes[state.current.ext.get()]),
     frontmatter: derive(() =>
       state.current.mime.get() === 'text/x-markdown' ||
       state.current.mime.get() === 'text/html'

@@ -101,7 +101,7 @@ const defaultPreferences = {
   // to determine if the Edit/Preview buttons will be displayed or not.
   canPreview: (
     path /* this is the relative path of the file in the repo, like '_posts/hi.md' */,
-    ext /* the file extension, like 'md' */,
+    ext /* the file extension, like '.md' */,
     isnew /* true if the file is not on the repo, but just being created now */
   ) => false,
 
@@ -117,7 +117,7 @@ const defaultPreferences = {
   generatePreview: (element, {
     path /* the relative path of the file being rendered, like '_posts/hi.md' */,
     name /* the filename, like 'hi.md' */,
-    ext /* the file extension, like 'md' */,
+    ext /* the file extension, like '.md' */,
     mime /* the mimetype, based on the extension, like 'text/x-markdown' */,
     content /* the raw, written content (without frontmatter) */,
     metadata /* an object with the metadata, if any, taken from the frontmatter */,
