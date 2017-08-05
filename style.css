@@ -1,6 +1,14 @@
+/* Defining CSS Variables */
+:root {
+  --bgcolour: #bcf7d3; /* Main Background Colour */
+  --brdcolour: #999;  /* Main Border Colour */
+  --mirrorbrdcolour: #eee; /* Border Colour for .CodeMirror */
+  --editorbgcolour: #fff; /* Editor Border Colour */
+}
+
 html, body { min-height: 100vh; }
 
-body { background-color: #bcf7d3; }
+body { background-color: var(--bgcolour); }
 
 main {
   padding-top: 30px;
@@ -47,20 +55,20 @@ main {
 .preview {
   display: inline-block;
   margin: 7px;
-  border: dotted 6px #999;
+  border: dotted 6px var(--brdcolour);
 }
 .preview > * { width: 100%; }
 .preview .file *:not(img) { min-height: 500px; }
 
-.dropzone { margin: 7px; border: dotted 6px #999 !important; }
+.dropzone { margin: 7px; border: dotted 6px var(--brdcolour) !important; }
 .dropzone > .placeholder {
   margin: 69px 20px;
-  color: #999;
+  color: var(--brdcolour);
   text-align: center;
 }
 
 .CodeMirror {
-  border: 1px solid #eee;
+  border: 1px solid var(--mirrorbrdcolour);
   height: auto !important;
 }
 
@@ -84,7 +92,7 @@ main {
 .jsonEditor .jsonName label { padding-left: 12px; }
 .jsonEditor .jsonName,
 .jsonEditor .jsonValue {
-  background: white;
+  background: var(--editorbgcolour);
   padding: 5px;
 }
 

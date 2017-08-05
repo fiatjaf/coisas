@@ -1,3 +1,19 @@
+/* Defining CSS Variables */
+:root {
+  --bgcolour: #fff; /* Main Background Colour */
+  --brdcolour: #8cf; /* Main Border Colour */
+  --menuseparatorbrdcolour: #ddd; /* MenuSeparator Border Colour */
+  --menudropdowncolour: #666; /* Menu Dropdown Text Colour */
+  --menudropdownbrdcolour: #aaa; /* Menu Dropdown Border Colour */
+  --menudropdownbgcolour: #f2f2f2; /* Menu Dropdown Background Colour */
+  --menuactivebgcolour: #eee; /* Active Menu Border Colour */
+  --menubarcolour: #666; /* Menubar Text Colour */
+  --menubarbrdcolour: #C0C0C0; /* Menubar Border Colour */
+  --h5prosecolour: #444; /* H5 Text Colour */
+  --invalidbgcolour: #ffc; /* Invalid ProseMirror Background Colour */
+  --invalidbrdcolour: #cc7; /* Invalid PRoseMirros Border Colour */
+}
+
 .ProseMirror-menubar-wrapper {
   margin-top: 20px;
 }
@@ -5,7 +21,7 @@
 .ProseMirror {
   position: relative;
   padding: 1px 9px;
-  background: white;
+  background: var(--bgcolour);
 }
 
 .ProseMirror {
@@ -33,7 +49,7 @@
 .ProseMirror-hideselection *::-moz-selection { background: transparent; }
 
 .ProseMirror-selectednode {
-  outline: 2px solid #8cf;
+  outline: 2px solid var(--brdcolour);
 }
 
 /* Make sure li selections wrap around markers */
@@ -47,7 +63,7 @@ li.ProseMirror-selectednode:after {
   position: absolute;
   left: -32px;
   right: -2px; top: -2px; bottom: -2px;
-  border: 2px solid #8cf;
+  border: 2px solid var(--brdcolour);
   pointer-events: none;
 }
 .ProseMirror-textblock-dropdown {
@@ -71,7 +87,7 @@ li.ProseMirror-selectednode:after {
 }
 
 .ProseMirror-menuseparator {
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--menuseparatorbrdcolour);
   margin-right: 3px;
 }
 
@@ -106,9 +122,9 @@ li.ProseMirror-selectednode:after {
 
 .ProseMirror-menu-dropdown-menu, .ProseMirror-menu-submenu {
   position: absolute;
-  background: white;
-  color: #666;
-  border: 1px solid #aaa;
+  background: var(--bgcolour);
+  color: var(--menudropdownbgcolour);
+  border: 1px solid var(--menudropdownbrdcolour);
   padding: 2px;
 }
 
@@ -123,7 +139,7 @@ li.ProseMirror-selectednode:after {
 }
 
 .ProseMirror-menu-dropdown-item:hover {
-  background: #f2f2f2;
+  background: var(--menudropdownbgcolour);
 }
 
 .ProseMirror-menu-submenu-wrap {
@@ -150,12 +166,7 @@ li.ProseMirror-selectednode:after {
 }
 
 .ProseMirror-menu-active {
-  background: #eee;
-  border-radius: 4px;
-}
-
-.ProseMirror-menu-active {
-  background: #eee;
+  background: var(--menuactivebgcolour);
   border-radius: 4px;
 }
 
@@ -172,11 +183,11 @@ li.ProseMirror-selectednode:after {
   border-top-right-radius: inherit;
   position: relative;
   min-height: 1em;
-  color: #666;
+  color: var(--menubarcolour);
   padding: 1px 6px;
   top: 0; left: 0; right: 0;
-  border-bottom: 1px solid silver;
-  background: white;
+  border-bottom: 1px solid var(--menubarbrdcolour);
+  background: var(--bgcolour);
   z-index: 10;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -217,7 +228,7 @@ li.ProseMirror-selectednode:after {
   left: 10px;
   right: 10px;
   top: 2px;
-  border-top: 2px solid silver;
+  border-top: 2px solid var(--menubarbrdcolour);
 }
 
 .ProseMirror ul, .ProseMirror ol {
@@ -226,7 +237,7 @@ li.ProseMirror-selectednode:after {
 
 .ProseMirror blockquote {
   padding-left: 1em;
-  border-left: 3px solid #eee;
+  border-left: 3px solid var(--menuactivebgcolour);
   margin-left: 0; margin-right: 0;
 }
 
@@ -240,14 +251,14 @@ li.ProseMirror-selectednode:after {
 
 .ProseMirror-example-setup-style td {
   vertical-align: top;
-  border: 1px solid #ddd;
+  border: 1px solid var(--menuseparatorbrdcolour);
   padding: 3px 5px;
 }
 
 .ProseMirror-prompt {
-  background: white;
+  background: var(--bgcolour);
   padding: 5px 10px 5px 15px;
-  border: 1px solid silver;
+  border: 1px solid var(--menubarbrdcolour);
   position: fixed;
   border-radius: 3px;
   z-index: 11;
@@ -258,12 +269,12 @@ li.ProseMirror-selectednode:after {
   margin: 0;
   font-weight: normal;
   font-size: 100%;
-  color: #444;
+  color: var(--h5prosecolour);
 }
 
 .ProseMirror-prompt input[type="text"],
 .ProseMirror-prompt textarea {
-  background: #eee;
+  background: var(--menuactivebgcolour);
   border: none;
   outline: none;
 }
@@ -275,7 +286,7 @@ li.ProseMirror-selectednode:after {
 .ProseMirror-prompt-close {
   position: absolute;
   left: 2px; top: 1px;
-  color: #666;
+  color: var(--menubarcolour);
   border: none; background: transparent; padding: 0;
 }
 
@@ -285,8 +296,8 @@ li.ProseMirror-selectednode:after {
 }
 
 .ProseMirror-invalid {
-  background: #ffc;
-  border: 1px solid #cc7;
+  background: var(--invalidbgcolour);
+  border: 1px solid var(--invalidbrdcolour);
   border-radius: 4px;
   padding: 5px 10px;
   position: absolute;
