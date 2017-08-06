@@ -116,7 +116,7 @@ const Delete = pure(function Delete () {
     return h('#Delete', [
       h('.level', [
         h('.level-left', [
-          h('button.button.is-warning', {
+          h('button.button', {
             onClick: () => {
               state.current.deleting.set(true)
             }
@@ -130,12 +130,12 @@ const Delete = pure(function Delete () {
     h('p', `Delete ${state.current.path.get()}?`),
     h('.level', [
       h('.level-left', [
-        h('button.button.is-small', {
+        h('button.button.delete-cancel.is-small', {
           onClick: () => state.current.deleting.set(false)
         }, 'Cancel')
       ]),
       h('.level-right', [
-        h('button.button.is-large.is-danger', {
+        h('button.button.delete-confirm.is-large.is-danger', {
           onClick: () => {
             let path = state.current.path.get()
 
@@ -199,7 +199,7 @@ const Title = pure(function Title () {
 
   if (state.current.editable.get()) {
     buttons.push(
-      h('p.control', [
+      h('p.control', {key: 'fullscreen'}, [
         h('button.button.is-primary.is-small.is-inverted', {
           className: state.fullscreen.get() ? '' : 'is-outlined'
         }, [
@@ -222,7 +222,7 @@ const Title = pure(function Title () {
     )
   ) {
     buttons.push(
-      h('p.control', [
+      h('p.control', {key: 'edit'}, [
         h('button.button.is-info.is-small.is-inverted', {
           className: state.current.previewing.get() ? 'is-outlined' : ''
         }, [
@@ -234,8 +234,8 @@ const Title = pure(function Title () {
       ])
     )
     buttons.push(
-      h('p.control', [
-        h('button.button.is-success.is-small.is-inverted', {
+      h('p.control', {key: 'preview'}, [
+        h('button.button.is-warning.is-small.is-inverted', {
           className: state.current.previewing.get() ? '' : 'is-outlined'
         }, [
           h('span.icon.is-small', [ h('i.fa.fa-eye') ]),
@@ -320,7 +320,7 @@ const Page = pure(function Page () {
     var buttons = []
     buttons.push(
       h('.level-left', [
-        h('button.button.is-dark', {
+        h('button.button.upload', {
           onClick: () => {
             state.mode.set(uploadMode)
           }
@@ -487,7 +487,7 @@ const Save = pure(function Save () {
   if (state.current.upload.base64.get()) disabled = false
 
   return h('#Save', [
-    h('button.button.is-large.is-primary', {
+    h('button.button.is-large', {
       disabled,
       onClick: () => {
         log.info(`Saving ${state.current.path.get()} to GitHub.`)

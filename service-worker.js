@@ -2,7 +2,6 @@
 
 const always = [
   'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.1/notie.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.0/notie.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/codemirror.min.css',
@@ -12,7 +11,7 @@ const always = [
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/javascript/javascript.js'
 ]
 
-const currentCache = 'v0'
+const currentCache = 'v1'
 
 this.addEventListener('install', event => {
   event.waitUntil(

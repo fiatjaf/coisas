@@ -4,8 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "css": "node-sass main.scss > style.css",
     "watch": "find -name \"*.js\" ! -name \"bundle.js\" ! -path \"*node_modules*\" | entr browserifyinc -vd app.js -o bundle.js",
-    "build": "browserify app.js -o bundle.js",
+    "build": "browserify app.js -o bundle.js && npm run css",
     "build-prod": "env NODE_ENV=production npm run build"
   },
   "browserify": {
@@ -53,6 +54,8 @@
     "browserify": "^14.3.0",
     "browserify-incremental": "^3.1.1",
     "buble": "^0.15.2",
-    "bubleify": "^0.7.0"
+    "bubleify": "^0.7.0",
+    "bulma": "^0.5.0",
+    "node-sass": "^4.5.3"
   }
 }

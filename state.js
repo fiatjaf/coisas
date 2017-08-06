@@ -76,15 +76,16 @@ var state = {
       state.current.mime.get() === 'text/x-markdown' ||
       state.current.mime.get() === 'text/html'
     ),
-    editable: derive(() => ({
-      'text/x-markdown': true,
-      'text/html': true,
-      'text/plain': true,
-      'text/css': true,
-      'text/yaml': true,
-      'application/json': true,
-      'application/javascript': true
-    })[state.current.mime.get()]),
+    editable: derive(() =>
+      (state.mode.get() === ADD || state.mode.get() === EDIT) && ({
+        'text/x-markdown': true,
+        'text/html': true,
+        'text/plain': true,
+        'text/css': true,
+        'text/yaml': true,
+        'application/json': true,
+        'application/javascript': true
+      })[state.current.mime.get()]),
 
     deleting: atom(false),
     previewing: atom(false),
