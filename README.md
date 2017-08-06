@@ -26,7 +26,13 @@ To customize the app behavior specifically for your repository, create a file na
 
 From that file you must modify the global object `window.coisas`, whose defaults are specified in [preferences.js](preferences.js) (along with comments to explain each property). If you need more customization options I'm happy to include them, please open an issue.
 
-### previews
+#### styles
+
+You can customize many of the original styles of **coisas** UI (which, I admit, are not pretty). You can do it by simply modifying the [CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_variables) made available at the top of [main.scss](main.scss) in your `coisas.js` file along with their defaults.
+
+Basically you just run `document.body.style.setProperty("--variable-name", "value")`. The names should be somewhat self-descriptive, but if they aren't please solve that by doing manual experimentation in the browser console.
+
+#### previews
 
 Through the customization file, you may define a couple of functions that will enable previews in the edit session of **coisas** (a couple of buttons will be shown allowing the editor to switch between the _edit_ view and the _preview_ view). See [preferences.js](preferences.js) for more information about how to do that.
 
