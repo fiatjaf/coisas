@@ -20,7 +20,7 @@
   --upload-button-background: #363636;
   --upload-button-text: white;
   --delete-button-background: #ffdd57;
-  --delete-button-text: white;
+  --delete-button-text: #363636;
   --delete-cancel-button-background: white;
   --delete-cancel-button-text: #363636;
   --delete-confirm-button-background: #ff2b56;
@@ -205,20 +205,20 @@ button.button {
   overflow: hidden;
 
   .tree-view_item {
-    color: var(--tree-folder-color);
+    color: var(--tree-folder-text);
   }
 
   a {
-    color: var(--tree-file-color);
+    color: var(--tree-file-text);
 
     &:hover {
       background-color: var(--tree-file-hover-background);
-      color: var(--tree-file-hover-color);
+      color: var(--tree-file-hover-text);
     }
 
     &.is-active {
       background-color: var(--tree-file-active-background);
-      color: var(--tree-file-active-color);
+      color: var(--tree-file-active-text);
     }
   }
 }
