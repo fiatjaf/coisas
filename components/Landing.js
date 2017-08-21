@@ -49,7 +49,7 @@ function getRepoHistory() {
     const historyListItems = historyList.map( (repo) => {
       return h('li.repoListItem', {key: repo, onClick: () => onRepoClick(repo)}, repo);
     });
-    return historyListItems;
+    return historyListItems.reverse();
   }
   return h('li', 'No recently visited repositories.');
 }
