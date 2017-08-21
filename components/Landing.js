@@ -1,8 +1,8 @@
 const h = require('react-hyperscript')
 const page = require('page')
 
-module.exports = function Index (ctx) {
-  return h('#Index', [
+module.exports = function Landing (ctx) {
+  return h('#Landing', [
     h('center', [
       h('form', {
         onSubmit: e => {

@@ -1,5 +1,5 @@
 module.exports = {
-  'index': require('./Index'),
+  'index': require('./Landing'),
   'repo': require('./Repo'),
   'div': 'div'
 }
