@@ -34,8 +34,12 @@ Storage.prototype.getObject = function(key) {
 function storeRepo(repoName) {
   localStorage.setObject('repoHistory', repoName);
 }
-function onRepoClick() {
-  console.log("Clicked repo");
+
+function onRepoClick(repoName) {
+  console.log("Clicked " + repoName);
+  storeRepo(repoName);
+  const slug = /(github.com\/)?([^\/]+)\/([^\/]+)(\/.*)?/.exec(repoName).slice(2, 4).join('/');
+  page('#!/' + slug + '/');
 }
 
 function getRepoHistory() {
@@ -43,11 +47,11 @@ function getRepoHistory() {
   if (history){
     const historyList = history.split(' ');
     const historyListItems = historyList.map( (repo) => {
-      return h('li', {key: repo, onClick: onRepoClick}, repo);
+      return h('li.repoListItem', {key: repo, onClick: () => onRepoClick(repo)}, repo);
     });
     return historyListItems;
   }
-  return h('li', 'No History');
+  return h('li', 'No recently visited repositories.');
 }
 
 module.exports = function Landing (ctx) {
