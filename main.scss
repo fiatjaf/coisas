@@ -68,6 +68,20 @@ main {
     width: 600px;
     text-align: center;
   }
+
+  ul {
+    li {
+      display: inline;
+      padding-right: 15px;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+        color: black;
+      }
+    }
+    
+    padding-bottom: 20px;
+  }
 }
 
 #Images {

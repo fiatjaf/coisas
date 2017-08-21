@@ -2,7 +2,11 @@ const h = require('react-hyperscript')
 const page = require('page')
 
 function addToStorageString(oldVal, newVal){
+  if (newVal === ''){
+    return oldVal;
+  }
   let arr = oldVal.split(' ');
+  
   while (arr.indexOf(newVal) !== -1){
     var index = arr.indexOf(newVal);
     arr.splice(index, 1);
@@ -13,6 +17,7 @@ function addToStorageString(oldVal, newVal){
   }
   return arr.join(' ');
 }
+
 Storage.prototype.setObject = function(key, value) {
   let temp = localStorage.getObject(key);
   if (temp){
@@ -29,28 +34,28 @@ Storage.prototype.getObject = function(key) {
 function storeRepo(repoName) {
   localStorage.setObject('repoHistory', repoName);
 }
-
-function onRepoClick(){
-
+function onRepoClick() {
+  console.log("Clicked repo");
 }
 
 function getRepoHistory() {
   const history = localStorage.getObject('repoHistory');
   if (history){
     const historyList = history.split(' ');
-    console.log(historyList);
-    historyList.map((repo) => {
-      return
-      <li onClick={onRepoClick} key={repo}>{repo}</li>;
+    const historyListItems = historyList.map( (repo) => {
+      return h('li', {key: repo, onClick: onRepoClick}, repo);
     });
+    return historyListItems;
   }
+  return h('li', 'No History');
 }
 
 module.exports = function Landing (ctx) {
 
   return h('#Landing', [
     h('center', [
-      h('ul', getRepoHistory()),
+      h('p', 'Recently Viewed Repositories: '),
+      h('ul', [getRepoHistory()]),
       h('form', {
         onSubmit: e => {
           e.preventDefault()
