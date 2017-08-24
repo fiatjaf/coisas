@@ -7,6 +7,7 @@ const gh = require('./helpers/github')
 const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('./constants').modes
 const base64 = require('./helpers/base64')
 const log = require('./log')
+const storage = require('./helpers/storage')
 
 /* STATE */
 
@@ -336,7 +337,8 @@ function loadUser () {
 page('/', ctx => state.route.set({componentName: 'index', ctx}))
 page('/:owner/:repo/*', ctx => {
   window.tc && window.tc(2)
-
+  const repoName = ctx.params.owner + '/' + ctx.params.repo;
+  storage.storeRepo(repoName);
   window.coisas.loadPreferences(ctx)
     .then(() => {
       state.route.set({componentName: 'repo', ctx})
