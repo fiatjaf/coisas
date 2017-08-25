@@ -238,3 +238,13 @@ button.button {
 }
 
 .menu-list a { padding: 0 .75em; }
+
+.button-list {
+  color: #646363 !important;
+  border-color: #565656 !important;
+  background-color: transparent !important;
+  &:hover {
+    color: #bcf7d3 !important;
+    background-color: #646363 !important; 
+  }
+}

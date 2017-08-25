@@ -199,14 +199,12 @@ const Title = pure(function Title () {
 
   if (state.current.editable.get()) {
     buttons.push(
-      h('p.control', {key: 'fullscreen'}, [
-        h('button.button.is-primary.is-small.is-inverted', {
+      h('p.control', {key: 'fullscreen', onClick: () => state.fullscreen.set(!state.fullscreen.get())}, [
+        h('button.button.is-primary.is-small.is-inverted.button-list', {
           className: state.fullscreen.get() ? '' : 'is-outlined'
         }, [
-          h('span.icon.is-small', [ h('i.fa.fa-expand') ]),
-          h('span', {
-            onClick: () => state.fullscreen.set(!state.fullscreen.get())
-          }, state.fullscreen.get() ? 'Expanded' : 'Expand')
+          h('span.icon.is-small',  [ h('i.fa.fa-expand') ]),
+          h('span', state.fullscreen.get() ? 'Collapse' : 'Expand')
         ])
       ])
     )
@@ -222,26 +220,22 @@ const Title = pure(function Title () {
     )
   ) {
     buttons.push(
-      h('p.control', {key: 'edit'}, [
-        h('button.button.is-info.is-small.is-inverted', {
+      h('p.control', {key: 'edit', onClick: () => state.current.previewing.set(false)}, [
+        h('button.button.is-info.is-small.is-inverted.button-list', {
           className: state.current.previewing.get() ? 'is-outlined' : ''
         }, [
           h('span.icon.is-small', [ h('i.fa.fa-pencil-square') ]),
-          h('span', {
-            onClick: () => state.current.previewing.set(false)
-          }, 'Edit')
+          h('span', 'Edit')
         ])
       ])
     )
     buttons.push(
-      h('p.control', {key: 'preview'}, [
-        h('button.button.is-warning.is-small.is-inverted', {
+      h('p.control', {key: 'preview', onClick: () => state.current.previewing.set(true)}, [
+        h('button.button.is-warning.is-small.is-inverted.button-list', {
           className: state.current.previewing.get() ? '' : 'is-outlined'
         }, [
           h('span.icon.is-small', [ h('i.fa.fa-eye') ]),
-          h('span', {
-            onClick: () => state.current.previewing.set(true)
-          }, 'Preview')
+          h('span', 'Preview')
         ])
       ])
     )
