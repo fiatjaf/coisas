@@ -171,27 +171,29 @@ const Delete = pure(function Delete () {
 })
 
 const Upload = pure(function Upload () {
-  return h('#Upload', [
-    h(Title),
-    h('.upload', [
-      h('label', [
-        state.current.upload.file.get()
-          ? h('div', [
-            h(Preview, {
-              name: state.current.upload.file.get().name,
-              blob: state.current.upload.file.get()
-            })
-          ])
-          : h(FileUpload, {
-            onFile: f => {
-              state.current.upload.file.set(f)
-              state.current.givenName.set(f.name)
-            },
-            onBase64: b64 => state.current.upload.base64.set(b64)
+  if(window.coisas.defaultMediaUploadPath || window.coisas.defaultMediaUploadPath === "") {
+    return h('#Upload', [
+      h(Title),
+      h('.upload', [
+        h('label', [
+          state.current.upload.file.get()
+            ? h('div', [
+              h(Preview, {
+                name: state.current.upload.file.get().name,
+                blob: state.current.upload.file.get()
+              })
+            ])
+            : h(FileUpload, {
+              onFile: f => {
+                state.current.upload.file.set(f)
+                state.current.givenName.set(f.name)
+              },
+              onBase64: b64 => state.current.upload.base64.set(b64)
           })
+        ])
       ])
     ])
-  ])
+  }
 })
 
 const Title = pure(function Title () {
