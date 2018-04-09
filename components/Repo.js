@@ -3,6 +3,7 @@ const CodeMirror = require('react-codemirror')
 const Json = require('react-json')
 const TreeView = require('react-treeview')
 const {observer} = require('mobx-react')
+const fwitch = require('fwitch')
 
 const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../constants').modes
 const {loadTree, resetTreeForCurrent, loadFile, newFile, clearCurrent} = require('../state')
@@ -24,13 +25,13 @@ module.exports = observer(function Repo () {
     h('.column.is-7', [
       state.current.loading.get()
         ? h('div')
-        : state.mode.switch(
-          ADD, h(Page),
-          REPLACE, h(Upload),
-          UPLOAD, h(Upload),
-          EDIT, h(Page),
-          DIRECTORY, h(Directory)
-        ).get()
+        : fwitch(state.mode.get(), {
+          [ADD]: h(Page),
+          [REPLACE]: h(Upload),
+          [UPLOAD]: h(Upload),
+          [EDIT]: h(Page),
+          [DIRECTORY]: h(Directory)
+        })
     ]),
     h('.column.is-2', [
       h(Images)
@@ -351,13 +352,13 @@ const EditMarkdown = observer(function EditMarkdown () {
     h(Json, {
       value: state.current.shown.metadata.get(),
       onChange: metadata => {
-        state.current.edited.metadata.set(metadata)
+        state.current.edited.set('metadata', metadata)
       }
     }),
     h(ProseMirror, {
       defaultValue: state.current.shown.content.get(),
       onChange: content => {
-        state.current.edited.content.set(content)
+        state.current.edited.set('content', content)
       }
     })
   ])
@@ -378,12 +379,12 @@ const EditCode = observer(function EditCode () {
     state.current.frontmatter.get() && h(Json, {
       value: state.current.shown.metadata.get(),
       onChange: metadata => {
-        state.current.edited.metadata.set(metadata)
+        state.current.edited.set('metadata', metadata)
       }
     }),
     h(CodeMirror, {
       value,
-      onChange: v => state.current.edited.content.set(v),
+      onChange: v => state.current.edited.set('content', v),
       options: {
         viewportMargin: Infinity,
         mode: state.current.mime.get()
@@ -514,11 +515,11 @@ const Save = observer(function Save () {
           .then(() => log.success('Saved.'))
           .catch(log.error)
       }
-    }, state.mode.switch(
-      ADD, 'Create file',
-      REPLACE, 'Replace file',
-      UPLOAD, 'Upload',
-      EDIT, 'Save changes'
-    ).get())
+    }, fwitch(state.mode.get(), {
+      [ADD]: 'Create file',
+      [REPLACE]: 'Replace file',
+      [UPLOAD]: 'Upload',
+      [EDIT]: 'Save changes'
+    }))
   ])
 })

@@ -1,5 +1,5 @@
 const page = require('page')
-const {observable, computed, action, autorun} = require('mobx')
+const {observable, computed, autorun} = require('mobx')
 const matter = require('gray-matter')
 const mimeTypes = require('render-media/lib/mime.json')
 
@@ -111,41 +111,41 @@ var state = {
     },
 
     edited: {
-      get content () {
+      set (what, val) {
+        state.current.path.get() // side-effects to the rescue
+
+        let ed = {...{}, ...state.editedValues.get()}
+        let cur = location.hash
+        let th = ed[cur] || {}
+
+        switch (what) {
+          case 'content':
+            th.content = val
+            ed[cur] = th
+            state.editedValues.set(ed)
+            break
+          case 'metadata':
+            th.metadata = th.metadata || {}
+            th.metadata = val
+            ed[cur] = th
+            state.editedValues.set(ed)
+            break
+        }
+      },
+      content: computed(() => {
         state.current.path.get() // side-effects to the rescue
 
         let cur = location.hash
         let th = state.editedValues.get()[cur] || {}
         return th.content || null
-      },
-      set content (val) {
-        state.current.path.get() // side-effects to the rescue
-
-        let ed = {...{}, ...state.editedValues.get()}
-        let cur = location.hash
-        let th = ed[cur] || {}
-        th.content = val
-        ed[cur] = th
-        state.editedValues.set(ed)
-      },
-      get metadata () {
+      }),
+      metadata: computed(() => {
         state.current.path.get() // side-effects to the rescue
 
         let cur = location.hash
         let th = state.editedValues.get()[cur] || {}
         return th.metadata || null
-      },
-      set metadata (val) {
-        state.current.path.get() // side-effects to the rescue
-
-        let ed = {...{}, ...state.editedValues.get()}
-        let cur = location.hash
-        let th = ed[cur] || {}
-        th.metadata = th.metadata || {}
-        th.metadata = val
-        ed[cur] = th
-        state.editedValues.set(ed)
-      }
+      })
     },
 
     stored: computed(() => {
@@ -211,37 +211,37 @@ function loadFile (path) {
   log.info(`Loading ${path} from GitHub.`)
   return gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
     .then(res => {
-      action(() => {
-        if (res.path) {
-          state.current.gh_contents.set(res)
-          state.mode.set(EDIT)
-          log.info(`Loaded ${path}.`)
-        } else if (Array.isArray(res)) {
-          state.current.directory.set(path)
-          state.mode.set(DIRECTORY)
-        }
-      })
+      if (res.path) {
+        state.current.gh_contents.set(res)
+        state.mode.set(EDIT)
+        log.info(`Loaded ${path}.`)
+      } else if (Array.isArray(res)) {
+        state.current.directory.set(path)
+        state.mode.set(DIRECTORY)
+      } else {
+        console.error('Got a strange result:', res)
+      }
     })
-    .catch(log.error)
+    .catch(err => {
+      console.log(err)
+    })
 }
 
 module.exports.newFile = newFile
 function newFile (dirpath) {
   return window.coisas.defaultNewFile(dirpath)
     .then(({name, content, metadata}) => {
-      action(() => {
-        clearCurrent()
-        state.current.directory.set(dirpath)
-        state.current.givenName.set(name)
-        state.mode.set(ADD)
-      })
+      clearCurrent()
+      state.current.directory.set(dirpath)
+      state.current.givenName.set(name)
+      state.mode.set(ADD)
 
-      setTimeout(() => action(() => {
+      setTimeout(() => {
         if (state.current.edited.content.get() === null) {
-          state.current.edited.content.set(content)
-          state.current.edited.metadata.set(metadata)
+          state.current.edited.set('content', content)
+          state.current.edited.set('metadata', metadata)
         }
-      }), 1)
+      }, 1)
     })
 }
 
