@@ -1,11 +1,11 @@
 const h = require('react-hyperscript')
-const {pure} = require('react-derivable')
+const {observer} = require('mobx-react')
 
 const {loadUser} = require('./state')
 const state = require('./state')
 const log = require('./log')
 
-module.exports = pure(() => {
+module.exports = observer(() => {
   return (
     h('div', [
       h('nav.nav', [
@@ -17,25 +17,25 @@ module.exports = pure(() => {
         ]),
         h('.nav-center', [
           window.coisas.liveSiteURL
-          ? h('a.nav-item', {
-            href: window.coisas.liveSiteURL,
-            title: window.coisas.liveSiteURL,
-            target: '_blank'
-          }, [
-            h('span.icon', [ h('i.fa.fa-external-link-square') ]),
-            'Live site'
-          ])
-          : null,
+            ? h('a.nav-item', {
+              href: window.coisas.liveSiteURL,
+              title: window.coisas.liveSiteURL,
+              target: '_blank'
+            }, [
+              h('span.icon', [ h('i.fa.fa-external-link-square') ]),
+              'Live site'
+            ])
+            : null,
           state.slug.get()
-          ? h('a.nav-item', {
-            href: `https://github.com/${state.slug.get()}`,
-            title: state.slug.get(),
-            target: '_blank'
-          }, [
-            h('span.icon', [ h('i.fa.fa-github-square') ]),
-            'Browse repository'
-          ])
-          : null,
+            ? h('a.nav-item', {
+              href: `https://github.com/${state.slug.get()}`,
+              title: state.slug.get(),
+              target: '_blank'
+            }, [
+              h('span.icon', [ h('i.fa.fa-github-square') ]),
+              'Browse repository'
+            ])
+            : null,
           state.loggedUser.get()
             ? h('.nav-item', [
               state.loggedUser.get(),

@@ -2,7 +2,7 @@ const h = require('react-hyperscript')
 const CodeMirror = require('react-codemirror')
 const Json = require('react-json')
 const TreeView = require('react-treeview')
-const {pure} = require('react-derivable')
+const {observer} = require('mobx-react')
 
 const {ADD, REPLACE, UPLOAD, EDIT, DIRECTORY} = require('../constants').modes
 const {loadTree, resetTreeForCurrent, loadFile, newFile, clearCurrent} = require('../state')
@@ -15,7 +15,7 @@ const state = require('../state')
 const log = require('../log')
 const gh = require('../helpers/github')
 
-module.exports = pure(function Repo () {
+module.exports = observer(function Repo () {
   return h('.columns.is-mobile', [
     h('.column.is-3', [
       h(Menu, {name: 'menu'}),
@@ -38,7 +38,7 @@ module.exports = pure(function Repo () {
   ])
 })
 
-const Menu = pure(function Menu () {
+const Menu = observer(function Menu () {
   let topdir = state.bypath.get()['']
 
   if (!topdir) return h('div')
@@ -57,7 +57,7 @@ const Menu = pure(function Menu () {
   ])
 })
 
-const Folder = pure(function Folder ({f}) {
+const Folder = observer(function Folder ({f}) {
   if (f.type === 'blob') {
     return h('li', {
       key: f.path
@@ -97,13 +97,9 @@ const Folder = pure(function Folder ({f}) {
       )
     ])
   )
-}).withEquality((prevF, nextF) =>
-  prevF
-  ? prevF.active !== nextF.active
-  : true
-)
+})
 
-const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
+const ButtonAdd = observer(function ButtonAdd ({dir, active}) {
   return h('a', {
     className: active ? 'is-active' : '',
     href: `#!/${state.slug.get()}/?new-file-at=${dir.path}`,
@@ -111,7 +107,7 @@ const ButtonAdd = pure(function ButtonAdd ({dir, active}) {
   }, '+ new file')
 })
 
-const Delete = pure(function Delete () {
+const Delete = observer(function Delete () {
   if (!state.current.deleting.get()) {
     return h('#Delete', [
       h('.level', [
@@ -170,8 +166,9 @@ const Delete = pure(function Delete () {
   ])
 })
 
-const Upload = pure(function Upload () {
-  if(window.coisas.defaultMediaUploadPath || window.coisas.defaultMediaUploadPath === "") {
+const Upload = observer(function Upload () {
+  if (window.coisas.defaultMediaUploadPath ||
+      window.coisas.defaultMediaUploadPath === '') {
     return h('#Upload', [
       h(Title),
       h('.upload', [
@@ -189,14 +186,14 @@ const Upload = pure(function Upload () {
                 state.current.givenName.set(f.name)
               },
               onBase64: b64 => state.current.upload.base64.set(b64)
-          })
+            })
         ])
       ])
     ])
   }
 })
 
-const Title = pure(function Title () {
+const Title = observer(function Title () {
   var buttons = []
 
   if (state.current.editable.get()) {
@@ -205,7 +202,7 @@ const Title = pure(function Title () {
         h('button.button.is-primary.is-small.is-inverted.button-list', {
           className: state.fullscreen.get() ? '' : 'is-outlined'
         }, [
-          h('span.icon.is-small',  [ h('i.fa.fa-expand') ]),
+          h('span.icon.is-small', [ h('i.fa.fa-expand') ]),
           h('span', state.fullscreen.get() ? 'Collapse' : 'Expand')
         ])
       ])
@@ -260,7 +257,7 @@ const Title = pure(function Title () {
   ])
 })
 
-const PagePreview = pure(function PagePreview () {
+const PagePreview = observer(function PagePreview () {
   return h('#PagePreview', {
     ref: el => {
       if (el) {
@@ -280,7 +277,7 @@ const PagePreview = pure(function PagePreview () {
   })
 })
 
-const Page = pure(function Page () {
+const Page = observer(function Page () {
   if (state.current.previewing.get()) {
     components = [ h(PagePreview) ]
   } else {
@@ -345,7 +342,7 @@ const Page = pure(function Page () {
   ])
 })
 
-const EditMarkdown = pure(function EditMarkdown () {
+const EditMarkdown = observer(function EditMarkdown () {
   if (state.current.loading.get()) {
     return h('div')
   }
@@ -366,7 +363,7 @@ const EditMarkdown = pure(function EditMarkdown () {
   ])
 })
 
-const EditCode = pure(function EditCode () {
+const EditCode = observer(function EditCode () {
   if (state.current.shown.content.get() === null) {
     return h('div', 'cannot render this file here.')
   }
@@ -395,7 +392,7 @@ const EditCode = pure(function EditCode () {
   ])
 })
 
-const Directory = pure(function Directory () {
+const Directory = observer(function Directory () {
   return h('#Directory', [
     h('center', [
       h('br'),
@@ -404,7 +401,7 @@ const Directory = pure(function Directory () {
   ])
 })
 
-const Images = pure(function Images () {
+const Images = observer(function Images () {
   let images = state.images.get()
   let mid = parseInt(images.length / 2)
 
@@ -422,8 +419,8 @@ const Images = pure(function Images () {
 
   return h('#Images', [
     images.length
-    ? 'drag an image from here to the editor to insert it.'
-    : '',
+      ? 'drag an image from here to the editor to insert it.'
+      : '',
     h('.columns', [
       h('.column.is-half', images.slice(0, mid).map(renderImage)),
       h('.column.is-half', images.slice(mid).map(renderImage))
@@ -473,7 +470,7 @@ const Images = pure(function Images () {
   ])
 })
 
-const Save = pure(function Save () {
+const Save = observer(function Save () {
   var disabled = true
   if (state.current.edited.content.get() &&
     state.current.edited.content.get() !== state.current.stored.get().content) {

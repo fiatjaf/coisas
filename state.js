@@ -1,5 +1,5 @@
 const page = require('page')
-const {atom, derive, transact, proxy} = require('derivable')
+const {observable, computed, action, autorun} = require('mobx')
 const matter = require('gray-matter')
 const mimeTypes = require('render-media/lib/mime.json')
 
@@ -12,25 +12,25 @@ const storage = require('./helpers/storage')
 /* STATE */
 
 var state = {
-  loggedUser: atom(null),
+  loggedUser: observable.box(null),
 
-  route: atom({
+  route: observable.box({
     componentName: 'div',
     ctx: {params: {}}
   }),
 
-  owner: derive(() => state.route.get().ctx.params.owner),
-  repo: derive(() => state.route.get().ctx.params.repo),
-  slug: derive(() =>
+  owner: computed(() => state.route.get().ctx.params.owner),
+  repo: computed(() => state.route.get().ctx.params.repo),
+  slug: computed(() =>
     state.repo.get()
       ? state.owner.get() + '/' + state.repo.get()
       : null
   ),
 
-  editedValues: atom({}),
+  editedValues: observable.box({}),
 
-  tree: atom([]),
-  bypath: derive(() => {
+  tree: observable.box([]),
+  bypath: computed(() => {
     var bypath = {}
     for (let i = 0; i < state.tree.get().length; i++) {
       let f = state.tree.get()[i]
@@ -38,10 +38,10 @@ var state = {
     }
     return bypath
   }),
-  images: derive(() => state.tree.get().filter(f => f.path.match(/(jpe?g|gif|png|svg)$/))),
+  images: computed(() => state.tree.get().filter(f => f.path.match(/(jpe?g|gif|png|svg)$/))),
 
-  mode: atom(ADD),
-  existing: derive(() => {
+  mode: observable.box(ADD),
+  existing: computed(() => {
     switch (state.mode.get()) {
       case EDIT:
       case REPLACE:
@@ -52,32 +52,32 @@ var state = {
         return false
     }
   }),
-  fullscreen: atom(false),
+  fullscreen: observable.box(false),
 
   current: {
-    directory: atom(''),
-    gh_contents: atom(null),
-    givenName: atom(''),
+    directory: observable.box(''),
+    gh_contents: observable.box(null),
+    givenName: observable.box(''),
 
-    path: derive(() =>
+    path: computed(() =>
       state.current.gh_contents.get()
         ? state.current.gh_contents.get().path
         : [state.current.directory.get(), state.current.givenName.get()]
             .filter(x => x)
             .join('/')
     ),
-    name: derive(() => state.current.path.get().split('/').slice(-1)[0]),
-    ext: derive(() =>
+    name: computed(() => state.current.path.get().split('/').slice(-1)[0]),
+    ext: computed(() =>
       state.current.name.get().split('.')[1]
         ? '.' + state.current.name.get().split('.')[1]
         : ''
     ),
-    mime: derive(() => mimeTypes[state.current.ext.get()]),
-    frontmatter: derive(() =>
+    mime: computed(() => mimeTypes[state.current.ext.get()]),
+    frontmatter: computed(() =>
       state.current.mime.get() === 'text/x-markdown' ||
       state.current.mime.get() === 'text/html'
     ),
-    editable: derive(() =>
+    editable: computed(() =>
       (state.mode.get() === ADD || state.mode.get() === EDIT) && ({
         'text/x-markdown': true,
         'text/html': true,
@@ -88,13 +88,13 @@ var state = {
         'application/javascript': true
       })[state.current.mime.get()]),
 
-    deleting: atom(false),
-    previewing: atom(false),
-    loading: derive(() =>
+    deleting: observable.box(false),
+    previewing: observable.box(false),
+    loading: computed(() =>
       state.existing.get() && !state.current.gh_contents.get()
     ),
 
-    data: derive(() => {
+    data: computed(() => {
       let r = state.current.gh_contents.get()
       if (!r || !r.content) return ''
 
@@ -106,53 +106,49 @@ var state = {
       }
     }),
     upload: {
-      file: atom(null),
-      base64: atom(null)
+      file: observable.box(null),
+      base64: observable.box(null)
     },
 
     edited: {
-      content: proxy({
-        get: () => {
-          state.current.path.get() // side-effects to the rescue
+      get content () {
+        state.current.path.get() // side-effects to the rescue
 
-          let cur = location.hash
-          let th = state.editedValues.get()[cur] || {}
-          return th.content || null
-        },
-        set: (val) => {
-          state.current.path.get() // side-effects to the rescue
+        let cur = location.hash
+        let th = state.editedValues.get()[cur] || {}
+        return th.content || null
+      },
+      set content (val) {
+        state.current.path.get() // side-effects to the rescue
 
-          let ed = {...{}, ...state.editedValues.get()}
-          let cur = location.hash
-          let th = ed[cur] || {}
-          th.content = val
-          ed[cur] = th
-          state.editedValues.set(ed)
-        }
-      }),
-      metadata: proxy({
-        get: () => {
-          state.current.path.get() // side-effects to the rescue
+        let ed = {...{}, ...state.editedValues.get()}
+        let cur = location.hash
+        let th = ed[cur] || {}
+        th.content = val
+        ed[cur] = th
+        state.editedValues.set(ed)
+      },
+      get metadata () {
+        state.current.path.get() // side-effects to the rescue
 
-          let cur = location.hash
-          let th = state.editedValues.get()[cur] || {}
-          return th.metadata || null
-        },
-        set: (val) => {
-          state.current.path.get() // side-effects to the rescue
+        let cur = location.hash
+        let th = state.editedValues.get()[cur] || {}
+        return th.metadata || null
+      },
+      set metadata (val) {
+        state.current.path.get() // side-effects to the rescue
 
-          let ed = {...{}, ...state.editedValues.get()}
-          let cur = location.hash
-          let th = ed[cur] || {}
-          th.metadata = th.metadata || {}
-          th.metadata = val
-          ed[cur] = th
-          state.editedValues.set(ed)
-        }
-      })
+        let ed = {...{}, ...state.editedValues.get()}
+        let cur = location.hash
+        let th = ed[cur] || {}
+        th.metadata = th.metadata || {}
+        th.metadata = val
+        ed[cur] = th
+        state.editedValues.set(ed)
+      }
     },
 
-    stored: derive(() => {
+    stored: computed(() => {
       let data = state.current.data.get()
       if (!data) return {}
       if (state.current.frontmatter.get()) {
@@ -167,19 +163,19 @@ var state = {
       }
     }),
     shown: {
-      content: derive(() =>
+      content: computed(() =>
         typeof state.current.edited.content.get() === 'string'
           ? state.current.edited.content.get()
           : state.current.stored.get().content
       ),
-      metadata: derive(() =>
+      metadata: computed(() =>
         state.current.edited.metadata.get() || state.current.stored.get().metadata || {})
     }
   },
 
   mediaUpload: {
-    file: atom(null),
-    base64: atom(null)
+    file: observable.box(null),
+    base64: observable.box(null)
   }
 }
 module.exports = state
@@ -187,7 +183,7 @@ module.exports = state
 
 /* REACTIONS */
 
-state.current.gh_contents.react(() => {
+autorun(() => {
   if (!state.tree.get().length) return
 
   let res = state.current.gh_contents.get()
@@ -215,7 +211,7 @@ function loadFile (path) {
   log.info(`Loading ${path} from GitHub.`)
   return gh.get(`repos/${state.slug.get()}/contents/${path}`, {ref: 'master'})
     .then(res => {
-      transact(() => {
+      action(() => {
         if (res.path) {
           state.current.gh_contents.set(res)
           state.mode.set(EDIT)
@@ -233,14 +229,14 @@ module.exports.newFile = newFile
 function newFile (dirpath) {
   return window.coisas.defaultNewFile(dirpath)
     .then(({name, content, metadata}) => {
-      transact(() => {
+      action(() => {
         clearCurrent()
         state.current.directory.set(dirpath)
         state.current.givenName.set(name)
         state.mode.set(ADD)
       })
 
-      setTimeout(() => transact(() => {
+      setTimeout(() => action(() => {
         if (state.current.edited.content.get() === null) {
           state.current.edited.content.set(content)
           state.current.edited.metadata.set(metadata)
@@ -254,8 +250,8 @@ function loadTree () {
   return gh.get(`repos/${state.slug.get()}/git/refs/heads/master`)
   .then(ref =>
     gh.get(
-     `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
-     {recursive: 5}
+      `repos/${state.slug.get()}/git/trees/${ref.object.sha}`,
+      {recursive: 5}
     )
   )
   .then(tree => {
@@ -337,8 +333,8 @@ function loadUser () {
 page('/', ctx => state.route.set({componentName: 'index', ctx}))
 page('/:owner/:repo/*', ctx => {
   window.tc && window.tc(2)
-  const repoName = ctx.params.owner + '/' + ctx.params.repo;
-  storage.storeRepo(repoName);
+  const repoName = ctx.params.owner + '/' + ctx.params.repo
+  storage.storeRepo(repoName)
   window.coisas.loadPreferences(ctx)
     .then(() => {
       state.route.set({componentName: 'repo', ctx})
