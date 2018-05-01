@@ -20,6 +20,12 @@ To use **coisas**, go to https://coisas.alhur.es/ or embed it in your site, for 
 
 There is a demo site at https://geraldoquagliato.github.io/, which you can browse and edit (no login necessary) by visiting https://coisas.alhur.es/#!/geraldoquagliato/geraldoquagliato.github.io/. Please be decent.
 
+### screenshot
+
+Here's a screenshot if you don't have time for the demo (this is the raw interface, before any client-side customization or live-preview is set-up):
+
+![screenshot of the CMS](screenshot.png)
+
 ## customization
 
 To customize the app behavior specifically for your repository, create a file named `coisas.js` and put it at the root of the repository. That file may contain anything and will be loaded and executed dynamically by **coisas** as part of its initialization process.
