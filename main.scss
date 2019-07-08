@@ -1,0 +1,250 @@
+@import "node_modules/bulma/bulma.sass";
+
+:root {
+  --main-background: #bcf7d3;
+  --main-text: #4a4a4a;
+
+  --nav-background: white;
+  --nav-text: #7a7a7a;
+  --nav-link: #363636;
+
+  --tree-folder-text: #4a4a4a;
+  --tree-file-text: #4a4a4a;
+  --tree-file-active-background: #00d1b2;
+  --tree-file-active-text: white;
+  --tree-file-hover-background: #00d1b2;
+  --tree-file-hover-text: white;
+
+  --save-button-background: #00d1b2;
+  --save-button-text: white;
+  --upload-button-background: #363636;
+  --upload-button-text: white;
+  --delete-button-background: #ffdd57;
+  --delete-button-text: #363636;
+  --delete-cancel-button-background: white;
+  --delete-cancel-button-text: #363636;
+  --delete-confirm-button-background: #ff2b56;
+  --delete-confirm-button-text: white;
+
+  --editor-background: white;
+  --editor-text: #4a4a4a;
+
+  --file-area: #999;
+}
+
+@import "prosemirror.scss";
+
+html, body { min-height: 100vh; }
+
+body {
+  background-color: var(--main-background);
+  color: var(--main-text);
+}
+
+nav.nav {
+  background-color: var(--nav-background);
+  color: var(--nav-text);
+
+  a {
+    color: var(--nav-link);
+
+    &:hover {
+      filter: brightness(0.6);
+    }
+  }
+}
+
+main {
+  padding-top: 30px;
+}
+
+#Landing {
+  margin: 200px auto;
+
+  input,
+  button {
+    margin: 12px;
+    display: block;
+    width: 600px;
+    text-align: center;
+  }
+
+  ul {
+    li.repoListItem {
+      display: inline;
+      padding-right: 15px;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+        color: black;
+      }
+    }
+    
+    padding-bottom: 20px;
+  }
+}
+
+#Images {
+  margin-top: 12px;
+  position: sticky;
+  top: 10px;
+}
+
+#Save {
+  margin: 10px;
+  position: sticky;
+  top: 10px;
+
+  button {
+    width: 100%;
+    height: auto;
+    min-height: 123px;
+    white-space: pre-wrap;
+
+    background-color: var(--save-button-background);
+    color: var(--save-button-text);
+  }
+}
+
+button.upload {
+  background-color: var(--upload-button-background);
+  color: var(--upload-button-text);
+}
+
+#Delete button { 
+  background-color: var(--delete-button-background);
+  color: var(--delete-button-text);
+
+  .delete-cancel {
+    background-color: var(--delete-cancel-button-background);
+    color: var(--delete-cancel-button-text);
+  }
+
+  .delete-confirm {
+    background-color: var(--delete-confirm-button-background);
+    color: var(--delete-confirm-button-text);
+  }
+}
+
+button.button {
+  &:hover {
+    filter: brightness(0.9);
+  }
+
+  &:focus, &:active {
+    filter: brightness(0.8);
+  }
+}
+
+
+#Page {
+  margin-top: 20px;
+
+  &.fullscreen {
+    position: absolute;
+    z-index: 44;
+    background: #a3d4ff;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    overflow: auto;
+    margin: 0;
+    padding: 30px;
+  }
+}
+
+.preview {
+  display: inline-block;
+  margin: 7px;
+  border: dotted 6px var(--file-area);
+
+  & > * { width: 100%; }
+  .file *:not(img) { min-height: 500px; }
+}
+
+.dropzone {
+  margin: 7px;
+  border: dotted 6px var(--file-area) !important;
+
+  & > .placeholder {
+    margin: 69px 20px;
+    color: var(--file-area);
+    text-align: center;
+  }
+}
+
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto !important;
+
+  pre {
+    padding: 0 4px;
+    overflow-x: initial;
+  }
+}
+
+.CodeMirror, .ProseMirror {
+  background-color: var(--editor-background);
+  color: var(--editor-text);
+}
+
+.title { color: inherit; }
+.subtitle { color: inherit; }
+.content { color: inherit; }
+.table { color: inherit; background-color: inherit; }
+.tag { margin: 0 3px; }
+.card { margin: 12px 12px 12px 0; }
+.tabs { height: 3em; margin-top: -1em; }
+
+.notie-container {
+  top: auto !important;
+  bottom: 0;
+}
+
+.content pre {
+  margin-bottom: 0 !important;
+}
+
+.jsonEditor .jsonName label { padding-left: 12px; }
+.jsonEditor .jsonName,
+.jsonEditor .jsonValue {
+  background: white;
+  padding: 5px;
+}
+
+.tree-view {
+  overflow: hidden;
+
+  .tree-view_item {
+    color: var(--tree-folder-text);
+  }
+
+  a {
+    color: var(--tree-file-text);
+
+    &:hover {
+      background-color: var(--tree-file-hover-background);
+      color: var(--tree-file-hover-text);
+    }
+
+    &.is-active {
+      background-color: var(--tree-file-active-background);
+      color: var(--tree-file-active-text);
+    }
+  }
+}
+
+.menu-list a { padding: 0 .75em; }
+
+.button-list {
+  color: #646363 !important;
+  border-color: #565656 !important;
+  background-color: transparent !important;
+  &:hover {
+    color: #bcf7d3 !important;
+    background-color: #646363 !important; 
+  }
+}

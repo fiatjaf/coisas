@@ -1,0 +1,33 @@
+<!doctype html>
+
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel=icon type=image/png href=/icon.png>
+<link async href=https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css rel=stylesheet>
+<link async href=https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.1/notie.min.css rel=stylesheet>
+<link async href=https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/codemirror.min.css rel=stylesheet>
+<link async href=https://cdn.rawgit.com/chenglou/react-treeview/6e9eacf4/react-treeview.css rel=stylesheet>
+<link async href=/style.css rel=stylesheet>
+<title>Coisas CMS</title>
+<div id=root></div>
+<script async src=https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.0/notie.min.js></script>
+<script async href=https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/css/css.min.js></script>
+<script async href=https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/htmlmixed/htmlmixed.min.js></script>
+<script async href=https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.28.0/mode/javascript/javascript.js></script>
+<script src=/bundle.js></script>
+<script>;(function (d, s, c) {
+  var x, h, n = Date.now()
+  tc = function (p) {
+    m = s.getItem('_tcx') > n ? s.getItem('_tch') : 'fuleiro-catraca'
+    x = new XMLHttpRequest()
+    x.addEventListener('load', function () {
+      if (x.status == 200) {
+        s.setItem('_tch', x.responseText)
+        s.setItem('_tcx', n + 14400000)
+      }
+    })
+    x.open('GET', 'https://visitantes.alhur.es/'+m+'.xml?r='+d.referrer+'&c='+c+(p?'&p='+p:''))
+    x.send()
+  }
+  tc()
+})(document, localStorage, 'xjkytrxz');</script>
