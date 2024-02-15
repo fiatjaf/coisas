@@ -14,11 +14,11 @@ Other features that **coisas** includes are:
 
 ## usage
 
-To use **coisas**, go to https://coisas.alhur.es/ or embed it in your site, for example, in an `/admin/` section (more detailed instructions on how to do this may come - for the meantime please copy the hosted version file structure).
+To use **coisas**, go to https://coisas.fiatjaf.com/ or embed it in your site, for example, in an `/admin/` section (more detailed instructions on how to do this may come - for the meantime please copy the hosted version file structure).
 
 ## demo
 
-There is a demo site at https://geraldoquagliato.github.io/, which you can browse and edit (no login necessary) by visiting https://coisas.alhur.es/#!/geraldoquagliato/geraldoquagliato.github.io/. Please be decent.
+There is a demo site at https://geraldoquagliato.github.io/, which you can browse and edit (no login necessary) by visiting https://coisas.fiatjaf.com/#!/geraldoquagliato/geraldoquagliato.github.io/. Please be decent.
 
 ## customization
 
